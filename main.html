@@ -2,20 +2,47 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Разработка маршрута для беспилотника</title>
+  <title>Планирование маршрута DJI Matrice 30T</title>
   <!-- Подключаем стили Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <!-- Подключаем стили Leaflet.draw -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
   <style>
-    /* Размеры контейнера для карты */
+    /* Карта занимает весь экран за вычетом панели настроек */
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
     #map {
-      height: 100vh;
+      height: calc(100% - 100px);
       width: 100%;
+    }
+    /* Панель настроек вверху страницы */
+    #controls {
+      height: 100px;
+      padding: 10px;
+      background: #f0f0f0;
+      box-sizing: border-box;
+    }
+    #controls label {
+      margin-right: 20px;
     }
   </style>
 </head>
 <body>
+  <!-- Панель настроек -->
+  <div id="controls">
+    <label>
+      Высота полёта (м):
+      <input type="number" id="flightAltitude" value="50" min="10" step="1">
+    </label>
+    <label>
+      Перекрытие (%):
+      <input type="number" id="desiredOverlap" value="30" min="0" max="100" step="1">
+    </label>
+  </div>
+  <!-- Контейнер для карты -->
   <div id="map"></div>
 
   <!-- Подключаем скрипты Leaflet -->
@@ -34,19 +61,19 @@
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Добавление маркера в центре (опционально)
+    // Добавляем маркер для обозначения центра Коломны (опционально)
     L.marker(kolomnaCoords).addTo(map)
       .bindPopup('Коломна')
       .openPopup();
 
-    // Инициализация FeatureGroup для хранения отрисованных слоёв
+    // Группа для хранения нарисованных объектов (территорий)
     const drawnItems = new L.FeatureGroup();
     map.addLayer(drawnItems);
 
     // Группа для отображения маршрута (GeoJSON)
     let routeLayer = null;
 
-    // Настройка параметров для панели рисования
+    // Настройка панели рисования
     const drawControl = new L.Control.Draw({
       edit: {
         featureGroup: drawnItems,
@@ -54,23 +81,21 @@
       },
       draw: {
         polygon: {
-          allowIntersection: false, // запрет пересечения сторон
-          showArea: true,            // показывать площадь внутри полигона
+          allowIntersection: false,
+          showArea: true,
           drawError: {
-            color: '#e1e100', // цвет ошибки при неверном рисовании
+            color: '#e1e100',
             message: '<strong>Ошибка:</strong> Полигон пересекается сам с собой!'
           },
           shapeOptions: {
             color: '#97009c'
           }
         },
-        // Также можно разрешить рисование прямоугольника или круга, если потребуется:
         rectangle: {
           shapeOptions: {
             color: '#97009c'
           }
         },
-        // Отключаем рисование линии и маркера, если они не нужны:
         polyline: false,
         circle: false,
         marker: false,
@@ -79,7 +104,7 @@
     });
     map.addControl(drawControl);
 
-    // Обработчик события завершения рисования
+    // Обработчик события завершения рисования объекта
     map.on(L.Draw.Event.CREATED, function (event) {
       const layer = event.layer;
       drawnItems.addLayer(layer);
@@ -88,7 +113,7 @@
       if (routeLayer) {
         map.removeLayer(routeLayer);
       }
-      
+
       // Извлекаем координаты выделенной территории (предполагаем, что это полигон или прямоугольник)
       const territoryLatLngs = layer.getLatLngs()[0];
       const territoryPoints = territoryLatLngs.map(latlng => ({
@@ -99,6 +124,13 @@
       // Дополнительные параметры для запроса
       const shootingType = 'Панорамная съемка';
       const droneModel = 'DJI Matrice 30T';
+      
+      // Получаем значения высоты полёта и перекрытия из формы
+      const flightAltitudeInput = document.getElementById('flightAltitude');
+      const desiredOverlapInput = document.getElementById('desiredOverlap');
+      const flightAltitude = Number(flightAltitudeInput.value) || 50; // м
+      // Переводим процент перекрытия в долю (например, 30% -> 0.3)
+      const desiredOverlap = (Number(desiredOverlapInput.value) || 30) / 100;
 
       // Отправка POST-запроса на сервер для расчёта маршрута
       fetch('http://localhost:3000/api/calculate-route', {
@@ -109,20 +141,22 @@
         body: JSON.stringify({
           territory: territoryPoints,
           shootingType,
-          droneModel
+          droneModel,
+          flightAltitude,    // новый параметр
+          desiredOverlap     // новый параметр
         })
       })
       .then(response => response.json())
       .then(data => {
         if (data.success) {
           console.log('Получен маршрут:', data.route);
-          // Отображаем маршрут на карте используя GeoJSON
+          // Отображаем маршрут на карте, используя GeoJSON
           routeLayer = L.geoJSON(data.route, {
             style: function(feature) {
               return { color: 'blue', weight: 4 };
             }
           }).addTo(map);
-          // При желании можно подстроить вид карты под полученный маршрут:
+          // При необходимости масштабируем карту по маршруту
           map.fitBounds(routeLayer.getBounds());
         } else {
           console.error('Ошибка при расчёте маршрута:', data.message);

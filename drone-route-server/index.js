@@ -49,15 +49,16 @@ app.post('/api/calculate-route', (req, res) => {
   // Параметры DJI Matrice 30T (ориентировочно)
   const focalLength = 4.5;   // мм
   const sensorWidth = 7.6;   // мм
-  const flightAltitude = 50; // высота полёта в метрах (можно сделать настраиваемой)
-  const desiredOverlap = 0.3; // желаемое перекрытие (30%)
+  // Получаем параметры из запроса (если они не указаны, устанавливаем значения по умолчанию)
+  const flightAltitude = Number(req.body.flightAltitude) || 50;   // м
+  const desiredOverlap = Number(req.body.desiredOverlap) || 0.3;    // доля (0.3 = 30%)
 
   // Вычисляем горизонтальный угол обзора (в радианах)
   const horizontalFOV = 2 * Math.atan(sensorWidth / (2 * focalLength));
   // Вычисляем ширину области, охватываемой камерой на заданной высоте (метры)
   const groundWidth = 2 * flightAltitude * Math.tan(horizontalFOV / 2);
   // Эффективное расстояние между полосами съёмки с учётом перекрытия
-  const effectiveSpacingMeters = groundWidth * (1 - desiredOverlap);
+  const effectiveSpacingMeters = groundWidth * (1 - de);
 
   // Переводим расстояние из метров в градусы (приблизительно для широты: 1° ≈ 111320 м)
   const effectiveSpacingDegrees = effectiveSpacingMeters / 111320;
