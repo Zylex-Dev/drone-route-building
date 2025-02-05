@@ -45,15 +45,38 @@ app.post('/api/calculate-route', (req, res) => {
   // Вычисляем bounding box полигона: [minX, minY, maxX, maxY]
   const bbox = turf.bbox(polygon);
 
-  // Определяем шаг между линиями. Этот параметр можно рассчитать на основе параметров камеры.
-  // Здесь для демонстрации используется фиксированное значение (в градусах).
-  const spacing = 0.002; // Примерное значение; в реальном проекте этот шаг подбирается исходя из размеров кадра
+  // --- Интеграция технических параметров дрона ---
+  // Параметры DJI Matrice 30T (ориентировочно)
+  const focalLength = 4.5;   // мм
+  const sensorWidth = 7.6;   // мм
+  const flightAltitude = 50; // высота полёта в метрах (можно сделать настраиваемой)
+  const desiredOverlap = 0.3; // желаемое перекрытие (30%)
 
+  // Вычисляем горизонтальный угол обзора (в радианах)
+  const horizontalFOV = 2 * Math.atan(sensorWidth / (2 * focalLength));
+  // Вычисляем ширину области, охватываемой камерой на заданной высоте (метры)
+  const groundWidth = 2 * flightAltitude * Math.tan(horizontalFOV / 2);
+  // Эффективное расстояние между полосами съёмки с учётом перекрытия
+  const effectiveSpacingMeters = groundWidth * (1 - desiredOverlap);
+
+  // Переводим расстояние из метров в градусы (приблизительно для широты: 1° ≈ 111320 м)
+  const effectiveSpacingDegrees = effectiveSpacingMeters / 111320;
+
+  console.log('Расчет параметров съемки:');
+  console.log(`Фокусное расстояние: ${focalLength} мм`);
+  console.log(`Ширина матрицы: ${sensorWidth} мм`);
+  console.log(`Высота полёта: ${flightAltitude} м`);
+  console.log(`Горизонтальный угол обзора (rad): ${horizontalFOV.toFixed(4)}`);
+  console.log(`Земная ширина кадра: ${groundWidth.toFixed(2)} м`);
+  console.log(`Эффективный шаг между полосами: ${effectiveSpacingMeters.toFixed(2)} м (${effectiveSpacingDegrees.toFixed(6)}°)`);
+
+
+  // --- Построение маршрута ---
   let flightLines = [];
 
-  // Генерируем вертикальные линии через bounding box с шагом spacing
-  for (let x = bbox[0]; x <= bbox[2]; x += spacing) {
-    // Создаём вертикальную линию от нижней до верхней границы bbox
+  // Генерируем вертикальные линии через bounding box с шагом, вычисленным на основе параметров дрона
+  for (let x = bbox[0]; x <= bbox[2]; x += effectiveSpacingDegrees) {
+    // Создаем вертикальную линию от нижней до верхней границы bbox
     const line = turf.lineString([[x, bbox[1]], [x, bbox[3]]]);
     // Находим точки пересечения линии с полигоном
     const intersections = turf.lineIntersect(line, polygon);
@@ -86,11 +109,11 @@ app.post('/api/calculate-route', (req, res) => {
   let routeCoordinates = [];
   flightLines.forEach((line, index) => {
     let coords = line.geometry.coordinates;
-    // Для обеспечения непрерывности маршрута переворачиваем каждую вторую линию
+    // Переворачиваем каждую вторую линию для обеспечения непрерывности маршрута
     if (index % 2 === 1) {
       coords = coords.reverse();
     }
-    // Если маршрут уже содержит точки, добавляем соединительную точку, чтобы "сшить" отрезки
+    // Если маршрут уже содержит точки, добавляем последнюю точку для "сшивки" отрезков
     if (routeCoordinates.length > 0) {
       routeCoordinates.push(routeCoordinates[routeCoordinates.length - 1]);
     }
@@ -102,7 +125,9 @@ app.post('/api/calculate-route', (req, res) => {
     type: "Feature",
     properties: {
       droneModel,
-      shootingType
+      shootingType,
+      flightAltitude, // можно вернуть и эту информацию
+      effectiveSpacingMeters: effectiveSpacingMeters.toFixed(2)
     },
     geometry: {
       type: "LineString",
@@ -114,37 +139,6 @@ app.post('/api/calculate-route', (req, res) => {
     success: true,
     route: routeGeoJSON
   });
-
-  // // Пример простого расчёта: возьмем среднее значение координат выделенного полигона
-  // let latSum = 0, lngSum = 0, count = 0;
-  // territory.forEach(point => {
-  //   // предполагаем, что point имеет вид { lat: число, lng: число }
-  //   latSum += point.lat;
-  //   lngSum += point.lng;
-  //   count++;
-  // });
-  // const center = { lat: latSum / count, lng: lngSum / count };
-
-  // // Формируем упрощенный маршрут: линия от центра выделенной области к его смещенной копии
-  // const routeGeoJSON = {
-  //   type: "Feature",
-  //   properties: {
-  //     droneModel,
-  //     shootingType
-  //   },
-  //   geometry: {
-  //     type: "LineString",
-  //     coordinates: [
-  //       [center.lng, center.lat],
-  //       [center.lng + 0.01, center.lat + 0.01] // смещенная точка для демонстрации
-  //     ]
-  //   }
-  // };
-
-  // return res.json({
-  //   success: true,
-  //   route: routeGeoJSON
-  // });
 });
 
 // Запуск сервера
