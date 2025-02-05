@@ -42,8 +42,78 @@ app.post('/api/calculate-route', (req, res) => {
 
   const polygon = turf.polygon([coordinates]);
 
-    // Вычисляем bounding box полигона: [minX, minY, maxX, maxY]
-    const bbox = turf.bbox(polygon);
+  // Вычисляем bounding box полигона: [minX, minY, maxX, maxY]
+  const bbox = turf.bbox(polygon);
+
+  // Определяем шаг между линиями. Этот параметр можно рассчитать на основе параметров камеры.
+  // Здесь для демонстрации используется фиксированное значение (в градусах).
+  const spacing = 0.002; // Примерное значение; в реальном проекте этот шаг подбирается исходя из размеров кадра
+
+  let flightLines = [];
+
+  // Генерируем вертикальные линии через bounding box с шагом spacing
+  for (let x = bbox[0]; x <= bbox[2]; x += spacing) {
+    // Создаём вертикальную линию от нижней до верхней границы bbox
+    const line = turf.lineString([[x, bbox[1]], [x, bbox[3]]]);
+    // Находим точки пересечения линии с полигоном
+    const intersections = turf.lineIntersect(line, polygon);
+
+    // Если линия пересекает полигон (ожидаем минимум 2 точки), создаём отрезок маршрута
+    if (intersections.features.length >= 2) {
+      // Извлекаем координаты и сортируем их по оси Y (широта)
+      const pts = intersections.features
+                      .map(f => f.geometry.coordinates)
+                      .sort((a, b) => a[1] - b[1]);
+
+      // Создаем отрезок от самой нижней до самой верхней точки пересечения
+      const segment = turf.lineString([pts[0], pts[pts.length - 1]]);
+      flightLines.push(segment);
+    }
+  }
+
+  if (flightLines.length === 0) {
+    return res.status(400).json({ success: false, message: 'Не удалось построить маршрут по заданной территории' });
+  }
+
+  // Сортируем отрезки по средней X-координате
+  flightLines.sort((a, b) => {
+    const aAvg = (a.geometry.coordinates[0][0] + a.geometry.coordinates[1][0]) / 2;
+    const bAvg = (b.geometry.coordinates[0][0] + b.geometry.coordinates[1][0]) / 2;
+    return aAvg - bAvg;
+  });
+
+  // Объединяем отрезки в единую зигзагообразную траекторию
+  let routeCoordinates = [];
+  flightLines.forEach((line, index) => {
+    let coords = line.geometry.coordinates;
+    // Для обеспечения непрерывности маршрута переворачиваем каждую вторую линию
+    if (index % 2 === 1) {
+      coords = coords.reverse();
+    }
+    // Если маршрут уже содержит точки, добавляем соединительную точку, чтобы "сшить" отрезки
+    if (routeCoordinates.length > 0) {
+      routeCoordinates.push(routeCoordinates[routeCoordinates.length - 1]);
+    }
+    routeCoordinates = routeCoordinates.concat(coords);
+  });
+
+
+  const routeGeoJSON = {
+    type: "Feature",
+    properties: {
+      droneModel,
+      shootingType
+    },
+    geometry: {
+      type: "LineString",
+      coordinates: routeCoordinates
+    }
+  };
+
+  return res.json({
+    success: true,
+    route: routeGeoJSON
+  });
 
   // // Пример простого расчёта: возьмем среднее значение координат выделенного полигона
   // let latSum = 0, lngSum = 0, count = 0;
