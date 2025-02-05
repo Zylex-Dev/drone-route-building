@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Разработка маршрута для беспилотника</title>
+  <!-- Подключаем стили Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <!-- Подключаем стили Leaflet.draw -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+  <style>
+    /* Размеры контейнера для карты */
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <!-- Подключаем скрипты Leaflet -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- Подключаем скрипты Leaflet.draw -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+  
+  <script>
+    // Инициализация карты с центром в Коломне
+    const kolomnaCoords = [55.095276, 38.765574];
+    const map = L.map('map').setView(kolomnaCoords, 13);
+
+    // Подключение OSM-тайлов
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Добавление маркера в центре (опционально)
+    L.marker(kolomnaCoords).addTo(map)
+      .bindPopup('Коломна')
+      .openPopup();
+
+    // Инициализация FeatureGroup для хранения отрисованных слоёв
+    const drawnItems = new L.FeatureGroup();
+    map.addLayer(drawnItems);
+
+    // Группа для отображения маршрута (GeoJSON)
+    let routeLayer = null;
+
+    // Настройка параметров для панели рисования
+    const drawControl = new L.Control.Draw({
+      edit: {
+        featureGroup: drawnItems,
+        remove: true
+      },
+      draw: {
+        polygon: {
+          allowIntersection: false, // запрет пересечения сторон
+          showArea: true,            // показывать площадь внутри полигона
+          drawError: {
+            color: '#e1e100', // цвет ошибки при неверном рисовании
+            message: '<strong>Ошибка:</strong> Полигон пересекается сам с собой!'
+          },
+          shapeOptions: {
+            color: '#97009c'
+          }
+        },
+        // Также можно разрешить рисование прямоугольника или круга, если потребуется:
+        rectangle: {
+          shapeOptions: {
+            color: '#97009c'
+          }
+        },
+        // Отключаем рисование линии и маркера, если они не нужны:
+        polyline: false,
+        circle: false,
+        marker: false,
+        circlemarker: false
+      }
+    });
+    map.addControl(drawControl);
+
+    // Обработчик события завершения рисования
+    map.on(L.Draw.Event.CREATED, function (event) {
+      const layer = event.layer;
+      drawnItems.addLayer(layer);
+
+      // Если уже есть отображённый маршрут, удаляем его
+      if (routeLayer) {
+        map.removeLayer(routeLayer);
+      }
+      
+      // Извлекаем координаты выделенной территории (предполагаем, что это полигон или прямоугольник)
+      const territoryLatLngs = layer.getLatLngs()[0];
+      const territoryPoints = territoryLatLngs.map(latlng => ({
+        lat: latlng.lat,
+        lng: latlng.lng
+      }));
+
+      // Дополнительные параметры для запроса
+      const shootingType = 'Панорамная съемка';
+      const droneModel = 'DJI Matrice 30T';
+
+      // Отправка POST-запроса на сервер для расчёта маршрута
+      fetch('http://localhost:3000/api/calculate-route', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          territory: territoryPoints,
+          shootingType,
+          droneModel
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          console.log('Получен маршрут:', data.route);
+          // Отображаем маршрут на карте используя GeoJSON
+          routeLayer = L.geoJSON(data.route, {
+            style: function(feature) {
+              return { color: 'blue', weight: 4 };
+            }
+          }).addTo(map);
+          // При желании можно подстроить вид карты под полученный маршрут:
+          map.fitBounds(routeLayer.getBounds());
+        } else {
+          console.error('Ошибка при расчёте маршрута:', data.message);
+          alert('Ошибка при расчёте маршрута: ' + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Ошибка соединения с сервером:', error);
+        alert('Ошибка соединения с сервером: ' + error);
+      });
+
+      // // Получаем координаты выделенной области
+      // // Для полигона: массив вершин
+      // if (layer instanceof L.Polygon) {
+      //   const latlngs = layer.getLatLngs();
+      //   console.log('Координаты полигона:', latlngs);
+      //   alert('Вы выделили территорию. Проверьте консоль для просмотра координат.');
+      // }
+      // // Для прямоугольника: также можно получить координаты
+      // else if (layer instanceof L.Rectangle) {
+      //   const latlngs = layer.getLatLngs();
+      //   console.log('Координаты прямоугольника:', latlngs);
+      //   alert('Вы выделили территорию. Проверьте консоль для просмотра координат.');
+      // }
+    });
+  </script>
+</body>
+</html>
