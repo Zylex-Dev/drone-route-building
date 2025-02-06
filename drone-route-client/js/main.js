@@ -196,15 +196,19 @@ map.on(L.Draw.Event.CREATED, function (event) {
 
 // Функция для переключения темы, включая смену тайлов карты
 const themeToggleButton = document.getElementById('themeToggle');
+
 themeToggleButton.addEventListener('click', () => {
   document.body.classList.toggle('dark-theme');
+
   if (document.body.classList.contains('dark-theme')) {
-    themeToggleButton.textContent = 'Светлая тема';
+    // Если включена темная тема — показываем эмодзи солнца (для перехода на светлую)
+    themeToggleButton.innerHTML = '☀️ Светлая тема';
     // Переключаем карту на темный вариант
     map.removeLayer(lightTileLayer);
     darkTileLayer.addTo(map);
   } else {
-    themeToggleButton.textContent = 'Темная тема';
+    // Если включена светлая тема — показываем эмодзи луны (для перехода на темную)
+    themeToggleButton.innerHTML = '🌙 Темная тема';
     // Переключаем карту на светлый вариант
     map.removeLayer(darkTileLayer);
     lightTileLayer.addTo(map);

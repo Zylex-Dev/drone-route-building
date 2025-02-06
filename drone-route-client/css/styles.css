@@ -1,4 +1,4 @@
-/* Основные стили */
+/* Общие стили */
 * {
   box-sizing: border-box;
 }
@@ -7,48 +7,138 @@ body,
 html {
   height: 100%;
   margin: 0;
-  font-family: 'Roboto', sans-serif;
+  overflow-x: hidden;
+  font-family: 'Inter', sans-serif;
   background: #f0f2f5;
+  color: #333;
   transition: background 0.3s, color 0.3s;
 }
 
-/* Стили для темной темы */
+/* Темная тема */
 body.dark-theme {
-  background: #1e1e1e;
+  background: #1e1e2a;
   color: #e0e0e0;
 }
 
-body.dark-theme .sidebar {
-  background: #2c2c2c;
-  box-shadow: none;
-}
-
-body.dark-theme .card-custom {
-  background: #333;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-body.dark-theme .form-control {
-  background: #444;
-  border-color: #555;
-  color: #e0e0e0;
-}
-
-body.dark-theme .form-control:disabled {
-  background: #444;
-  color: #aaa;
-}
-
-/* Значения параметров съёмки в темной теме должны быть белыми */
-body.dark-theme .list-group-item {
-  background: #333;
-  border-color: #444;
+/* Текст в карточках параметров съемки в темной теме делаем белым */
+body.dark-theme .info-card .list-group-item {
   color: #fff;
 }
 
-/* Не перекрашиваем фон кнопок зума (оставляем их белыми) */
-body.dark-theme .leaflet-control-zoom a {
-  color: #333 !important;
+/* Контейнеры */
+.container-fluid {
+  padding: 0;
+}
+
+/* Левая панель */
+.sidebar {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  overflow-y: auto;
+  height: 100%;
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  transition: background 0.3s, border-color 0.3s;
+}
+
+body.dark-theme .sidebar {
+  background: rgba(30, 30, 42, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Кнопка переключения темы в правом верхнем углу */
+#themeToggleContainer {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.theme-toggle {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s;
+}
+
+.theme-toggle:hover {
+  background: #0056b3;
+  transform: scale(1.05);
+}
+
+/* Карточки с эффектом glassmorphism */
+.card-custom {
+  border: none;
+  border-radius: 16p;
+  padding: 20px;
+  padding-left: 30px;
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(8px);
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+body.dark-theme .card-custom {
+  background: rgba(30, 30, 42, 0.6);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Заголовки карточек */
+.card-custom h4,
+.card-custom h5 {
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+/* Стили для форм */
+.form-label {
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.form-control {
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  transition: border-color 0.3s;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.25);
+}
+
+body.dark-theme .form-control {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #555;
+  color: #e0e0e0;
+}
+
+body.dark-theme .form-control:focus {
+  border-color: #66afe9;
+}
+
+/* Стили для информационной карточки */
+.info-card .list-group-item {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 10px 0;
+  transition: border-color 0.3s;
+}
+
+body.dark-theme .info-card .list-group-item {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Кнопки */
+.btn-custom {
+  border-radius: 8px;
+  font-weight: 500;
 }
 
 /* Стили для карты */
@@ -57,90 +147,11 @@ body.dark-theme .leaflet-control-zoom a {
   width: 100%;
 }
 
-/* Стили для левой панели */
-.sidebar {
-  background: #ffffff;
-  padding: 20px;
-  height: 100%;
-  overflow-y: auto;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
-  transition: background 0.3s, box-shadow 0.3s;
-}
-
-.sidebar h4,
-.sidebar h5 {
-  font-weight: 700;
-  margin-bottom: 20px;
-  color: #333;
-  transition: color 0.3s;
-}
-
-body.dark-theme .sidebar h4,
-body.dark-theme .sidebar h5 {
-  color: #e0e0e0;
-}
-
-/* Современные карточки для блоков */
-.card-custom {
-  background: #fff;
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  margin-bottom: 20px;
-  padding: 20px;
-  transition: background 0.3s, box-shadow 0.3s;
-}
-
-/* Кастомные стили для формы */
-.form-label {
-  font-weight: 500;
-}
-
-.btn-custom {
-  border-radius: 8px;
-  font-weight: 500;
-}
-
-/* Стили для информационной карточки */
-.info-card ul {
-  padding-left: 0;
-  list-style: none;
-  margin-bottom: 0;
-}
-
-.info-card li {
-  padding: 10px 0;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.info-card li:last-child {
-  border-bottom: none;
-}
-
-/* Кнопка переключения темы */
-.theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
-  background: #007bff;
-  color: #fff;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.3s;
-  margin-bottom: 20px;
-}
-
-.theme-toggle:hover {
-  background: #0056b3;
-}
-
-/* Дополнительные отступы для мобильных устройств */
+/* Адаптивность */
 @media (max-width: 767.98px) {
   .sidebar {
     height: auto;
-    box-shadow: none;
+    border-right: none;
+    margin-bottom: 20px;
   }
 }

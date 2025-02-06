@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Автоматизированное планирование маршрута беспилотника</title>
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Leaflet CSS -->
@@ -18,14 +18,17 @@
 </head>
 
 <body>
+  <!-- Кнопка переключения темы вынесена в отдельный контейнер -->
+  <div id="themeToggleContainer">
+    <button id="themeToggle" class="theme-toggle btn">🌙 Темная тема</button>
+  </div>
+
   <div class="container-fluid h-100">
     <div class="row h-100">
-      <!-- Левая панель: настройки и информация -->
-      <div class="col-md-3 p-0">
-        <div class="sidebar">
-          <!-- Кнопка переключения темы -->
-          <button id="themeToggle" class="theme-toggle">Темная тема</button>
-          <div class="card-custom">
+      <!-- Левая панель -->
+      <aside class="col-md-3 p-0 sidebar">
+        <div class="content">
+          <div class="card-custom flight-settings glass">
             <h4>Настройки полёта</h4>
             <div class="mb-3">
               <label for="flightAltitude" class="form-label">Высота полёта (м)</label>
@@ -47,7 +50,7 @@
               <button id="clearAll" class="btn btn-danger btn-custom w-100">Удалить всё</button>
             </div>
           </div>
-          <div class="card-custom info-card">
+          <div class="card-custom info-card glass">
             <h5>Параметры съёмки</h5>
             <ul class="list-group list-group-flush">
               <li class="list-group-item" id="focalLength">Фокусное расстояние: 4.5 мм</li>
@@ -59,11 +62,11 @@
             </ul>
           </div>
         </div>
-      </div>
+      </aside>
       <!-- Правая панель: карта -->
-      <div class="col-md-9 p-0">
+      <main class="col-md-9 p-0">
         <div id="map"></div>
-      </div>
+      </main>
     </div>
   </div>
 
