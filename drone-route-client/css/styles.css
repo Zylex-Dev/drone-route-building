@@ -1,0 +1,146 @@
+/* Основные стили */
+* {
+  box-sizing: border-box;
+}
+
+body,
+html {
+  height: 100%;
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background: #f0f2f5;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* Стили для темной темы */
+body.dark-theme {
+  background: #1e1e1e;
+  color: #e0e0e0;
+}
+
+body.dark-theme .sidebar {
+  background: #2c2c2c;
+  box-shadow: none;
+}
+
+body.dark-theme .card-custom {
+  background: #333;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-theme .form-control {
+  background: #444;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+body.dark-theme .form-control:disabled {
+  background: #444;
+  color: #aaa;
+}
+
+/* Значения параметров съёмки в темной теме должны быть белыми */
+body.dark-theme .list-group-item {
+  background: #333;
+  border-color: #444;
+  color: #fff;
+}
+
+/* Не перекрашиваем фон кнопок зума (оставляем их белыми) */
+body.dark-theme .leaflet-control-zoom a {
+  color: #333 !important;
+}
+
+/* Стили для карты */
+#map {
+  height: 100%;
+  width: 100%;
+}
+
+/* Стили для левой панели */
+.sidebar {
+  background: #ffffff;
+  padding: 20px;
+  height: 100%;
+  overflow-y: auto;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+.sidebar h4,
+.sidebar h5 {
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #333;
+  transition: color 0.3s;
+}
+
+body.dark-theme .sidebar h4,
+body.dark-theme .sidebar h5 {
+  color: #e0e0e0;
+}
+
+/* Современные карточки для блоков */
+.card-custom {
+  background: #fff;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+  padding: 20px;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+/* Кастомные стили для формы */
+.form-label {
+  font-weight: 500;
+}
+
+.btn-custom {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* Стили для информационной карточки */
+.info-card ul {
+  padding-left: 0;
+  list-style: none;
+  margin-bottom: 0;
+}
+
+.info-card li {
+  padding: 10px 0;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.info-card li:last-child {
+  border-bottom: none;
+}
+
+/* Кнопка переключения темы */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #007bff;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s;
+  margin-bottom: 20px;
+}
+
+.theme-toggle:hover {
+  background: #0056b3;
+}
+
+/* Дополнительные отступы для мобильных устройств */
+@media (max-width: 767.98px) {
+  .sidebar {
+    height: auto;
+    box-shadow: none;
+  }
+}
