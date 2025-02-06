@@ -50,10 +50,12 @@
           <h4 class="mb-3">Настройки полёта</h4>
           <div class="mb-3">
             <label for="flightAltitude" class="form-label">Высота полёта (м)</label>
-            <input type="number" class="form-control" id="flightAltitude" value="50" min="10" step="1">
+            <!-- Ограничиваем диапазон от 10 до 500 м -->
+            <input type="number" class="form-control" id="flightAltitude" value="50" min="10" max="500" step="1">
           </div>
           <div class="mb-3">
             <label for="desiredOverlap" class="form-label">Перекрытие (%)</label>
+            <!-- Ограничиваем диапазон от 0 до 100 -->
             <input type="number" class="form-control" id="desiredOverlap" value="30" min="0" max="100" step="1">
           </div>
           <div class="mb-3">
@@ -156,6 +158,21 @@
     // Привязываем событие к кнопке "Удалить всё"
     document.getElementById('clearAll').addEventListener('click', clearAllObjects);
 
+    // Функция проверки корректности введённых значений
+    function validateInputs(flightAltitude, desiredOverlap) {
+      // Допустимый диапазон для высоты полёта: от 10 до 500 м
+      if (isNaN(flightAltitude) || flightAltitude < 10 || flightAltitude > 500) {
+        alert('Высота полёта должна быть числом в диапазоне от 10 до 500 метров.');
+        return false;
+      }
+      // Допустимый диапазон для перекрытия: от 0 до 100%
+      if (isNaN(desiredOverlap) || desiredOverlap < 0 || desiredOverlap >= 100) {
+        alert('Перекрытие должно быть числом в диапазоне от 0 до 99%.');
+        return false;
+      }
+      return true;
+    }
+
     // Обработка завершения рисования объекта
     map.on(L.Draw.Event.CREATED, function (event) {
       const layer = event.layer;
@@ -176,8 +193,15 @@
       // Дополнительные параметры для запроса
       const shootingType = 'Панорамная съемка';
       const droneModel = 'DJI Matrice 30T';
-      const flightAltitude = Number(document.getElementById('flightAltitude').value) || 50;
-      const desiredOverlap = (Number(document.getElementById('desiredOverlap').value) || 30) / 100;
+      const flightAltitude = Number(document.getElementById('flightAltitude').value);
+      const desiredOverlapInput = Number(document.getElementById('desiredOverlap').value);
+
+      // Проверяем корректность введённых значений
+      if (!validateInputs(flightAltitude, desiredOverlapInput)) {
+        return;
+      }
+      // Переводим процент перекрытия в долю (например, 30% -> 0.3)
+      const desiredOverlap = desiredOverlapInput / 100;
 
       // Отправка POST-запроса на сервер
       fetch('http://localhost:3000/api/calculate-route', {
