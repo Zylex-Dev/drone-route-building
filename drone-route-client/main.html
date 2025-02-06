@@ -118,6 +118,9 @@
 
     // Слой для отображения маршрута
     let routeLayer = null;
+    // Переменные для маркеров начала и конца маршрута
+    let startMarker = null;
+    let endMarker = null;
 
     // Настройка панели рисования
     const drawControl = new L.Control.Draw({
@@ -146,12 +149,20 @@
     });
     map.addControl(drawControl);
 
-    // Функция для удаления всех нарисованных объектов и маршрута
+    // Функция для удаления всех нарисованных объектов, маршрута и маркеров
     function clearAllObjects() {
       drawnItems.clearLayers();
       if (routeLayer) {
         map.removeLayer(routeLayer);
         routeLayer = null;
+      }
+      if (startMarker) {
+        map.removeLayer(startMarker);
+        startMarker = null;
+      }
+      if (endMarker) {
+        map.removeLayer(endMarker);
+        endMarker = null;
       }
     }
 
@@ -178,9 +189,18 @@
       const layer = event.layer;
       drawnItems.addLayer(layer);
 
-      // Удаляем ранее построенный маршрут, если есть
+      // Удаляем ранее построенный маршрут и маркеры, если есть
       if (routeLayer) {
         map.removeLayer(routeLayer);
+        routeLayer = null;
+      }
+      if (startMarker) {
+        map.removeLayer(startMarker);
+        startMarker = null;
+      }
+      if (endMarker) {
+        map.removeLayer(endMarker);
+        endMarker = null;
       }
 
       // Получаем координаты выделенной территории
@@ -200,7 +220,7 @@
       if (!validateInputs(flightAltitude, desiredOverlapInput)) {
         return;
       }
-      // Переводим процент перекрытия в долю (например, 30% -> 0.3)
+      // Переводим процент перекрытия в долю (например, 30% → 0.3)
       const desiredOverlap = desiredOverlapInput / 100;
 
       // Отправка POST-запроса на сервер
@@ -231,6 +251,26 @@
           const groundWidth = (2 * flightAltitude * Math.tan((2 * Math.atan(7.6 / (2 * 4.5))) / 2)).toFixed(2);
           document.getElementById('groundWidthInfo').textContent = 'Земная ширина кадра: ' + groundWidth + ' м';
           document.getElementById('spacingInfo').textContent = 'Эффективный шаг между полосами: ' + data.route.properties.effectiveSpacingMeters + ' м';
+
+          // Добавляем маркировку начала и конца маршрута
+          const coords = data.route.geometry.coordinates;
+          if (coords && coords.length > 0) {
+            // Координаты приходят в формате [lng, lat]
+            const startPoint = [coords[0][1], coords[0][0]];
+            const endPoint = [coords[coords.length - 1][1], coords[coords.length - 1][0]];
+            startMarker = L.circleMarker(startPoint, {
+              radius: 8,
+              color: 'green',
+              fillColor: 'green',
+              fillOpacity: 1
+            }).addTo(map).bindPopup("Начало маршрута");
+            endMarker = L.circleMarker(endPoint, {
+              radius: 8,
+              color: 'red',
+              fillColor: 'red',
+              fillOpacity: 1
+            }).addTo(map).bindPopup("Конец маршрута");
+          }
         } else {
           alert('Ошибка при расчёте маршрута: ' + data.message);
         }
