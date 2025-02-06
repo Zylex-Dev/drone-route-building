@@ -64,6 +64,10 @@
             <label class="form-label">Модель дрона</label>
             <input type="text" class="form-control" value="DJI Matrice 30T" disabled>
           </div>
+          <!-- Кнопка для удаления всех объектов -->
+          <div class="mb-3">
+            <button id="clearAll" class="btn btn-danger w-100">Удалить всё</button>
+          </div>
         </div>
         <div class="controls-container info-card">
           <h5>Параметры съёмки</h5>
@@ -139,6 +143,18 @@
       }
     });
     map.addControl(drawControl);
+
+    // Функция для удаления всех нарисованных объектов и маршрута
+    function clearAllObjects() {
+      drawnItems.clearLayers();
+      if (routeLayer) {
+        map.removeLayer(routeLayer);
+        routeLayer = null;
+      }
+    }
+
+    // Привязываем событие к кнопке "Удалить всё"
+    document.getElementById('clearAll').addEventListener('click', clearAllObjects);
 
     // Обработка завершения рисования объекта
     map.on(L.Draw.Event.CREATED, function (event) {
