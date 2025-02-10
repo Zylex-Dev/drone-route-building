@@ -109,6 +109,3 @@ At a specified flight altitude \( h \) (in meters), the width of the ground capt
 
 - **Step 5:**  
   Mark the first and last points of the route as the start and end points, respectively.
-
-## Project Structure
-
