@@ -1,0 +1,9 @@
+FROM node:16-alpine
+WORKDIR /app
+COPY drone-route-server/package*.json ./drone-route-server/
+RUN cd drone-route-server && npm install
+COPY drone-route-server/ ./drone-route-server/
+
+EXPOSE 3000
+
+CMD ["node", "drone-route-server/index.js"]

@@ -1,0 +1,15 @@
+# dependendencies and environments
+node_modules/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# configuration files and sensitive data 
+.env
+config.json
+secrets.json
+
+# Docker
+docker-compose.override.yml
+*.log
