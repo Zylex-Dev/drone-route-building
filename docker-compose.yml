@@ -2,7 +2,7 @@ services:
   server:
     build:
       context: .
-      dockerfile: Dockerfile.server
+      dockerfile: ./drone-route-server/Dockerfile.server
     container_name: drone_route_server
     ports:
       - "3000:3000"
@@ -11,7 +11,7 @@ services:
   client:
     build:
       context: .
-      dockerfile: Dockerfile.client
+      dockerfile: ./drone-route-client/Dockerfile.client
     container_name: drone_route_client
     ports:
       - "80:80"
