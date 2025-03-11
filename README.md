@@ -1,111 +1,107 @@
 # Drone Flight Route Planner
 
-## Overview
+## Project Overview
 
-The **Drone Flight Route Planner** is a web application designed to automatically generate an optimized flight route for a drone based on user-defined parameters. The application is primarily aimed at planning aerial photography missions by ensuring that the drone covers a user-selected territory (in our case, the Kolomna area) with the appropriate image overlap. This is achieved through a "lawnmower" (or boustrophedon) algorithm that computes the optimal path over the area.
+**Drone Flight Route Planner** is a web application designed to automatically generate an optimized drone flight path based on user-defined parameters. The project is focused on aerial photography and ensures coverage of the selected area (e.g., Kolomna region) with the required image overlap. The application uses a "lawnmower" (or boustrophedon) algorithm to calculate the optimal path across the specified area.
+
 
 ## Features
 
 - **Interactive Map Interface:**  
-  - Displays a map of Kolomna using OpenStreetMap and Leaflet.
-  - Provides drawing tools (via Leaflet.draw) to allow users to define the area of interest.
+  - Displays the Kolomna map using OpenStreetMap and the Leaflet library.  
+  - Drawing tools (via Leaflet.draw) to define the shooting area.  
 
-- **User Input & Validation:**  
-  - Users can specify key parameters such as flight altitude and desired image overlap.
-  - Built-in input validation prevents invalid entries (e.g., negative or overly large values, or 100% overlap which causes algorithmic failure).
+- **Parameter Input and Validation:**  
+  - Users specify key parameters: flight altitude and desired image overlap.  
+  - Built-in input validation prevents the use of invalid values (e.g., negative numbers, overly large values, or 100% overlap, which would result in a zero-step size between flight strips).  
 
-- **Automated Route Generation:**  
-  - Utilizes a geospatial "lawnmower" algorithm to create a flight route that covers the selected area.
-  - The algorithm calculates effective spacing between flight lines based on camera parameters and flight altitude.
-  
-- **Technical Data Display:**  
-  - After route calculation, the application displays technical parameters such as the camera's horizontal field of view, ground width covered, and effective spacing.
-  - It also visually marks the start and end points of the route on the map.
+- **Automatic Route Generation:**  
+  - Uses a geospatial "lawnmower" algorithm to create a route that fully covers the selected area.  
+  - The algorithm calculates an efficient strip spacing considering camera specifications and flight altitude.  
 
-- **Clear Functionality:**  
-  - A "Clear All" button allows users to remove all drawn areas and routes from the map easily.
+- **Technical Information Display:**  
+  - After generating the route, the panel displays shooting parameters such as horizontal field of view, ground frame width, effective strip spacing, and more.  
+  - Visually marks the start (green) and end (red) points of the route on the map.  
+
+- **Convenient Controls:**  
+  - The "Clear All" button allows users to remove all drawn objects and the route from the map to start a new plan.  
 
 ## Technologies Used
 
-### Front-End
+### Frontend
 
-- **HTML/CSS & JavaScript:**  
-  Standard web technologies for structure, styling, and interactivity.
+- **HTML, CSS, and JavaScript:**  
+  Core technologies for building the structure, styling, and functionality of the web page.  
 
 - **[Bootstrap](https://getbootstrap.com/):**  
-  For a modern, responsive, and user-friendly design.
+  For creating a modern, responsive, and user-friendly interface.  
 
 - **[Leaflet](https://leafletjs.com/):**  
-  For map display and interactions with OpenStreetMap tiles.
+  To display interactive maps and work with OpenStreetMap tiles.  
 
 - **[Leaflet.draw](https://leaflet.github.io/Leaflet.draw/):**  
-  For drawing polygons (territories) and other shapes on the map.
+  To add drawing tools to the map.  
 
-### Back-End
+### Backend
 
 - **[Node.js](https://nodejs.org/)** and **[Express](https://expressjs.com/):**  
-  For building a lightweight, scalable server that handles route calculation requests.
+  Lightweight server for handling requests and route calculations.  
 
 - **[body-parser](https://www.npmjs.com/package/body-parser):**  
-  To parse incoming JSON requests.
+  For parsing incoming JSON requests.  
 
 - **[CORS](https://www.npmjs.com/package/cors):**  
-  To allow cross-origin resource sharing between the client and server.
+  To support cross-domain requests between client and server.  
 
 - **[Turf.js](https://turfjs.org/):**  
-  For geospatial calculations, including intersection, bounding box computation, and line generation.
+  A library for geospatial computations, including intersection calculations, bounding box creation, and line generation.  
 
 ## Mathematical Foundation
 
-The route generation is based on several key mathematical concepts:
+Route generation is based on the following mathematical concepts:
 
-### 1. **Camera Field of View (FOV) Calculation**
+### 1. Camera Field of View Calculation
 
-- **Given:**
-  - Focal length \( f \) (in mm)
-  - Sensor width \( w \) (in mm)
+**Input Data:**
+- Focal length \( f \) (in mm)  
+- Sensor width \( w \) (in mm)  
 
-- **Horizontal Field of View (in radians):**
-  \[
-  \text{FOV} = 2 \cdot \arctan\left(\frac{w}{2f}\right)
-  \]
-  
-### 2. **Ground Width Calculation**
+**Horizontal field of view (in radians):**
 
-At a specified flight altitude \( h \) (in meters), the width of the ground captured in one image is calculated as:
-\[
+$$
+\text{FOV} = 2 \cdot \arctan\left(\frac{w}{2f}\right)
+$$
+
+### 2. Ground Frame Width Calculation
+
+Given the flight altitude \( h \) (in meters), the ground width covered by the camera is calculated as:
+
+$$
 \text{Ground Width} = 2 \cdot h \cdot \tan\left(\frac{\text{FOV}}{2}\right)
-\]
+$$
 
-### 3. **Effective Spacing Between Flight Lines**
+### 3. Effective Strip Spacing
 
 - **Desired Overlap:**  
-  A user-defined percentage (e.g., 30% → \(0.3\)) that indicates the overlapping area between consecutive images.
+  User-defined overlap percentage (e.g., 30% → \( 0.3 \)).  
 
 - **Effective Spacing (in meters):**
-\[
-\text{Effective Spacing (m)} = \text{Ground Width} \times (1 - \text{Overlap})
-\]
+
+$$
+\text{Spacing (m)} = \text{Ground Width} \times (1 - \text{Overlap})
+$$
 
 - **Conversion to Degrees:**  
-  Since 1° of latitude is approximately 111,320 meters, the spacing in degrees is:
-\[
-\text{Effective Spacing (°)} = \frac{\text{Effective Spacing (m)}}{111320}
-\]
+  Approximately 1° of latitude equals 111,320 m, so the spacing in degrees is:
 
-### 4. **Route Generation ("Lawnmower" Algorithm)**
+$$
+\text{Spacing (°)} = \frac{\text{Spacing (m)}}{111320}
+$$
 
-- **Step 1:**  
-  Calculate the bounding box for the user-drawn territory.
+### 4. Route Generation Algorithm ("Lawnmower")
 
-- **Step 2:**  
-  Generate vertical lines across the bounding box at intervals equal to the calculated effective spacing (in degrees).
-
-- **Step 3:**  
-  For each vertical line, determine the intersection points with the territory polygon using Turf.js. These intersections form segments that are valid flight paths.
-
-- **Step 4:**  
-  Sort the segments by their x-coordinate (longitude) and connect them in a zigzag (lawnmower) pattern to create a continuous route.
-
-- **Step 5:**  
-  Mark the first and last points of the route as the start and end points, respectively.
+- **Step 1:** Calculate the bounding box for the user-defined polygon.  
+- **Step 2:** Generate vertical lines across the bounding box with intervals equal to the calculated effective spacing (in degrees).  
+- **Step 3:** Determine intersection points of each vertical line with the specified area polygons (using Turf.js). The resulting segments are valid flight paths.  
+- **Step 4:** Sort segments by the X-axis and merge them into a zigzag pattern, ensuring route continuity.  
+- **Step 5:** Mark the first and last points of the route as the start and end points, respectively.  
