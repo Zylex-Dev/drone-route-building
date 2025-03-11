@@ -1,5 +1,23 @@
 # Drone Flight Route Planner
 
+## Getting Started
+
+Follow these steps to launch the Drone Flight Route Planner locally using **Docker**:
+
+### Prerequisites
+- Make sure you have [Docker](https://www.docker.com/) installed on your machine.
+
+### Running the Project
+1. Navigate to the project's root directory.
+2. Run the following command to build and start the containers:
+    ```bash 
+    docker compose up
+    ```
+3. After the containers are up and running, open your web browser and go to:
+    ```
+    http://localhost:80
+    ```
+
 ## Project Overview
 
 **Drone Flight Route Planner** is a web application designed to automatically generate an optimized drone flight path based on user-defined parameters. The project is focused on aerial photography and ensures coverage of the selected area (e.g., Kolomna region) with the required image overlap. The application uses a "lawnmower" (or boustrophedon) algorithm to calculate the optimal path across the specified area.
