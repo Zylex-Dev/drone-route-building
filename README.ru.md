@@ -1,6 +1,3 @@
-[![en](https://img.shields.io/badge/lang-en-blue.svg)](https://github.com/Zylex-Dev/drone-route-building/blob/main/README.md)
-[![ru](https://img.shields.io/badge/lang-ru-red.svg)](https://github.com/Zylex-Dev/drone-route-building/blob/main/README.ru.md)
-
 # Планировщик Маршрута Полёта Дрона
 
 ## Начало работы
