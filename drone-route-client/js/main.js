@@ -180,15 +180,23 @@ map.on(L.Draw.Event.CREATED, function (event) {
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        // Используем улучшенную визуализацию маршрута
-        currentRouteVisualization = visualizeEnhancedRoute(map, data.route);
+        // Используем улучшенную визуализацию маршрута с camera footprints
+        currentRouteVisualization = visualizeEnhancedRoute(map, data.route, {
+          showFootprints: true // По умолчанию показываем зоны покрытия камеры
+        });
         
         // Добавляем слои и маркеры на карту
         if (currentRouteVisualization) {
+          // Сначала добавляем footprints (чтобы они были под маршрутом)
+          if (currentRouteVisualization.footprintsLayer) {
+            currentRouteVisualization.footprintsLayer.addTo(map);
+          }
+          // Затем маршрут
           if (currentRouteVisualization.layers) {
             currentRouteVisualization.layers.addTo(map);
             map.fitBounds(currentRouteVisualization.layers.getBounds());
           }
+          // И маркеры сверху
           if (currentRouteVisualization.startMarker) {
             currentRouteVisualization.startMarker.addTo(map);
           }

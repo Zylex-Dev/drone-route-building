@@ -480,3 +480,48 @@ body.dark-theme .leaflet-tooltip {
   background: rgba(255, 255, 255, 0.9);
   color: #1e1e2a;
 }
+
+/* === Стили для camera footprints (зоны покрытия камеры) === */
+
+/* Базовые стили для footprint прямоугольников */
+.camera-footprint {
+  transition: all 0.2s ease;
+  pointer-events: auto;
+}
+
+/* Эффект при наведении на footprint */
+.camera-footprint:hover {
+  fill-opacity: 0.15 !important;
+  stroke-width: 2 !important;
+  stroke-opacity: 0.7 !important;
+}
+
+/* Плавная анимация появления footprints */
+.camera-footprint path {
+  animation: footprintFadeIn 0.3s ease-out;
+}
+
+@keyframes footprintFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Адаптация для темной темы */
+body.dark-theme .camera-footprint {
+  stroke: #66b3ff !important;
+  fill: #66b3ff !important;
+}
+
+/* Снижение видимости на мобильных устройствах для уменьшения визуального шума */
+@media (max-width: 767.98px) {
+  .camera-footprint {
+    fill-opacity: 0.05 !important;
+    stroke-opacity: 0.3 !important;
+  }
+}

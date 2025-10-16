@@ -46,22 +46,81 @@ function getGradientColor(progress) {
 }
 
 /**
+ * Создание прямоугольника зоны покрытия камеры (camera footprint)
+ * @param {Array} centerLatLng - Центр [lat, lng]
+ * @param {number} groundWidth - Ширина кадра на земле (м)
+ * @param {number} groundLength - Длина кадра на земле (м)
+ * @param {number} bearing - Направление полета (градусы от севера)
+ * @param {number} waypointNumber - Номер точки съёмки
+ * @returns {L.Rectangle} - Прямоугольник footprint
+ */
+function createCameraFootprint(centerLatLng, groundWidth, groundLength, bearing, waypointNumber) {
+  const [centerLat, centerLng] = centerLatLng;
+  
+  // Коэффициенты для преобразования метров в градусы
+  const metersPerDegreeLat = 111320; // примерно постоянно
+  const metersPerDegreeLng = 111320 * Math.cos(centerLat * Math.PI / 180);
+  
+  // Полуразмеры в градусах
+  const halfWidth = (groundWidth / 2) / metersPerDegreeLng;
+  const halfLength = (groundLength / 2) / metersPerDegreeLat;
+  
+  // Для простоты создаем прямоугольник, выровненный по осям (без учета bearing)
+  // Это дает хорошее приближение и не перегружает визуализацию
+  const bounds = [
+    [centerLat - halfLength, centerLng - halfWidth], // юго-запад
+    [centerLat + halfLength, centerLng + halfWidth]  // северо-восток
+  ];
+  
+  const footprint = L.rectangle(bounds, {
+    color: '#4a90e2',
+    weight: 1,
+    opacity: 0.4,
+    fillColor: '#4a90e2',
+    fillOpacity: 0.08,
+    className: 'camera-footprint'
+  });
+  
+  // Добавляем tooltip с информацией
+  footprint.bindTooltip(`
+    <div style="font-size: 11px; font-family: 'Inter', sans-serif;">
+      <strong>📷 Зона покрытия #${waypointNumber}</strong><br>
+      Размер: ${groundWidth.toFixed(1)}м × ${groundLength.toFixed(1)}м
+    </div>
+  `, {
+    sticky: false,
+    direction: 'top'
+  });
+  
+  return footprint;
+}
+
+/**
  * Визуализация маршрута с улучшенными стилями
  * @param {L.Map} map - Объект карты Leaflet
  * @param {Object} routeData - Данные маршрута от сервера
- * @returns {Object} - Объект с созданными слоями { layers, startMarker, endMarker }
+ * @param {Object} options - Опции визуализации { showFootprints: boolean }
+ * @returns {Object} - Объект с созданными слоями { layers, footprintsLayer, startMarker, endMarker }
  */
-function visualizeEnhancedRoute(map, routeData) {
+function visualizeEnhancedRoute(map, routeData, options = {}) {
   const segments = routeData.properties.segments;
   const coords = routeData.geometry.coordinates;
+  const showFootprints = options.showFootprints !== undefined ? options.showFootprints : true;
   
   if (!segments || segments.length === 0) {
     console.warn('Нет данных о сегментах для визуализации');
     return null;
   }
   
+  // Получаем параметры камеры из данных маршрута
+  const groundWidth = parseFloat(routeData.properties.groundWidth) || 50;
+  const groundLength = parseFloat(routeData.properties.groundLength) || 37.5;
+  
   // Создаем группу слоев для маршрута (используем featureGroup для поддержки getBounds)
   const routeLayers = L.featureGroup();
+  
+  // Создаем отдельную группу для camera footprints
+  const footprintsLayer = L.featureGroup();
   
   // Вычисляем общее количество точек для расчета прогресса
   let totalPoints = 0;
@@ -70,6 +129,7 @@ function visualizeEnhancedRoute(map, routeData) {
   });
   
   let currentPointIndex = 0;
+  let waypointNumber = 1; // Счетчик для footprints
   
   // Отрисовываем каждый сегмент
   segments.forEach((segment, segmentIndex) => {
@@ -106,8 +166,37 @@ function visualizeEnhancedRoute(map, routeData) {
         });
         
         routeLayers.addLayer(polyline);
+        
+        // Создаем camera footprint для каждой точки съёмки
+        if (showFootprints) {
+          const footprint = createCameraFootprint(
+            latLngs[i],
+            groundWidth,
+            groundLength,
+            0, // bearing - пока не используем
+            waypointNumber
+          );
+          footprintsLayer.addLayer(footprint);
+          waypointNumber++;
+        }
+        
         currentPointIndex++;
       }
+      
+      // Создаем footprint для последней точки сегмента
+      if (showFootprints && latLngs.length > 0) {
+        const lastLatLng = latLngs[latLngs.length - 1];
+        const footprint = createCameraFootprint(
+          lastLatLng,
+          groundWidth,
+          groundLength,
+          0,
+          waypointNumber
+        );
+        footprintsLayer.addLayer(footprint);
+        waypointNumber++;
+      }
+      
       currentPointIndex++; // Последняя точка сегмента
       
     } else if (type === 'transition') {
@@ -220,6 +309,7 @@ function visualizeEnhancedRoute(map, routeData) {
     
     return {
       layers: routeLayers,
+      footprintsLayer: footprintsLayer,
       startMarker: startMarker,
       endMarker: endMarker
     };
@@ -227,6 +317,7 @@ function visualizeEnhancedRoute(map, routeData) {
   
   return {
     layers: routeLayers,
+    footprintsLayer: footprintsLayer,
     startMarker: null,
     endMarker: null
   };
@@ -242,6 +333,9 @@ function clearRouteVisualization(map, oldRouteObj) {
   
   if (oldRouteObj.layers) {
     map.removeLayer(oldRouteObj.layers);
+  }
+  if (oldRouteObj.footprintsLayer) {
+    map.removeLayer(oldRouteObj.footprintsLayer);
   }
   if (oldRouteObj.startMarker) {
     map.removeLayer(oldRouteObj.startMarker);
