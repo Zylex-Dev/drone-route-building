@@ -103,6 +103,27 @@ app.post('/api/calculate-route', (req, res) => {
 
   // Вычисляем bounding box полигона: [minX, minY, maxX, maxY]
   const bbox = turf.bbox(polygon);
+  
+  // Проверяем размер территории
+  const territoryArea = turf.area(polygon); // площадь в м²
+  const MIN_TERRITORY_AREA = 2500; // минимум 2500 м² (примерно 50м x 50м)
+  const MAX_TERRITORY_AREA = 5000000; // максимум 5 км² (5 млн м²)
+  
+  if (territoryArea < MIN_TERRITORY_AREA) {
+    return res.status(400).json({ 
+      success: false, 
+      message: `Территория слишком мала для построения маршрута. Минимальная площадь: ${MIN_TERRITORY_AREA} м² (текущая: ${territoryArea.toFixed(2)} м²). Пожалуйста, выберите большую область.` 
+    });
+  }
+  
+  if (territoryArea > MAX_TERRITORY_AREA) {
+    const currentAreaKm2 = (territoryArea / 1000000).toFixed(2);
+    const maxAreaKm2 = (MAX_TERRITORY_AREA / 1000000).toFixed(2);
+    return res.status(400).json({ 
+      success: false, 
+      message: `Территория слишком велика для построения маршрута. Максимальная площадь: ${maxAreaKm2} км² (текущая: ${currentAreaKm2} км²). Пожалуйста, разбейте задачу на несколько меньших территорий.` 
+    });
+  }
 
   // --- Интеграция технических параметров дрона и пользовательских параметров ---
   // Получаем модель дрона (по умолчанию DJI Matrice 30T)

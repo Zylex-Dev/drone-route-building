@@ -44,10 +44,18 @@ const drawControl = new L.Control.Draw({
         message: '<strong>Ошибка:</strong> Полигон пересекается сам с собой!'
       },
       shapeOptions: {
-        color: '#5a2a83'
+        color: '#6c757d',
+        fillColor: '#8e9aab',
+        fillOpacity: 0.3
       }
     },
-    rectangle: { shapeOptions: { color: '#5a2a83' } },
+    rectangle: { 
+      shapeOptions: { 
+        color: '#6c757d', 
+        fillColor: '#8e9aab', 
+        fillOpacity: 0.3
+      } 
+    },
     polyline: false,
     circle: false,
     marker: false,
@@ -122,6 +130,11 @@ function validateInputs(flightAltitude, desiredOverlap) {
 // Обработка завершения рисования объекта
 map.on(L.Draw.Event.CREATED, function (event) {
   const layer = event.layer;
+  
+  // Удаляем все старые полигоны территорий перед добавлением нового
+  drawnItems.clearLayers();
+  
+  // Добавляем новый полигон
   drawnItems.addLayer(layer);
 
   // Удаляем ранее построенный маршрут и маркеры, если есть
