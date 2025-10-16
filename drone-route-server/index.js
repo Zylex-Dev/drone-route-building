@@ -241,8 +241,10 @@ app.post('/api/calculate-route', (req, res) => {
   }
 
   // Объединяем отрезки в единую зигзагообразную траекторию с waypoints
+  // Также создаём массив сегментов для детальной визуализации
   let routeCoordinates = [];
   let totalWaypoints = 0;
+  let segments = []; // Массив сегментов: {type: 'work'|'transition', coordinates: [...]}
   
   flightLines.forEach((line, index) => {
     const [startPoint, endPoint] = line.geometry.coordinates;
@@ -257,9 +259,24 @@ app.post('/api/calculate-route', (req, res) => {
     
     // Если маршрут уже содержит точки, добавляем переход от последней точки к первой точке новой линии
     if (routeCoordinates.length > 0) {
-      // Добавляем последнюю точку предыдущей линии для визуализации перехода
-      routeCoordinates.push(routeCoordinates[routeCoordinates.length - 1]);
+      const lastPoint = routeCoordinates[routeCoordinates.length - 1];
+      const firstPointOfNewLine = waypoints[0];
+      
+      // Создаём сегмент перехода
+      segments.push({
+        type: 'transition',
+        coordinates: [lastPoint, firstPointOfNewLine]
+      });
+      
+      // Добавляем переход в общий маршрут
+      routeCoordinates.push(firstPointOfNewLine);
     }
+    
+    // Создаём рабочий сегмент (полоса съёмки)
+    segments.push({
+      type: 'work',
+      coordinates: waypoints
+    });
     
     routeCoordinates = routeCoordinates.concat(waypoints);
     totalWaypoints += waypoints.length;
@@ -331,6 +348,8 @@ app.post('/api/calculate-route', (req, res) => {
       numberOfLines: flightLines.length,
       totalWaypoints: totalWaypoints,
       executionTime: executionTime,
+      // Массив сегментов для детальной визуализации
+      segments: segments,
       // Расширенные метрики миссии
       missionStats: {
         coverageAreaKm2: parseFloat(coverageAreaKm2),

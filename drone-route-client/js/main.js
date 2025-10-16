@@ -26,11 +26,8 @@ L.marker(kolomnaCoords).addTo(map)
 const drawnItems = new L.FeatureGroup();
 map.addLayer(drawnItems);
 
-// Слой для отображения маршрута
-let routeLayer = null;
-// Переменные для маркеров начала и конца маршрута
-let startMarker = null;
-let endMarker = null;
+// Объект для хранения визуализации маршрута
+let currentRouteVisualization = null;
 
 // Настройка панели рисования
 const drawControl = new L.Control.Draw({
@@ -65,17 +62,10 @@ function clearAllObjects() {
   // Удаляем все нарисованные объекты с карты
   drawnItems.clearLayers();
 
-  if (routeLayer) {
-    map.removeLayer(routeLayer);
-    routeLayer = null;
-  }
-  if (startMarker) {
-    map.removeLayer(startMarker);
-    startMarker = null;
-  }
-  if (endMarker) {
-    map.removeLayer(endMarker);
-    endMarker = null;
+  // Очищаем визуализацию маршрута
+  if (currentRouteVisualization) {
+    clearRouteVisualization(map, currentRouteVisualization);
+    currentRouteVisualization = null;
   }
 
   // Сброс настроек полёта к дефолтным значениям
@@ -135,17 +125,9 @@ map.on(L.Draw.Event.CREATED, function (event) {
   drawnItems.addLayer(layer);
 
   // Удаляем ранее построенный маршрут и маркеры, если есть
-  if (routeLayer) {
-    map.removeLayer(routeLayer);
-    routeLayer = null;
-  }
-  if (startMarker) {
-    map.removeLayer(startMarker);
-    startMarker = null;
-  }
-  if (endMarker) {
-    map.removeLayer(endMarker);
-    endMarker = null;
+  if (currentRouteVisualization) {
+    clearRouteVisualization(map, currentRouteVisualization);
+    currentRouteVisualization = null;
   }
 
   // Получаем координаты выделенной территории
@@ -185,11 +167,22 @@ map.on(L.Draw.Event.CREATED, function (event) {
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        // Отображаем маршрут на карте
-        routeLayer = L.geoJSON(data.route, {
-          style: () => ({ color: '#007bff', weight: 4 })
-        }).addTo(map);
-        map.fitBounds(routeLayer.getBounds());
+        // Используем улучшенную визуализацию маршрута
+        currentRouteVisualization = visualizeEnhancedRoute(map, data.route);
+        
+        // Добавляем слои и маркеры на карту
+        if (currentRouteVisualization) {
+          if (currentRouteVisualization.layers) {
+            currentRouteVisualization.layers.addTo(map);
+            map.fitBounds(currentRouteVisualization.layers.getBounds());
+          }
+          if (currentRouteVisualization.startMarker) {
+            currentRouteVisualization.startMarker.addTo(map);
+          }
+          if (currentRouteVisualization.endMarker) {
+            currentRouteVisualization.endMarker.addTo(map);
+          }
+        }
 
         // Обновляем информацию в панели
         const specs = getDroneSpecs(droneModel);
@@ -235,25 +228,6 @@ map.on(L.Draw.Event.CREATED, function (event) {
         document.getElementById('fovHorizontal').textContent = `${stats.horizontalFOV}°`;
         document.getElementById('fovVertical').textContent = `${stats.verticalFOV}°`;
         document.getElementById('altitudeInfo').textContent = `${props.flightAltitude} м`;
-
-        // Добавляем маркировку начала и конца маршрута
-        const coords = data.route.geometry.coordinates;
-        if (coords && coords.length > 0) {
-          const startPoint = [coords[0][1], coords[0][0]];
-          const endPoint = [coords[coords.length - 1][1], coords[coords.length - 1][0]];
-          startMarker = L.circleMarker(startPoint, {
-            radius: 8,
-            color: '#28a745',
-            fillColor: '#28a745',
-            fillOpacity: 1
-          }).addTo(map).bindPopup("Начало маршрута");
-          endMarker = L.circleMarker(endPoint, {
-            radius: 8,
-            color: '#dc3545',
-            fillColor: '#dc3545',
-            fillOpacity: 1
-          }).addTo(map).bindPopup("Конец маршрута");
-        }
       } else {
         alert('Ошибка при расчёте маршрута: ' + data.message);
       }

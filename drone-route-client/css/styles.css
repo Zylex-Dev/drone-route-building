@@ -330,3 +330,153 @@ body.dark-theme .info-card .list-group-item {
     font-size: 0.85rem;
   }
 }
+
+/* === Стили для улучшенных маркеров маршрута === */
+
+/* Контейнер маркера */
+.custom-marker-icon {
+  background: transparent;
+  border: none;
+}
+
+.marker-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: markerBounce 0.6s ease-out;
+}
+
+@keyframes markerBounce {
+  0% {
+    transform: translateY(-20px) scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(5px) scale(1.1);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Пин маркера */
+.marker-pin {
+  width: 50px;
+  height: 50px;
+  border-radius: 50% 50% 50% 0;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  position: relative;
+  transform: rotate(-45deg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.marker-start .marker-pin {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.marker-finish .marker-pin {
+  background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+}
+
+.marker-pin:hover {
+  transform: rotate(-45deg) scale(1.15);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Иконка внутри пина */
+.marker-icon {
+  font-size: 24px;
+  transform: rotate(45deg);
+  animation: iconPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%, 100% {
+    transform: rotate(45deg) scale(1);
+  }
+  50% {
+    transform: rotate(45deg) scale(1.1);
+  }
+}
+
+/* Подпись маркера */
+.marker-label {
+  margin-top: 8px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  animation: labelFadeIn 0.8s ease-out 0.3s both;
+}
+
+.marker-start .marker-label {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+}
+
+.marker-finish .marker-label {
+  background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+  color: white;
+}
+
+@keyframes labelFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Стили для popup маркеров */
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.leaflet-popup-content {
+  margin: 12px;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Темная тема для маркеров */
+body.dark-theme .marker-label {
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .leaflet-popup-content-wrapper {
+  background: rgba(30, 30, 42, 0.95);
+  color: #e0e0e0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-theme .leaflet-popup-tip {
+  background: rgba(30, 30, 42, 0.95);
+}
+
+/* Стили для tooltip маршрута */
+.leaflet-tooltip {
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+}
+
+body.dark-theme .leaflet-tooltip {
+  background: rgba(255, 255, 255, 0.9);
+  color: #1e1e2a;
+}
