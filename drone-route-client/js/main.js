@@ -60,8 +60,9 @@ const drawControl = new L.Control.Draw({
 map.addControl(drawControl);
 
 // Функция для удаления всех нарисованных объектов, маршрута и маркеров
-// а также сброса информации в карточке параметров съемки
+// а также сброса информации в карточке параметров съемки и настроек
 function clearAllObjects() {
+  // Удаляем все нарисованные объекты с карты
   drawnItems.clearLayers();
 
   if (routeLayer) {
@@ -77,14 +78,42 @@ function clearAllObjects() {
     endMarker = null;
   }
 
-  // Сброс значений в информационной карточке
-  document.getElementById('altitudeInfo').textContent = 'Высота полёта: - м';
-  document.getElementById('fovInfo').textContent = 'Горизонтальный угол обзора (rad): -';
-  document.getElementById('groundWidthInfo').textContent = 'Земная ширина кадра: - м';
-  document.getElementById('spacingInfo').textContent = 'Эффективный шаг между полосами: - м';
+  // Сброс настроек полёта к дефолтным значениям
+  document.getElementById('flightAltitude').value = 50;
+  document.getElementById('desiredOverlap').value = 30;
+  document.getElementById('forwardOverlap').value = 70;
+  document.getElementById('droneModel').value = 'DJI Matrice 30T';
+  
+  // Обновляем параметры камеры для дефолтной модели
+  updateCameraInfo('DJI Matrice 30T');
+
+  // УРОВЕНЬ 1: Очистка информации о миссии
+  document.getElementById('coverageArea').textContent = '-';
+  document.getElementById('flightDistance').textContent = '-';
+  document.getElementById('flightTime').textContent = '-';
+  document.getElementById('photoCount').textContent = '-';
+  document.getElementById('storageRequired').textContent = '-';
+  const batteryElement = document.getElementById('batteryUsage');
+  batteryElement.textContent = '-';
+  batteryElement.className = 'metric-value battery-indicator';
+
+  // УРОВЕНЬ 2: Очистка параметров покрытия
+  document.getElementById('frameSize').textContent = '-';
+  document.getElementById('gsd').textContent = '-';
+  document.getElementById('spacingInfo').textContent = '-';
+  document.getElementById('forwardSpacingInfo').textContent = '-';
+  document.getElementById('sidelapDisplay').textContent = '-';
+  document.getElementById('forwardlapDisplay').textContent = '-';
+  document.getElementById('numberOfLines').textContent = '-';
+
+  // УРОВЕНЬ 3: Очистка технических параметров (часть обновится через updateCameraInfo)
+  document.getElementById('droneModelDisplay').textContent = '-';
+  document.getElementById('fovHorizontal').textContent = '-';
+  document.getElementById('fovVertical').textContent = '-';
+  document.getElementById('altitudeInfo').textContent = '-';
 }
 
-// Привязываем событие к кнопке "Удалить всё"
+// Привязываем событие к кнопке "Удалить миссию"
 document.getElementById('clearAll').addEventListener('click', clearAllObjects);
 
 // Функция проверки корректности введённых значений
@@ -131,11 +160,13 @@ map.on(L.Draw.Event.CREATED, function (event) {
   const droneModel = document.getElementById('droneModel').value;
   const flightAltitude = Number(document.getElementById('flightAltitude').value);
   const desiredOverlapInput = Number(document.getElementById('desiredOverlap').value);
+  const forwardOverlapInput = Number(document.getElementById('forwardOverlap').value);
 
   if (!validateInputs(flightAltitude, desiredOverlapInput)) {
     return;
   }
   const desiredOverlap = desiredOverlapInput / 100;
+  const forwardOverlap = forwardOverlapInput / 100;
 
   // Отправка POST-запроса на сервер
   const apiUrl = `${window.APP_CONFIG.API_BASE_URL}${window.APP_CONFIG.API_ENDPOINTS.CALCULATE_ROUTE}`;
@@ -147,7 +178,8 @@ map.on(L.Draw.Event.CREATED, function (event) {
       shootingType,
       droneModel,
       flightAltitude,
-      desiredOverlap
+      desiredOverlap,
+      forwardOverlap
     })
   })
     .then(response => response.json())
@@ -161,8 +193,48 @@ map.on(L.Draw.Event.CREATED, function (event) {
 
         // Обновляем информацию в панели
         const specs = getDroneSpecs(droneModel);
-        updateFlightParameters(specs, flightAltitude);
-        document.getElementById('spacingInfo').textContent = 'Эффективный шаг между полосами: ' + data.route.properties.effectiveSpacingMeters + ' м';
+        const props = data.route.properties;
+        const stats = props.missionStats;
+        
+        // УРОВЕНЬ 1: Информация о миссии
+        document.getElementById('coverageArea').textContent = `${stats.coverageAreaKm2} км²`;
+        document.getElementById('flightDistance').textContent = `${stats.totalFlightDistanceKm} км`;
+        document.getElementById('flightTime').textContent = `${stats.estimatedFlightTimeMin} мин`;
+        document.getElementById('photoCount').textContent = `${stats.estimatedPhotos} шт`;
+        document.getElementById('storageRequired').textContent = `${stats.estimatedStorageGB} ГБ`;
+        
+        // Индикатор батареи с цветовым кодированием
+        const batteryPercent = stats.batteryUsagePercent;
+        const batteryElement = document.getElementById('batteryUsage');
+        const batteryItem = document.getElementById('batteryItem');
+        
+        batteryElement.textContent = `${batteryPercent}%`;
+        batteryElement.className = 'metric-value battery-indicator';
+        
+        if (batteryPercent <= 70) {
+          batteryElement.classList.add('battery-ok');
+        } else if (batteryPercent <= 95) {
+          batteryElement.classList.add('battery-warning');
+        } else {
+          batteryElement.classList.add('battery-critical');
+        }
+        
+        // УРОВЕНЬ 2: Параметры покрытия
+        document.getElementById('frameSize').textContent = `${props.groundWidth} × ${props.groundLength} м`;
+        document.getElementById('gsd').textContent = `${stats.gsdCmPerPixel} см/пиксель`;
+        document.getElementById('spacingInfo').textContent = `${props.effectiveSpacingMeters} м`;
+        document.getElementById('forwardSpacingInfo').textContent = `${props.forwardSpacingMeters} м`;
+        document.getElementById('sidelapDisplay').textContent = `${props.desiredOverlap}%`;
+        document.getElementById('forwardlapDisplay').textContent = `${props.forwardOverlap}%`;
+        document.getElementById('numberOfLines').textContent = `${props.numberOfLines} шт`;
+        
+        // УРОВЕНЬ 3: Технические параметры
+        document.getElementById('droneModelDisplay').textContent = droneModel;
+        document.getElementById('focalLength').textContent = `${specs.focalLength} мм`;
+        document.getElementById('sensorSize').textContent = `${specs.sensorWidth} × ${specs.sensorWidth} мм`;
+        document.getElementById('fovHorizontal').textContent = `${stats.horizontalFOV}°`;
+        document.getElementById('fovVertical').textContent = `${stats.verticalFOV}°`;
+        document.getElementById('altitudeInfo').textContent = `${props.flightAltitude} м`;
 
         // Добавляем маркировку начала и конца маршрута
         const coords = data.route.geometry.coordinates;
@@ -199,6 +271,62 @@ document.getElementById('droneModel').addEventListener('change', (e) => {
 
 // Инициализация параметров камеры при загрузке страницы
 updateCameraInfo('DJI Matrice 30T');
+
+// --- Функции для интерактивности боковой панели ---
+
+// Функция для сворачивания/разворачивания секций
+function setupCollapsibleSections() {
+  // Секция "Параметры покрытия"
+  const coverageToggle = document.getElementById('coverageToggle');
+  const coverageContent = document.getElementById('coverageContent');
+  
+  if (coverageToggle && coverageContent) {
+    coverageToggle.addEventListener('click', function() {
+      const icon = this.querySelector('.toggle-icon');
+      if (coverageContent.classList.contains('collapsed')) {
+        coverageContent.classList.remove('collapsed');
+        coverageContent.style.display = 'block';
+        icon.textContent = '▼';
+        icon.classList.remove('rotated');
+      } else {
+        coverageContent.classList.add('collapsed');
+        setTimeout(() => {
+          coverageContent.style.display = 'none';
+        }, 300);
+        icon.textContent = '▶';
+        icon.classList.add('rotated');
+      }
+    });
+  }
+  
+  // Секция "Технические параметры"
+  const techToggle = document.getElementById('techToggle');
+  const techContent = document.getElementById('techContent');
+  
+  if (techToggle && techContent) {
+    techToggle.addEventListener('click', function() {
+      const icon = this.querySelector('.toggle-icon');
+      if (techContent.classList.contains('collapsed')) {
+        techContent.classList.remove('collapsed');
+        techContent.style.display = 'block';
+        icon.textContent = '▼';
+        icon.classList.remove('rotated');
+      } else {
+        techContent.classList.add('collapsed');
+        setTimeout(() => {
+          techContent.style.display = 'none';
+        }, 300);
+        icon.textContent = '▶';
+        icon.classList.add('rotated');
+      }
+    });
+  }
+}
+
+// Инициализация сворачиваемых секций при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+  setupCollapsibleSections();
+});
 
 // Функция для переключения темы, включая смену тайлов карты
 const themeToggleButton = document.getElementById('themeToggle');

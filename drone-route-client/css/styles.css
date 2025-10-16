@@ -147,11 +147,186 @@ body.dark-theme .info-card .list-group-item {
   width: 100%;
 }
 
+/* --- Новые стили для улучшенной боковой панели --- */
+
+/* Заголовки секций */
+.section-title {
+  margin-bottom: 15px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-title.collapsible:hover {
+  color: #007bff;
+}
+
+/* Иконки переключения */
+.toggle-icon {
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+.toggle-icon.rotated {
+  transform: rotate(-90deg);
+}
+
+/* Метрики */
+.metric-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  border: none;
+  background: transparent;
+}
+
+.metric-item-small {
+  display: flex;
+  align-items: center;
+  padding: 6px 15px;
+  border: none;
+  background: transparent;
+  font-size: 0.9rem;
+}
+
+.metric-icon {
+  font-size: 1.3rem;
+  margin-right: 10px;
+  min-width: 25px;
+  display: inline-block;
+}
+
+.metric-label {
+  flex-grow: 1;
+  font-size: 0.95rem;
+}
+
+.metric-value {
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+}
+
+/* Выделение важных метрик */
+.metric-item.highlight {
+  background: rgba(0, 123, 255, 0.05);
+  border-left: 3px solid #007bff;
+}
+
+/* Индикатор батареи */
+.battery-indicator {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.battery-ok {
+  background: #d4edda;
+  color: #155724;
+}
+
+.battery-warning {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.battery-critical {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Анимация сворачивания */
+.collapse-content {
+  overflow: hidden;
+  transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+  max-height: 1000px;
+  opacity: 1;
+}
+
+.collapse-content.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding: 0;
+}
+
+/* Карточки миссии */
+.mission-summary {
+  border-left: 4px solid #007bff;
+}
+
+.coverage-params {
+  border-left: 4px solid #28a745;
+}
+
+.tech-params {
+  border-left: 4px solid #6c757d;
+}
+
+/* Темная тема - обновленные стили */
+.dark-theme .metric-value {
+  color: #e0e0e0;
+}
+
+.dark-theme .metric-item.highlight {
+  background: rgba(0, 123, 255, 0.15);
+}
+
+.dark-theme .battery-ok {
+  background: rgba(40, 167, 69, 0.2);
+  color: #4caf50;
+}
+
+.dark-theme .battery-warning {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+}
+
+.dark-theme .battery-critical {
+  background: rgba(220, 53, 69, 0.2);
+  color: #f44336;
+}
+
+.dark-theme .section-title.collapsible:hover {
+  color: #66b3ff;
+}
+
+/* Tooltip для объяснений */
+.metric-label[data-tooltip] {
+  cursor: help;
+  border-bottom: 1px dotted #999;
+}
+
+.metric-label[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-left: 10px;
+}
+
 /* Адаптивность */
 @media (max-width: 767.98px) {
   .sidebar {
     height: auto;
     border-right: none;
     margin-bottom: 20px;
+  }
+  
+  .metric-icon {
+    font-size: 1.1rem;
+  }
+  
+  .metric-label {
+    font-size: 0.85rem;
   }
 }

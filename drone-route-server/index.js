@@ -52,9 +52,19 @@ const calculateRouteSchema = Joi.object({
     .max(0.99)
     .required()
     .messages({
-      'number.min': 'Перекрытие не может быть отрицательным',
-      'number.max': 'Перекрытие не может превышать 99%',
-      'any.required': 'Перекрытие обязательно'
+      'number.min': 'Боковое перекрытие не может быть отрицательным',
+      'number.max': 'Боковое перекрытие не может превышать 99%',
+      'any.required': 'Боковое перекрытие обязательно'
+    }),
+  
+  forwardOverlap: Joi.number()
+    .min(0)
+    .max(0.99)
+    .optional()
+    .default(0.7)
+    .messages({
+      'number.min': 'Продольное перекрытие не может быть отрицательным',
+      'number.max': 'Продольное перекрытие не может превышать 99%'
     })
 });
 
@@ -108,18 +118,27 @@ app.post('/api/calculate-route', (req, res) => {
   
   // Получаем конфигурацию выбранного дрона
   const droneConfig = getDroneConfig(selectedDroneModel);
-  const { focalLength, sensorWidth } = droneConfig.camera;
+  const { focalLength, sensorWidth, sensorHeight } = droneConfig.camera;
   
   // Получаем параметры из запроса (если они не указаны, устанавливаем значения по умолчанию)
-  const flightAltitude = Number(req.body.flightAltitude) || 50;    // м
-  const desiredOverlap = Number(req.body.desiredOverlap) || 0.3;     // доля (0.3 = 30%)
+  const flightAltitude = Number(value.flightAltitude) || 50;    // м
+  const desiredOverlap = Number(value.desiredOverlap) || 0.3;     // доля (0.3 = 30%)
+  const forwardOverlap = Number(value.forwardOverlap) || 0.7;     // доля (0.7 = 70%)
 
   // Вычисляем горизонтальный угол обзора (в радианах)
   const horizontalFOV = 2 * Math.atan(sensorWidth / (2 * focalLength));
+  // Вычисляем вертикальный угол обзора (в радианах)
+  const verticalFOV = 2 * Math.atan(sensorHeight / (2 * focalLength));
+  
   // Вычисляем ширину области, охватываемой камерой на заданной высоте (в метрах)
   const groundWidth = 2 * flightAltitude * Math.tan(horizontalFOV / 2);
-  // Эффективное расстояние между полосами съёмки с учётом перекрытия
+  // Вычисляем длину области, охватываемой камерой на заданной высоте (в метрах)
+  const groundLength = 2 * flightAltitude * Math.tan(verticalFOV / 2);
+  
+  // Эффективное расстояние между полосами съёмки с учётом бокового перекрытия
   const effectiveSpacingMeters = groundWidth * (1 - desiredOverlap);
+  // Эффективное расстояние между снимками вдоль полосы с учётом продольного перекрытия
+  const forwardSpacingMeters = groundLength * (1 - forwardOverlap);
 
   // Переводим расстояние из метров в градусы с учётом широты
   // Для широты: 1° ≈ 111320 м (постоянно)
@@ -130,11 +149,14 @@ app.post('/api/calculate-route', (req, res) => {
 
   console.log('Расчет параметров съемки:');
   console.log(`Фокусное расстояние: ${focalLength} мм`);
-  console.log(`Ширина матрицы: ${sensorWidth} мм`);
+  console.log(`Ширина матрицы: ${sensorWidth} мм, Высота матрицы: ${sensorHeight} мм`);
   console.log(`Высота полёта: ${flightAltitude} м`);
   console.log(`Горизонтальный угол обзора (rad): ${horizontalFOV.toFixed(4)}`);
+  console.log(`Вертикальный угол обзора (rad): ${verticalFOV.toFixed(4)}`);
   console.log(`Земная ширина кадра: ${groundWidth.toFixed(2)} м`);
-  console.log(`Эффективный шаг между полосами: ${effectiveSpacingMeters.toFixed(2)} м (${effectiveSpacingDegrees.toFixed(6)}°)`);
+  console.log(`Земная длина кадра: ${groundLength.toFixed(2)} м`);
+  console.log(`Эффективный шаг между полосами (боковое перекрытие ${(desiredOverlap*100).toFixed(0)}%): ${effectiveSpacingMeters.toFixed(2)} м`);
+  console.log(`Эффективный шаг между снимками (продольное перекрытие ${(forwardOverlap*100).toFixed(0)}%): ${forwardSpacingMeters.toFixed(2)} м`);
 
   // --- Построение маршрута ---
   // Константы для защиты от больших территорий
@@ -193,37 +215,135 @@ app.post('/api/calculate-route', (req, res) => {
     return aAvg - bAvg;
   });
 
-  // Объединяем отрезки в единую зигзагообразную траекторию
+  // Функция для генерации waypoints вдоль линии с заданным интервалом
+  function generateWaypoints(startPoint, endPoint, spacingMeters) {
+    const waypoints = [];
+    const lineLength = turf.distance(turf.point(startPoint), turf.point(endPoint), { units: 'meters' });
+    
+    // Если линия короче интервала, возвращаем только начало и конец
+    if (lineLength <= spacingMeters) {
+      return [startPoint, endPoint];
+    }
+    
+    const numPoints = Math.ceil(lineLength / spacingMeters);
+    
+    // Генерируем точки вдоль линии
+    for (let i = 0; i <= numPoints; i++) {
+      const fraction = i / numPoints;
+      const point = [
+        startPoint[0] + (endPoint[0] - startPoint[0]) * fraction,
+        startPoint[1] + (endPoint[1] - startPoint[1]) * fraction
+      ];
+      waypoints.push(point);
+    }
+    
+    return waypoints;
+  }
+
+  // Объединяем отрезки в единую зигзагообразную траекторию с waypoints
   let routeCoordinates = [];
+  let totalWaypoints = 0;
+  
   flightLines.forEach((line, index) => {
-    let coords = line.geometry.coordinates;
+    const [startPoint, endPoint] = line.geometry.coordinates;
+    
+    // Генерируем waypoints вдоль линии
+    let waypoints = generateWaypoints(startPoint, endPoint, forwardSpacingMeters);
+    
     // Переворачиваем каждую вторую линию для обеспечения непрерывности маршрута
     if (index % 2 === 1) {
-      coords = coords.reverse();
+      waypoints = waypoints.reverse();
     }
-    // Если маршрут уже содержит точки, добавляем последнюю точку для "сшивки" отрезков
+    
+    // Если маршрут уже содержит точки, добавляем переход от последней точки к первой точке новой линии
     if (routeCoordinates.length > 0) {
+      // Добавляем последнюю точку предыдущей линии для визуализации перехода
       routeCoordinates.push(routeCoordinates[routeCoordinates.length - 1]);
     }
-    routeCoordinates = routeCoordinates.concat(coords);
+    
+    routeCoordinates = routeCoordinates.concat(waypoints);
+    totalWaypoints += waypoints.length;
   });
 
+  // --- Расчёт расширенных метрик миссии ---
+  
+  // 1. Площадь покрытия (км²)
+  const coverageAreaKm2 = (turf.area(polygon) / 1000000).toFixed(2); // м² → км²
+  
+  // 2. Общая длина маршрута (км)
+  let totalFlightDistanceMeters = 0;
+  for (let i = 1; i < routeCoordinates.length; i++) {
+    const dist = turf.distance(
+      turf.point(routeCoordinates[i-1]), 
+      turf.point(routeCoordinates[i]),
+      { units: 'meters' }
+    );
+    totalFlightDistanceMeters += dist;
+  }
+  const totalFlightDistanceKm = (totalFlightDistanceMeters / 1000).toFixed(2);
+  
+  // 3. GSD (Ground Sample Distance) - разрешение на местности (см/пиксель)
+  const { imageWidth } = droneConfig.camera;
+  const gsdCmPerPixel = ((groundWidth * 100) / imageWidth).toFixed(2);
+  
+  // 4. Расчётное время полёта (минуты)
+  const droneSpeed = droneConfig.specs.cruiseSpeed; // м/с
+  const timeForFlightSec = totalFlightDistanceMeters / droneSpeed;
+  const timeForPhotosSec = totalWaypoints * 2; // ~2 секунды на снимок (стабилизация + съёмка)
+  const totalTimeSec = timeForFlightSec + timeForPhotosSec;
+  const estimatedFlightTimeMin = (totalTimeSec / 60).toFixed(1);
+  
+  // 5. Количество снимков
+  const estimatedPhotos = totalWaypoints;
+  
+  // 6. Требуемая память (ГБ) - предполагаем ~20 МБ на RAW снимок
+  const bytesPerPhoto = 20 * 1024 * 1024; // 20 МБ в байтах
+  const estimatedStorageGB = ((estimatedPhotos * bytesPerPhoto) / (1024 * 1024 * 1024)).toFixed(2);
+  
+  // 7. Использование батареи (%)
+  const maxFlightTimeSec = droneConfig.specs.maxFlightTime * 60 * 0.8; // 80% запаса
+  const batteryUsagePercent = Math.min(((totalTimeSec / maxFlightTimeSec) * 100), 999).toFixed(0);
+  
   // Логирование результатов
   const executionTime = Date.now() - startTime;
   console.log(`Маршрут построен успешно:`);
   console.log(`- Количество полос: ${flightLines.length}`);
+  console.log(`- Общее количество waypoints: ${totalWaypoints}`);
+  console.log(`- Площадь покрытия: ${coverageAreaKm2} км²`);
+  console.log(`- Длина маршрута: ${totalFlightDistanceKm} км`);
+  console.log(`- Расчётное время: ${estimatedFlightTimeMin} мин`);
+  console.log(`- GSD: ${gsdCmPerPixel} см/пиксель`);
+  console.log(`- Использование батареи: ${batteryUsagePercent}%`);
   console.log(`- Время выполнения: ${executionTime}ms`);
-  console.log(`- Длина маршрута: ${routeCoordinates.length} точек`);
 
   const routeGeoJSON = {
     type: "Feature",
     properties: {
       droneModel,
       shootingType,
-      flightAltitude, // информация о высоте полёта
+      flightAltitude,
       effectiveSpacingMeters: effectiveSpacingMeters.toFixed(2),
+      forwardSpacingMeters: forwardSpacingMeters.toFixed(2),
+      groundWidth: groundWidth.toFixed(2),
+      groundLength: groundLength.toFixed(2),
+      desiredOverlap: (desiredOverlap * 100).toFixed(0),
+      forwardOverlap: (forwardOverlap * 100).toFixed(0),
       numberOfLines: flightLines.length,
-      executionTime: executionTime
+      totalWaypoints: totalWaypoints,
+      executionTime: executionTime,
+      // Расширенные метрики миссии
+      missionStats: {
+        coverageAreaKm2: parseFloat(coverageAreaKm2),
+        totalFlightDistanceKm: parseFloat(totalFlightDistanceKm),
+        estimatedFlightTimeMin: parseFloat(estimatedFlightTimeMin),
+        estimatedPhotos: estimatedPhotos,
+        estimatedStorageGB: parseFloat(estimatedStorageGB),
+        batteryUsagePercent: parseInt(batteryUsagePercent),
+        gsdCmPerPixel: parseFloat(gsdCmPerPixel),
+        // Технические детали для экспертов
+        horizontalFOV: (horizontalFOV * 180 / Math.PI).toFixed(1), // в градусах
+        verticalFOV: (verticalFOV * 180 / Math.PI).toFixed(1) // в градусах
+      }
     },
     geometry: {
       type: "LineString",

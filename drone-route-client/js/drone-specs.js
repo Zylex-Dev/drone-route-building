@@ -51,19 +51,31 @@ function getDroneSpecs(model) {
  */
 function updateCameraInfo(model) {
   const specs = getDroneSpecs(model);
-  document.getElementById('focalLength').textContent = `Фокусное расстояние: ${specs.focalLength} мм`;
-  document.getElementById('sensorWidth').textContent = `Ширина матрицы: ${specs.sensorWidth} мм`;
+  
+  // Обновляем только технические параметры, которые зависят от модели
+  const focalLengthEl = document.getElementById('focalLength');
+  const sensorSizeEl = document.getElementById('sensorSize');
+  
+  if (focalLengthEl) {
+    focalLengthEl.textContent = `${specs.focalLength} мм`;
+  }
+  
+  if (sensorSizeEl) {
+    sensorSizeEl.textContent = `${specs.sensorWidth} × ${specs.sensorWidth} мм`;
+  }
   
   // Если маршрут уже построен, пересчитываем параметры
   const altitudeElement = document.getElementById('altitudeInfo');
-  if (altitudeElement.textContent !== 'Высота полёта: - м') {
+  if (altitudeElement && altitudeElement.textContent !== '-' && altitudeElement.textContent !== '- м') {
     const altitude = Number(document.getElementById('flightAltitude').value);
-    updateFlightParameters(specs, altitude);
+    if (altitude) {
+      updateFlightParameters(specs, altitude);
+    }
   }
 }
 
 /**
- * Обновить расчетные параметры полета
+ * Обновить расчетные параметры полета (используется только для предпросмотра до построения маршрута)
  * @param {Object} specs - Спецификации камеры дрона
  * @param {number} altitude - Высота полета в метрах
  */
@@ -71,8 +83,10 @@ function updateFlightParameters(specs, altitude) {
   const horizontalFOV = 2 * Math.atan(specs.sensorWidth / (2 * specs.focalLength));
   const groundWidth = 2 * altitude * Math.tan(horizontalFOV / 2);
   
-  document.getElementById('altitudeInfo').textContent = `Высота полёта: ${altitude} м`;
-  document.getElementById('fovInfo').textContent = `Горизонтальный угол обзора (rad): ${horizontalFOV.toFixed(4)}`;
-  document.getElementById('groundWidthInfo').textContent = `Земная ширина кадра: ${groundWidth.toFixed(2)} м`;
+  // Обновляем только базовые параметры, если они существуют в старой версии UI
+  const altEl = document.getElementById('altitudeInfo');
+  if (altEl) {
+    altEl.textContent = `${altitude} м`;
+  }
 }
 

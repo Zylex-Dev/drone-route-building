@@ -35,8 +35,14 @@
               <input type="number" class="form-control" id="flightAltitude" value="50" min="10" max="500" step="1">
             </div>
             <div class="mb-3">
-              <label for="desiredOverlap" class="form-label">Перекрытие (%)</label>
-              <input type="number" class="form-control" id="desiredOverlap" value="30" min="0" max="100" step="1">
+              <label for="desiredOverlap" class="form-label">Боковое перекрытие (%)</label>
+              <input type="number" class="form-control" id="desiredOverlap" value="30" min="0" max="99" step="1">
+              <small class="form-text text-muted">Перекрытие между соседними полосами</small>
+            </div>
+            <div class="mb-3">
+              <label for="forwardOverlap" class="form-label">Продольное перекрытие (%)</label>
+              <input type="number" class="form-control" id="forwardOverlap" value="70" min="0" max="99" step="1">
+              <small class="form-text text-muted">Перекрытие между последовательными снимками</small>
             </div>
             <div class="mb-3">
               <label class="form-label">Тип съёмки</label>
@@ -54,18 +60,115 @@
               </select>
             </div>
             <div class="mb-3">
-              <button id="clearAll" class="btn btn-danger btn-custom w-100">Удалить всё</button>
+              <button id="clearAll" class="btn btn-danger btn-custom w-100">Удалить миссию</button>
             </div>
           </div>
-          <div class="card-custom info-card glass">
-            <h5>Параметры съёмки</h5>
+          <!-- УРОВЕНЬ 1: Информация о миссии (всегда видна) -->
+          <div class="card-custom mission-summary glass">
+            <h5 class="section-title">📊 Информация о миссии</h5>
             <ul class="list-group list-group-flush">
-              <li class="list-group-item" id="focalLength">Фокусное расстояние: 4.5 мм</li>
-              <li class="list-group-item" id="sensorWidth">Ширина матрицы: 7.6 мм</li>
-              <li class="list-group-item" id="altitudeInfo">Высота полёта: - м</li>
-              <li class="list-group-item" id="fovInfo">Горизонтальный угол обзора (rad): -</li>
-              <li class="list-group-item" id="groundWidthInfo">Земная ширина кадра: - м</li>
-              <li class="list-group-item" id="spacingInfo">Эффективный шаг между полосами: - м</li>
+              <li class="list-group-item metric-item">
+                <span class="metric-icon">🗺️</span>
+                <span class="metric-label">Площадь покрытия:</span>
+                <strong class="metric-value" id="coverageArea">-</strong>
+              </li>
+              <li class="list-group-item metric-item">
+                <span class="metric-icon">✈️</span>
+                <span class="metric-label">Расстояние полёта:</span>
+                <strong class="metric-value" id="flightDistance">-</strong>
+              </li>
+              <li class="list-group-item metric-item">
+                <span class="metric-icon">⏱️</span>
+                <span class="metric-label">Время полёта:</span>
+                <strong class="metric-value" id="flightTime">-</strong>
+              </li>
+              <li class="list-group-item metric-item">
+                <span class="metric-icon">📸</span>
+                <span class="metric-label">Количество снимков:</span>
+                <strong class="metric-value" id="photoCount">-</strong>
+              </li>
+              <li class="list-group-item metric-item">
+                <span class="metric-icon">💾</span>
+                <span class="metric-label">Требуемая память:</span>
+                <strong class="metric-value" id="storageRequired">-</strong>
+              </li>
+              <li class="list-group-item metric-item" id="batteryItem">
+                <span class="metric-icon">🔋</span>
+                <span class="metric-label">Батарея:</span>
+                <strong class="metric-value battery-indicator" id="batteryUsage">-</strong>
+              </li>
+            </ul>
+          </div>
+
+          <!-- УРОВЕНЬ 2: Параметры покрытия (сворачиваемая секция) -->
+          <div class="card-custom coverage-params glass">
+            <h5 class="section-title collapsible" id="coverageToggle">
+              🎯 Параметры покрытия
+              <span class="toggle-icon">▶</span>
+            </h5>
+            <ul class="list-group list-group-flush collapse-content collapsed" id="coverageContent" style="display:none">
+              <li class="list-group-item metric-item">
+                <span class="metric-label">Размер кадра:</span>
+                <span class="metric-value" id="frameSize">-</span>
+              </li>
+              <li class="list-group-item metric-item">
+                <span class="metric-label">GSD (детализация):</span>
+                <span class="metric-value" id="gsd">-</span>
+              </li>
+              <li class="list-group-item metric-item">
+                <span class="metric-label">Шаг между полосами:</span>
+                <span class="metric-value" id="spacingInfo">-</span>
+              </li>
+              <li class="list-group-item metric-item">
+                <span class="metric-label">Шаг между снимками:</span>
+                <span class="metric-value" id="forwardSpacingInfo">-</span>
+              </li>
+              <li class="list-group-item metric-item">
+                <span class="metric-label">Боковое перекрытие:</span>
+                <span class="metric-value" id="sidelapDisplay">-</span>
+              </li>
+              <li class="list-group-item metric-item">
+                <span class="metric-label">Продольное перекрытие:</span>
+                <span class="metric-value" id="forwardlapDisplay">-</span>
+              </li>
+              <li class="list-group-item metric-item">
+                <span class="metric-label">Количество полос:</span>
+                <span class="metric-value" id="numberOfLines">-</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- УРОВЕНЬ 3: Технические параметры (скрыто по умолчанию) -->
+          <div class="card-custom tech-params glass">
+            <h5 class="section-title collapsible" id="techToggle">
+              ⚙️ Технические параметры
+              <span class="toggle-icon">▶</span>
+            </h5>
+            <ul class="list-group list-group-flush collapse-content collapsed" id="techContent" style="display:none">
+              <li class="list-group-item metric-item-small">
+                <span class="metric-label">Модель дрона:</span>
+                <span class="metric-value" id="droneModelDisplay">-</span>
+              </li>
+              <li class="list-group-item metric-item-small">
+                <span class="metric-label">Фокусное расстояние:</span>
+                <span class="metric-value" id="focalLength">-</span>
+              </li>
+              <li class="list-group-item metric-item-small">
+                <span class="metric-label">Размер матрицы:</span>
+                <span class="metric-value" id="sensorSize">-</span>
+              </li>
+              <li class="list-group-item metric-item-small">
+                <span class="metric-label">Горизонтальный FOV:</span>
+                <span class="metric-value" id="fovHorizontal">-</span>
+              </li>
+              <li class="list-group-item metric-item-small">
+                <span class="metric-label">Вертикальный FOV:</span>
+                <span class="metric-value" id="fovVertical">-</span>
+              </li>
+              <li class="list-group-item metric-item-small">
+                <span class="metric-label">Высота полёта:</span>
+                <span class="metric-value" id="altitudeInfo">-</span>
+              </li>
             </ul>
           </div>
         </div>
