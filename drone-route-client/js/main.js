@@ -180,23 +180,28 @@ map.on(L.Draw.Event.CREATED, function (event) {
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        // Используем улучшенную визуализацию маршрута с camera footprints
+        // Используем улучшенную визуализацию маршрута с camera footprints и waypoints
         currentRouteVisualization = visualizeEnhancedRoute(map, data.route, {
-          showFootprints: true // По умолчанию показываем зоны покрытия камеры
+          showFootprints: true, // По умолчанию показываем зоны покрытия камеры
+          showWaypoints: true   // По умолчанию показываем точки съёмки
         });
         
-        // Добавляем слои и маркеры на карту
+        // Добавляем слои и маркеры на карту (порядок важен для правильного отображения)
         if (currentRouteVisualization) {
-          // Сначала добавляем footprints (чтобы они были под маршрутом)
+          // 1. Сначала добавляем footprints (самый нижний слой)
           if (currentRouteVisualization.footprintsLayer) {
             currentRouteVisualization.footprintsLayer.addTo(map);
           }
-          // Затем маршрут
+          // 2. Затем маршрут
           if (currentRouteVisualization.layers) {
             currentRouteVisualization.layers.addTo(map);
             map.fitBounds(currentRouteVisualization.layers.getBounds());
           }
-          // И маркеры сверху
+          // 3. Waypoints (точки съёмки) - поверх маршрута
+          if (currentRouteVisualization.waypointsLayer) {
+            currentRouteVisualization.waypointsLayer.addTo(map);
+          }
+          // 4. И маркеры START/FINISH на самом верху
           if (currentRouteVisualization.startMarker) {
             currentRouteVisualization.startMarker.addTo(map);
           }

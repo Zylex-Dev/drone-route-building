@@ -96,16 +96,52 @@ function createCameraFootprint(centerLatLng, groundWidth, groundLength, bearing,
 }
 
 /**
+ * Создание маркера точки съёмки (waypoint)
+ * @param {Array} latLng - Координаты [lat, lng]
+ * @param {number} waypointNumber - Номер точки съёмки
+ * @returns {L.CircleMarker} - Маркер точки съёмки
+ */
+function createWaypointMarker(latLng, waypointNumber) {
+  const marker = L.circleMarker(latLng, {
+    radius: 4, // Увеличен с 3 до 4 для лучшей видимости
+    fillColor: '#ff6b6b',
+    color: '#ffffff',
+    weight: 1.5,
+    opacity: 0.95,
+    fillOpacity: 0.85,
+    className: 'waypoint-photo-marker'
+  });
+  
+  // Добавляем tooltip с информацией о точке съёмки
+  // permanent: false - tooltip появляется только при hover
+  // sticky: true - tooltip следует за курсором (помогает избежать дрожания)
+  marker.bindTooltip(`
+    <div style="font-size: 11px; font-family: 'Inter', sans-serif;">
+      <strong>📷 Снимок #${waypointNumber}</strong><br>
+      Координаты: ${latLng[0].toFixed(6)}°, ${latLng[1].toFixed(6)}°
+    </div>
+  `, {
+    permanent: false,
+    sticky: true, // Tooltip следует за курсором
+    direction: 'top',
+    offset: [0, -10]
+  });
+  
+  return marker;
+}
+
+/**
  * Визуализация маршрута с улучшенными стилями
  * @param {L.Map} map - Объект карты Leaflet
  * @param {Object} routeData - Данные маршрута от сервера
- * @param {Object} options - Опции визуализации { showFootprints: boolean }
- * @returns {Object} - Объект с созданными слоями { layers, footprintsLayer, startMarker, endMarker }
+ * @param {Object} options - Опции визуализации { showFootprints: boolean, showWaypoints: boolean }
+ * @returns {Object} - Объект с созданными слоями { layers, footprintsLayer, waypointsLayer, startMarker, endMarker }
  */
 function visualizeEnhancedRoute(map, routeData, options = {}) {
   const segments = routeData.properties.segments;
   const coords = routeData.geometry.coordinates;
   const showFootprints = options.showFootprints !== undefined ? options.showFootprints : true;
+  const showWaypoints = options.showWaypoints !== undefined ? options.showWaypoints : true;
   
   if (!segments || segments.length === 0) {
     console.warn('Нет данных о сегментах для визуализации');
@@ -122,6 +158,9 @@ function visualizeEnhancedRoute(map, routeData, options = {}) {
   // Создаем отдельную группу для camera footprints
   const footprintsLayer = L.featureGroup();
   
+  // Создаем отдельную группу для waypoint маркеров
+  const waypointsLayer = L.featureGroup();
+  
   // Вычисляем общее количество точек для расчета прогресса
   let totalPoints = 0;
   segments.forEach(seg => {
@@ -129,7 +168,7 @@ function visualizeEnhancedRoute(map, routeData, options = {}) {
   });
   
   let currentPointIndex = 0;
-  let waypointNumber = 1; // Счетчик для footprints
+  let waypointNumber = 1; // Счетчик для footprints и waypoints
   
   // Отрисовываем каждый сегмент
   segments.forEach((segment, segmentIndex) => {
@@ -177,23 +216,38 @@ function visualizeEnhancedRoute(map, routeData, options = {}) {
             waypointNumber
           );
           footprintsLayer.addLayer(footprint);
-          waypointNumber++;
         }
         
+        // Создаем waypoint маркер для каждой точки съёмки
+        if (showWaypoints) {
+          const waypointMarker = createWaypointMarker(latLngs[i], waypointNumber);
+          waypointsLayer.addLayer(waypointMarker);
+        }
+        
+        waypointNumber++;
         currentPointIndex++;
       }
       
-      // Создаем footprint для последней точки сегмента
-      if (showFootprints && latLngs.length > 0) {
+      // Создаем footprint и waypoint для последней точки сегмента
+      if (latLngs.length > 0) {
         const lastLatLng = latLngs[latLngs.length - 1];
-        const footprint = createCameraFootprint(
-          lastLatLng,
-          groundWidth,
-          groundLength,
-          0,
-          waypointNumber
-        );
-        footprintsLayer.addLayer(footprint);
+        
+        if (showFootprints) {
+          const footprint = createCameraFootprint(
+            lastLatLng,
+            groundWidth,
+            groundLength,
+            0,
+            waypointNumber
+          );
+          footprintsLayer.addLayer(footprint);
+        }
+        
+        if (showWaypoints) {
+          const waypointMarker = createWaypointMarker(lastLatLng, waypointNumber);
+          waypointsLayer.addLayer(waypointMarker);
+        }
+        
         waypointNumber++;
       }
       
@@ -310,6 +364,7 @@ function visualizeEnhancedRoute(map, routeData, options = {}) {
     return {
       layers: routeLayers,
       footprintsLayer: footprintsLayer,
+      waypointsLayer: waypointsLayer,
       startMarker: startMarker,
       endMarker: endMarker
     };
@@ -318,6 +373,7 @@ function visualizeEnhancedRoute(map, routeData, options = {}) {
   return {
     layers: routeLayers,
     footprintsLayer: footprintsLayer,
+    waypointsLayer: waypointsLayer,
     startMarker: null,
     endMarker: null
   };
@@ -336,6 +392,9 @@ function clearRouteVisualization(map, oldRouteObj) {
   }
   if (oldRouteObj.footprintsLayer) {
     map.removeLayer(oldRouteObj.footprintsLayer);
+  }
+  if (oldRouteObj.waypointsLayer) {
+    map.removeLayer(oldRouteObj.waypointsLayer);
   }
   if (oldRouteObj.startMarker) {
     map.removeLayer(oldRouteObj.startMarker);
