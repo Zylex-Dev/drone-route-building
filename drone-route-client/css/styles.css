@@ -14,16 +14,7 @@ html {
   transition: background 0.3s, color 0.3s;
 }
 
-/* Темная тема */
-body.dark-theme {
-  background: #1e1e2a;
-  color: #e0e0e0;
-}
-
-/* Текст в карточках параметров съемки в темной теме делаем белым */
-body.dark-theme .info-card .list-group-item {
-  color: #fff;
-}
+/* Убрана темная тема - используем только светлую */
 
 /* Контейнеры */
 .container-fluid {
@@ -41,33 +32,118 @@ body.dark-theme .info-card .list-group-item {
   transition: background 0.3s, border-color 0.3s;
 }
 
-body.dark-theme .sidebar {
-  background: rgba(30, 30, 42, 0.8);
-  border-color: rgba(255, 255, 255, 0.1);
-}
+/* === Панель управления визуализацией === */
 
-/* Кнопка переключения темы в правом верхнем углу */
-#themeToggleContainer {
+/* Панель управления визуализацией маршрута (в правом верхнем углу) */
+.visualization-control-panel {
   position: fixed;
   top: 20px;
   right: 20px;
   z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 15px;
+  min-width: 310px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
 }
 
-.theme-toggle {
-  background: #007bff;
-  color: #fff;
+.control-panel-title {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #333;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+
+.btn-close-panel {
+  background: none;
   border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-weight: 500;
+  font-size: 12px;
+  color: #666;
   cursor: pointer;
-  transition: background 0.3s, transform 0.3s;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s;
 }
 
-.theme-toggle:hover {
-  background: #0056b3;
-  transform: scale(1.05);
+.btn-close-panel:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+
+.control-panel-content {
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  max-height: 200px;
+  opacity: 1;
+  overflow: hidden;
+}
+
+.control-panel-content.collapsed {
+  max-height: 0;
+  opacity: 0;
+}
+
+.visualization-control-panel .form-check {
+  margin-bottom: 10px;
+  padding-left: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.visualization-control-panel .form-check:last-child {
+  margin-bottom: 0;
+}
+
+.visualization-control-panel .form-check-input {
+  cursor: pointer;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.visualization-control-panel .form-check-label {
+  cursor: pointer;
+  font-size: 13px;
+  color: #444;
+  user-select: none;
+  padding: 0;
+  margin: 0;
+  white-space: nowrap;
+}
+
+
+/* Анимация появления панели */
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.visualization-control-panel {
+  animation: slideInFromRight 0.3s ease-out;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 767.98px) {
+  .visualization-control-panel {
+    top: 20px;
+    right: 10px;
+    min-width: 240px;
+    padding: 12px;
+  }
 }
 
 /* Карточки с эффектом glassmorphism */
@@ -83,10 +159,6 @@ body.dark-theme .sidebar {
   transition: background 0.3s, box-shadow 0.3s;
 }
 
-body.dark-theme .card-custom {
-  background: rgba(30, 30, 42, 0.6);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
 
 /* Заголовки карточек */
 .card-custom h4,
@@ -112,15 +184,6 @@ body.dark-theme .card-custom {
   box-shadow: 0 0 4px rgba(0, 123, 255, 0.25);
 }
 
-body.dark-theme .form-control {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid #555;
-  color: #e0e0e0;
-}
-
-body.dark-theme .form-control:focus {
-  border-color: #66afe9;
-}
 
 /* Стили для информационной карточки */
 .info-card .list-group-item {
@@ -131,9 +194,6 @@ body.dark-theme .form-control:focus {
   transition: border-color 0.3s;
 }
 
-body.dark-theme .info-card .list-group-item {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
 
 /* Кнопки */
 .btn-custom {
@@ -449,20 +509,6 @@ body.dark-theme .info-card .list-group-item {
   font-family: 'Inter', sans-serif;
 }
 
-/* Темная тема для маркеров */
-body.dark-theme .marker-label {
-  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
-}
-
-body.dark-theme .leaflet-popup-content-wrapper {
-  background: rgba(30, 30, 42, 0.95);
-  color: #e0e0e0;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-}
-
-body.dark-theme .leaflet-popup-tip {
-  background: rgba(30, 30, 42, 0.95);
-}
 
 /* Стили для tooltip маршрута */
 .leaflet-tooltip {
@@ -476,10 +522,6 @@ body.dark-theme .leaflet-popup-tip {
   font-size: 12px;
 }
 
-body.dark-theme .leaflet-tooltip {
-  background: rgba(255, 255, 255, 0.9);
-  color: #1e1e2a;
-}
 
 /* === Стили для camera footprints (зоны покрытия камеры) === */
 
@@ -512,11 +554,6 @@ body.dark-theme .leaflet-tooltip {
   }
 }
 
-/* Адаптация для темной темы */
-body.dark-theme .camera-footprint {
-  stroke: #66b3ff !important;
-  fill: #66b3ff !important;
-}
 
 /* Снижение видимости на мобильных устройствах для уменьшения визуального шума */
 @media (max-width: 767.98px) {
@@ -560,11 +597,6 @@ body.dark-theme .camera-footprint {
   }
 }
 
-/* Адаптация для темной темы */
-body.dark-theme .waypoint-photo-marker {
-  fill: #ff8787 !important;
-  stroke: #ffffff !important;
-}
 
 /* Снижение размера на мобильных устройствах */
 @media (max-width: 767.98px) {

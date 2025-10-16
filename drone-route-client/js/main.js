@@ -1,21 +1,14 @@
 // Инициализация карты с центром в Коломне
 const kolomnaCoords = [55.095276, 38.765574];
 
-// Создаем два слоя: светлый и альтернативный темный (Esri World Dark Gray Canvas)
-const lightTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+// Создаем слой карты OpenStreetMap
+const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
   attribution: '&copy; OpenStreetMap contributors'
 });
 
-const darkTileLayer = L.tileLayer(
-  'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
-  maxZoom: 16,
-  attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
-}
-);
-
-// Инициализируем карту с светлым слоем по умолчанию
-const map = L.map('map', { layers: [lightTileLayer] }).setView(kolomnaCoords, 13);
+// Инициализируем карту
+const map = L.map('map', { layers: [tileLayer] }).setView(kolomnaCoords, 13);
 
 // Маркер центра Коломны (опционально)
 L.marker(kolomnaCoords).addTo(map)
@@ -75,6 +68,9 @@ function clearAllObjects() {
     clearRouteVisualization(map, currentRouteVisualization);
     currentRouteVisualization = null;
   }
+  
+  // Скрываем панель управления визуализацией
+  hideVisualizationPanel();
 
   // Сброс настроек полёта к дефолтным значениям
   document.getElementById('flightAltitude').value = 50;
@@ -125,6 +121,69 @@ function validateInputs(flightAltitude, desiredOverlap) {
     return false;
   }
   return true;
+}
+
+// === Управление панелью визуализации ===
+
+// Функция для показа/скрытия панели управления визуализацией
+function showVisualizationPanel() {
+  const panel = document.getElementById('visualizationControlPanel');
+  if (panel) {
+    panel.style.display = 'block';
+  }
+}
+
+function hideVisualizationPanel() {
+  const panel = document.getElementById('visualizationControlPanel');
+  if (panel) {
+    panel.style.display = 'none';
+  }
+}
+
+// Кнопка сворачивания/разворачивания панели
+const togglePanelBtn = document.getElementById('toggleControlPanel');
+const controlPanelContent = document.getElementById('controlPanelContent');
+
+if (togglePanelBtn && controlPanelContent) {
+  togglePanelBtn.addEventListener('click', () => {
+    if (controlPanelContent.classList.contains('collapsed')) {
+      controlPanelContent.classList.remove('collapsed');
+      togglePanelBtn.textContent = '▼';
+      togglePanelBtn.title = 'Свернуть';
+    } else {
+      controlPanelContent.classList.add('collapsed');
+      togglePanelBtn.textContent = '▶';
+      togglePanelBtn.title = 'Развернуть';
+    }
+  });
+}
+
+// Обработчики для чекбоксов
+const showFootprintsCheckbox = document.getElementById('showFootprints');
+const showWaypointsCheckbox = document.getElementById('showWaypoints');
+
+if (showFootprintsCheckbox) {
+  showFootprintsCheckbox.addEventListener('change', (e) => {
+    if (currentRouteVisualization && currentRouteVisualization.footprintsLayer) {
+      if (e.target.checked) {
+        currentRouteVisualization.footprintsLayer.addTo(map);
+      } else {
+        map.removeLayer(currentRouteVisualization.footprintsLayer);
+      }
+    }
+  });
+}
+
+if (showWaypointsCheckbox) {
+  showWaypointsCheckbox.addEventListener('change', (e) => {
+    if (currentRouteVisualization && currentRouteVisualization.waypointsLayer) {
+      if (e.target.checked) {
+        currentRouteVisualization.waypointsLayer.addTo(map);
+      } else {
+        map.removeLayer(currentRouteVisualization.waypointsLayer);
+      }
+    }
+  });
 }
 
 // Обработка завершения рисования объекта
@@ -182,26 +241,32 @@ map.on(L.Draw.Event.CREATED, function (event) {
       if (data.success) {
         // Используем улучшенную визуализацию маршрута с camera footprints и waypoints
         currentRouteVisualization = visualizeEnhancedRoute(map, data.route, {
-          showFootprints: true, // По умолчанию показываем зоны покрытия камеры
-          showWaypoints: true   // По умолчанию показываем точки съёмки
+          showFootprints: true, // Создаём слой footprints
+          showWaypoints: true   // Создаём слой waypoints
         });
         
         // Добавляем слои и маркеры на карту (порядок важен для правильного отображения)
         if (currentRouteVisualization) {
-          // 1. Сначала добавляем footprints (самый нижний слой)
-          if (currentRouteVisualization.footprintsLayer) {
+          // Показываем панель управления визуализацией
+          showVisualizationPanel();
+          
+          // 1. Footprints добавляем только если чекбокс включен
+          if (currentRouteVisualization.footprintsLayer && showFootprintsCheckbox.checked) {
             currentRouteVisualization.footprintsLayer.addTo(map);
           }
-          // 2. Затем маршрут
+          
+          // 2. Затем маршрут (всегда показываем)
           if (currentRouteVisualization.layers) {
             currentRouteVisualization.layers.addTo(map);
             map.fitBounds(currentRouteVisualization.layers.getBounds());
           }
-          // 3. Waypoints (точки съёмки) - поверх маршрута
-          if (currentRouteVisualization.waypointsLayer) {
+          
+          // 3. Waypoints добавляем только если чекбокс включен
+          if (currentRouteVisualization.waypointsLayer && showWaypointsCheckbox.checked) {
             currentRouteVisualization.waypointsLayer.addTo(map);
           }
-          // 4. И маркеры START/FINISH на самом верху
+          
+          // 4. И маркеры START/FINISH на самом верху (всегда показываем)
           if (currentRouteVisualization.startMarker) {
             currentRouteVisualization.startMarker.addTo(map);
           }
@@ -328,23 +393,4 @@ document.addEventListener('DOMContentLoaded', function() {
   setupCollapsibleSections();
 });
 
-// Функция для переключения темы, включая смену тайлов карты
-const themeToggleButton = document.getElementById('themeToggle');
-
-themeToggleButton.addEventListener('click', () => {
-  document.body.classList.toggle('dark-theme');
-
-  if (document.body.classList.contains('dark-theme')) {
-    // Если включена темная тема — показываем эмодзи солнца (для перехода на светлую)
-    themeToggleButton.innerHTML = '☀️ Светлая тема';
-    // Переключаем карту на темный вариант
-    map.removeLayer(lightTileLayer);
-    darkTileLayer.addTo(map);
-  } else {
-    // Если включена светлая тема — показываем эмодзи луны (для перехода на темную)
-    themeToggleButton.innerHTML = '🌙 Темная тема';
-    // Переключаем карту на светлый вариант
-    map.removeLayer(darkTileLayer);
-    lightTileLayer.addTo(map);
-  }
-});
+// Темная тема удалена - используем только светлую тему

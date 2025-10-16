@@ -18,9 +18,26 @@
 </head>
 
 <body>
-  <!-- Кнопка переключения темы вынесена в отдельный контейнер -->
-  <div id="themeToggleContainer">
-    <button id="themeToggle" class="theme-toggle btn">🌙 Темная тема</button>
+  <!-- Панель управления визуализацией маршрута -->
+  <div id="visualizationControlPanel" class="visualization-control-panel glass" style="display: none;">
+    <h6 class="control-panel-title">
+      <span>Визуализация</span>
+      <button id="toggleControlPanel" class="btn-close-panel" title="Свернуть">▼</button>
+    </h6>
+    <div id="controlPanelContent" class="control-panel-content">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="showFootprints">
+        <label class="form-check-label" for="showFootprints">
+          📐 Зоны покрытия камеры
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="showWaypoints">
+        <label class="form-check-label" for="showWaypoints">
+          📍 Точки съёмки
+        </label>
+      </div>
+    </div>
   </div>
 
   <div class="container-fluid h-100">
