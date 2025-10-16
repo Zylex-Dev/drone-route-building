@@ -73,7 +73,7 @@ body.dark-theme .sidebar {
 /* Карточки с эффектом glassmorphism */
 .card-custom {
   border: none;
-  border-radius: 16p;
+  border-radius: 16px;
   padding: 20px;
   padding-left: 30px;
   margin-bottom: 20px;

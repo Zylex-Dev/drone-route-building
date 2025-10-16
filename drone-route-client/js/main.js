@@ -128,7 +128,7 @@ map.on(L.Draw.Event.CREATED, function (event) {
 
   // Дополнительные параметры для запроса
   const shootingType = 'Панорамная съемка';
-  const droneModel = 'DJI Matrice 30T';
+  const droneModel = document.getElementById('droneModel').value;
   const flightAltitude = Number(document.getElementById('flightAltitude').value);
   const desiredOverlapInput = Number(document.getElementById('desiredOverlap').value);
 
@@ -138,7 +138,8 @@ map.on(L.Draw.Event.CREATED, function (event) {
   const desiredOverlap = desiredOverlapInput / 100;
 
   // Отправка POST-запроса на сервер
-  fetch('http://localhost:3000/api/calculate-route', {
+  const apiUrl = `${window.APP_CONFIG.API_BASE_URL}${window.APP_CONFIG.API_ENDPOINTS.CALCULATE_ROUTE}`;
+  fetch(apiUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -159,11 +160,8 @@ map.on(L.Draw.Event.CREATED, function (event) {
         map.fitBounds(routeLayer.getBounds());
 
         // Обновляем информацию в панели
-        document.getElementById('altitudeInfo').textContent = 'Высота полёта: ' + flightAltitude + ' м';
-        const horizontalFOV = (2 * Math.atan(7.6 / (2 * 4.5))).toFixed(4);
-        document.getElementById('fovInfo').textContent = 'Горизонтальный угол обзора (rad): ' + horizontalFOV;
-        const groundWidth = (2 * flightAltitude * Math.tan((2 * Math.atan(7.6 / (2 * 4.5))) / 2)).toFixed(2);
-        document.getElementById('groundWidthInfo').textContent = 'Земная ширина кадра: ' + groundWidth + ' м';
+        const specs = getDroneSpecs(droneModel);
+        updateFlightParameters(specs, flightAltitude);
         document.getElementById('spacingInfo').textContent = 'Эффективный шаг между полосами: ' + data.route.properties.effectiveSpacingMeters + ' м';
 
         // Добавляем маркировку начала и конца маршрута
@@ -193,6 +191,14 @@ map.on(L.Draw.Event.CREATED, function (event) {
       alert('Ошибка соединения с сервером: ' + error);
     });
 });
+
+// Event listener для изменения модели дрона
+document.getElementById('droneModel').addEventListener('change', (e) => {
+  updateCameraInfo(e.target.value);
+});
+
+// Инициализация параметров камеры при загрузке страницы
+updateCameraInfo('DJI Matrice 30T');
 
 // Функция для переключения темы, включая смену тайлов карты
 const themeToggleButton = document.getElementById('themeToggle');

@@ -43,8 +43,15 @@
               <input type="text" class="form-control" value="Панорамная съемка" disabled>
             </div>
             <div class="mb-3">
-              <label class="form-label">Модель дрона</label>
-              <input type="text" class="form-control" value="DJI Matrice 30T" disabled>
+              <label for="droneModel" class="form-label">Модель дрона</label>
+              <select class="form-select" id="droneModel">
+                <option value="DJI Matrice 30T" selected>DJI Matrice 30T</option>
+                <option value="DJI Mavic 3">DJI Mavic 3</option>
+                <option value="DJI Phantom 4 Pro">DJI Phantom 4 Pro</option>
+                <option value="DJI Air 2S">DJI Air 2S</option>
+                <option value="DJI Mini 3 Pro">DJI Mini 3 Pro</option>
+                <option value="Autel EVO Lite+">Autel EVO Lite+</option>
+              </select>
             </div>
             <div class="mb-3">
               <button id="clearAll" class="btn btn-danger btn-custom w-100">Удалить всё</button>
@@ -76,6 +83,10 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <!-- Leaflet.draw JS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+  <!-- Конфигурация приложения -->
+  <script src="./js/config.js"></script>
+  <!-- Спецификации дронов -->
+  <script src="./js/drone-specs.js"></script>
   <!-- Собственные скрипты -->
   <script src="./js/main.js"></script>
 </body>
