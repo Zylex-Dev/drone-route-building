@@ -1,0 +1,35 @@
+/**
+ * Drone Flight Route Planner - Main Stylesheet
+ * Модульная структура CSS для улучшенной поддерживаемости
+ */
+
+/* === Base Styles === */
+@import url('./base/reset.css');
+@import url('./base/variables.css');
+
+/* === Layout === */
+@import url('./layout/sidebar.css');
+@import url('./layout/map.css');
+
+/* === Components === */
+@import url('./components/buttons.css');
+@import url('./components/cards.css');
+@import url('./components/forms.css');
+@import url('./components/metrics.css');
+
+/* === Modules === */
+@import url('./modules/visualization-panel.css');
+@import url('./modules/route-markers.css');
+@import url('./modules/camera-footprints.css');
+@import url('./modules/waypoint-markers.css');
+@import url('./modules/simulation-panel.css');
+
+/* === Simulation === */
+@import url('./simulation/controls.css');
+@import url('./simulation/progress.css');
+@import url('./simulation/stats.css');
+@import url('./simulation/drone-marker.css');
+
+/* === Utils === */
+@import url('./utils/responsive.css');
+

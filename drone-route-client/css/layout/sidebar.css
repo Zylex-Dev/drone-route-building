@@ -1,0 +1,20 @@
+/* Левая панель */
+.sidebar {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  overflow-y: auto;
+  height: 100%;
+  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  transition: background 0.3s, border-color 0.3s;
+}
+
+/* Адаптивность */
+@media (max-width: 767.98px) {
+  .sidebar {
+    height: auto;
+    border-right: none;
+    margin-bottom: 20px;
+  }
+}
+

@@ -1,0 +1,30 @@
+/* CSS переменные и темная тема (удалена темная тема) */
+
+/* Темная тема - обновленные стили */
+.dark-theme .metric-value {
+  color: #e0e0e0;
+}
+
+.dark-theme .metric-item.highlight {
+  background: rgba(0, 123, 255, 0.15);
+}
+
+.dark-theme .battery-ok {
+  background: rgba(40, 167, 69, 0.2);
+  color: #4caf50;
+}
+
+.dark-theme .battery-warning {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+}
+
+.dark-theme .battery-critical {
+  background: rgba(220, 53, 69, 0.2);
+  color: #f44336;
+}
+
+.dark-theme .section-title.collapsible:hover {
+  color: #66b3ff;
+}
+

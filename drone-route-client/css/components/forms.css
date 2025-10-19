@@ -1,0 +1,17 @@
+/* Стили для форм */
+.form-label {
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.form-control {
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  transition: border-color 0.3s;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.25);
+}
+

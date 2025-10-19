@@ -1,0 +1,42 @@
+/* Карточки с эффектом glassmorphism */
+.card-custom {
+  border: none;
+  border-radius: 16px;
+  padding: 20px;
+  padding-left: 30px;
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(8px);
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+/* Заголовки карточек */
+.card-custom h4,
+.card-custom h5 {
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+/* Стили для информационной карточки */
+.info-card .list-group-item {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 10px 0;
+  transition: border-color 0.3s;
+}
+
+/* Карточки миссии */
+.mission-summary {
+  border-left: 4px solid #007bff;
+}
+
+.coverage-params {
+  border-left: 4px solid #28a745;
+}
+
+.tech-params {
+  border-left: 4px solid #6c757d;
+}
+

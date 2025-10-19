@@ -13,8 +13,8 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
   <!-- Leaflet.draw CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css">
-  <!-- Собственные стили -->
-  <link rel="stylesheet" href="./css/styles.css">
+  <!-- Собственные стили (модульная структура) -->
+  <link rel="stylesheet" href="./css/main.css">
 </head>
 
 <body>
@@ -307,11 +307,22 @@
   <script src="./js/config.js"></script>
   <!-- Спецификации дронов -->
   <script src="./js/drone-specs.js"></script>
+  
+  <!-- Модули приложения -->
+  <script src="./js/modules/map-init.js"></script>
+  <script src="./js/modules/ui-controller.js"></script>
+  <script src="./js/modules/route-builder.js"></script>
+  <script src="./js/modules/drawing-controls.js"></script>
+  <script src="./js/modules/collapsible-sections.js"></script>
+  
   <!-- Модуль визуализации маршрута -->
-  <script src="./js/route-visualization.js"></script>
-  <!-- Модуль симуляции полёта -->
-  <script src="./js/flight-simulation.js"></script>
-  <!-- Собственные скрипты -->
+  <script src="./js/visualization/route-visualization.js"></script>
+  
+  <!-- Модули симуляции -->
+  <script src="./js/simulation/flight-simulation.js"></script>
+  <script src="./js/simulation/simulation-controls.js"></script>
+  
+  <!-- Главный файл приложения (orchestrator) -->
   <script src="./js/main.js"></script>
 </body>
 
