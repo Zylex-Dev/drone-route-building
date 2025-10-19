@@ -38,33 +38,33 @@ const calculateRouteSchema = Joi.object({
     .max(100),
   
   flightAltitude: Joi.number()
-    .min(10)
-    .max(500)
+    .min(5)
+    .max(400)
     .required()
     .messages({
-      'number.min': 'Высота полёта должна быть не менее 10 метров',
-      'number.max': 'Высота полёта не может превышать 500 метров',
+      'number.min': 'Высота полёта должна быть не менее 5 метров',
+      'number.max': 'Высота полёта не может превышать 400 метров',
       'any.required': 'Высота полёта обязательна'
     }),
   
   desiredOverlap: Joi.number()
-    .min(0)
-    .max(0.99)
+    .min(0.10)
+    .max(0.95)
     .required()
     .messages({
-      'number.min': 'Боковое перекрытие не может быть отрицательным',
-      'number.max': 'Боковое перекрытие не может превышать 99%',
+      'number.min': 'Боковое перекрытие должно быть не менее 10%',
+      'number.max': 'Боковое перекрытие не может превышать 95%',
       'any.required': 'Боковое перекрытие обязательно'
     }),
   
   forwardOverlap: Joi.number()
-    .min(0)
-    .max(0.99)
+    .min(0.50)
+    .max(0.95)
     .optional()
     .default(0.7)
     .messages({
-      'number.min': 'Продольное перекрытие не может быть отрицательным',
-      'number.max': 'Продольное перекрытие не может превышать 99%'
+      'number.min': 'Продольное перекрытие должно быть не менее 50%',
+      'number.max': 'Продольное перекрытие не может превышать 95%'
     })
 });
 
@@ -106,13 +106,13 @@ app.post('/api/calculate-route', (req, res) => {
   
   // Проверяем размер территории
   const territoryArea = turf.area(polygon); // площадь в м²
-  const MIN_TERRITORY_AREA = 2500; // минимум 2500 м² (примерно 50м x 50м)
-  const MAX_TERRITORY_AREA = 5000000; // максимум 5 км² (5 млн м²)
+  const MIN_TERRITORY_AREA = 100; // минимум 100 м² (примерно 10м x 10м)
+  const MAX_TERRITORY_AREA = 10000000; // максимум 10 км² (10 млн м²)
   
   if (territoryArea < MIN_TERRITORY_AREA) {
     return res.status(400).json({ 
       success: false, 
-      message: `Территория слишком мала для построения маршрута. Минимальная площадь: ${MIN_TERRITORY_AREA} м² (текущая: ${territoryArea.toFixed(2)} м²). Пожалуйста, выберите большую область.` 
+      message: `Территория слишком мала для построения маршрута. Минимальная площадь: ${MIN_TERRITORY_AREA} м² (~10×10 м, текущая: ${territoryArea.toFixed(2)} м²). Пожалуйста, выберите большую область.` 
     });
   }
   
@@ -121,7 +121,7 @@ app.post('/api/calculate-route', (req, res) => {
     const maxAreaKm2 = (MAX_TERRITORY_AREA / 1000000).toFixed(2);
     return res.status(400).json({ 
       success: false, 
-      message: `Территория слишком велика для построения маршрута. Максимальная площадь: ${maxAreaKm2} км² (текущая: ${currentAreaKm2} км²). Пожалуйста, разбейте задачу на несколько меньших территорий.` 
+      message: `Территория слишком велика для построения маршрута. Максимальная площадь: ${maxAreaKm2} км² (текущая: ${currentAreaKm2} км²). Для больших территорий рекомендуется разбить на несколько миссий.` 
     });
   }
 
@@ -380,6 +380,7 @@ app.post('/api/calculate-route', (req, res) => {
         estimatedStorageGB: parseFloat(estimatedStorageGB),
         batteryUsagePercent: parseInt(batteryUsagePercent),
         gsdCmPerPixel: parseFloat(gsdCmPerPixel),
+        cruiseSpeed: droneSpeed, // Крейсерская скорость дрона для симуляции
         // Технические детали для экспертов
         horizontalFOV: (horizontalFOV * 180 / Math.PI).toFixed(1), // в градусах
         verticalFOV: (verticalFOV * 180 / Math.PI).toFixed(1) // в градусах

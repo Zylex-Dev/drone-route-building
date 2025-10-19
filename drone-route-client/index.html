@@ -28,13 +28,13 @@
       <div class="form-check">
         <input class="form-check-input" type="checkbox" id="showFootprints">
         <label class="form-check-label" for="showFootprints">
-          📐 Зоны покрытия камеры
+          Зоны покрытия камеры
         </label>
       </div>
       <div class="form-check">
         <input class="form-check-input" type="checkbox" id="showWaypoints">
         <label class="form-check-label" for="showWaypoints">
-          📍 Точки съёмки
+          Точки съёмки
         </label>
       </div>
     </div>
@@ -49,16 +49,16 @@
             <h4>Настройки полёта</h4>
             <div class="mb-3">
               <label for="flightAltitude" class="form-label">Высота полёта (м)</label>
-              <input type="number" class="form-control" id="flightAltitude" value="50" min="10" max="500" step="1">
+              <input type="number" class="form-control" id="flightAltitude" value="50" min="5" max="400" step="1">
             </div>
             <div class="mb-3">
               <label for="desiredOverlap" class="form-label">Боковое перекрытие (%)</label>
-              <input type="number" class="form-control" id="desiredOverlap" value="30" min="0" max="99" step="1">
+              <input type="number" class="form-control" id="desiredOverlap" value="30" min="10" max="95" step="1">
               <small class="form-text text-muted">Перекрытие между соседними полосами</small>
             </div>
             <div class="mb-3">
               <label for="forwardOverlap" class="form-label">Продольное перекрытие (%)</label>
-              <input type="number" class="form-control" id="forwardOverlap" value="70" min="0" max="99" step="1">
+              <input type="number" class="form-control" id="forwardOverlap" value="70" min="50" max="95" step="1">
               <small class="form-text text-muted">Перекрытие между последовательными снимками</small>
             </div>
             <div class="mb-3">
@@ -78,6 +78,11 @@
             </div>
             <div class="mb-3">
               <button id="clearAll" class="btn btn-danger btn-custom w-100">Удалить миссию</button>
+            </div>
+            <div class="mb-3">
+              <button id="startSimulation" class="btn btn-primary btn-custom w-100" disabled>
+                Симуляция полёта
+              </button>
             </div>
           </div>
           <!-- УРОВЕНЬ 1: Информация о миссии (всегда видна) -->
@@ -197,6 +202,101 @@
     </div>
   </div>
 
+  <!-- Панель управления симуляцией полёта -->
+  <div id="flightSimulationPanel" class="flight-simulation-panel" style="display: none;">
+    <div class="simulation-header">
+      <h6 class="simulation-title">
+        <span>Симуляция полёта</span>
+        <button id="closeSimulation" class="btn-close-sim" title="Закрыть">✕</button>
+      </h6>
+    </div>
+    
+    <div class="simulation-content">
+      <!-- Кнопки управления -->
+      <div class="simulation-controls">
+        <button id="simPlay" class="sim-btn sim-btn-play" title="Запустить">
+          <span class="sim-icon">▶</span>
+        </button>
+        <button id="simPause" class="sim-btn sim-btn-pause" title="Пауза" disabled>
+          <span class="sim-icon">⏸</span>
+        </button>
+        <button id="simStop" class="sim-btn sim-btn-stop" title="Остановить" disabled>
+          <span class="sim-icon">⏹</span>
+        </button>
+      </div>
+      
+      <!-- Слайдер скорости -->
+      <div class="speed-control">
+        <label for="simSpeed" class="speed-label">
+          Скорость: <span id="speedValue">1x</span>
+        </label>
+        <div class="speed-buttons">
+          <button class="speed-btn" data-speed="1">1x</button>
+          <button class="speed-btn" data-speed="5">5x</button>
+          <button class="speed-btn active" data-speed="10">10x</button>
+        </div>
+      </div>
+      
+      <!-- Прогресс-бар -->
+      <div class="simulation-progress">
+        <div class="progress-bar-container">
+          <div id="simProgressBar" class="progress-bar-fill"></div>
+        </div>
+        <div class="progress-info">
+          <span id="simCurrentWaypoint">0</span> / <span id="simTotalWaypoints">0</span>
+          <span class="progress-label">снимков</span>
+        </div>
+      </div>
+      
+      <!-- Timeline слайдер -->
+      <div class="timeline-control">
+        <input 
+          type="range" 
+          id="simTimeline" 
+          class="timeline-slider" 
+          min="0" 
+          max="100" 
+          value="0"
+          step="1"
+        >
+      </div>
+      
+      <!-- Метрики в реальном времени -->
+      <div class="simulation-stats">
+        <div class="stat-item">
+          <span class="stat-icon">📍</span>
+          <div class="stat-content">
+            <span class="stat-label">Текущая позиция</span>
+            <span class="stat-value" id="simCurrentPosition">Ожидание...</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-icon">⏱️</span>
+          <div class="stat-content">
+            <span class="stat-label">Время полёта</span>
+            <span class="stat-value" id="simElapsedTime">00:00</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Опции -->
+      <div class="simulation-options">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="simFollowDrone" checked>
+          <label class="form-check-label" for="simFollowDrone">
+            Следовать за дроном
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="simShowFootprint" checked>
+          <label class="form-check-label" for="simShowFootprint">
+            Показывать зону покрытия
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Bootstrap JS Bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Leaflet JS -->
@@ -209,6 +309,8 @@
   <script src="./js/drone-specs.js"></script>
   <!-- Модуль визуализации маршрута -->
   <script src="./js/route-visualization.js"></script>
+  <!-- Модуль симуляции полёта -->
+  <script src="./js/flight-simulation.js"></script>
   <!-- Собственные скрипты -->
   <script src="./js/main.js"></script>
 </body>

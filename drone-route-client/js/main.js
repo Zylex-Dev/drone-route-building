@@ -22,6 +22,10 @@ map.addLayer(drawnItems);
 // Объект для хранения визуализации маршрута
 let currentRouteVisualization = null;
 
+// Объект для хранения симулятора полёта
+let flightSimulator = null;
+let currentRouteData = null; // Сохраняем данные маршрута для симуляции
+
 // Настройка панели рисования
 const drawControl = new L.Control.Draw({
   edit: {
@@ -72,6 +76,22 @@ function clearAllObjects() {
   // Скрываем панель управления визуализацией
   hideVisualizationPanel();
 
+  // Останавливаем и очищаем симулятор, если он запущен
+  if (flightSimulator) {
+    flightSimulator.stop();
+    flightSimulator = null;
+  }
+  currentRouteData = null;
+  
+  // Скрываем панель симуляции
+  const simPanel = document.getElementById('flightSimulationPanel');
+  if (simPanel) {
+    simPanel.style.display = 'none';
+  }
+  
+  // Отключаем кнопку симуляции
+  document.getElementById('startSimulation').disabled = true;
+
   // Сброс настроек полёта к дефолтным значениям
   document.getElementById('flightAltitude').value = 50;
   document.getElementById('desiredOverlap').value = 30;
@@ -111,13 +131,17 @@ function clearAllObjects() {
 document.getElementById('clearAll').addEventListener('click', clearAllObjects);
 
 // Функция проверки корректности введённых значений
-function validateInputs(flightAltitude, desiredOverlap) {
-  if (isNaN(flightAltitude) || flightAltitude < 10 || flightAltitude > 500) {
-    alert('Высота полёта должна быть числом в диапазоне от 10 до 500 метров.');
+function validateInputs(flightAltitude, desiredOverlap, forwardOverlap) {
+  if (isNaN(flightAltitude) || flightAltitude < 5 || flightAltitude > 400) {
+    alert('Высота полёта должна быть числом в диапазоне от 5 до 400 метров.');
     return false;
   }
-  if (isNaN(desiredOverlap) || desiredOverlap < 0 || desiredOverlap >= 100) {
-    alert('Перекрытие должно быть числом в диапазоне от 0 до 99%.');
+  if (isNaN(desiredOverlap) || desiredOverlap < 10 || desiredOverlap > 95) {
+    alert('Боковое перекрытие должно быть числом в диапазоне от 10 до 95%.');
+    return false;
+  }
+  if (forwardOverlap !== undefined && (isNaN(forwardOverlap) || forwardOverlap < 50 || forwardOverlap > 95)) {
+    alert('Продольное перекрытие должно быть числом в диапазоне от 50 до 95%.');
     return false;
   }
   return true;
@@ -216,7 +240,7 @@ map.on(L.Draw.Event.CREATED, function (event) {
   const desiredOverlapInput = Number(document.getElementById('desiredOverlap').value);
   const forwardOverlapInput = Number(document.getElementById('forwardOverlap').value);
 
-  if (!validateInputs(flightAltitude, desiredOverlapInput)) {
+  if (!validateInputs(flightAltitude, desiredOverlapInput, forwardOverlapInput)) {
     return;
   }
   const desiredOverlap = desiredOverlapInput / 100;
@@ -319,6 +343,12 @@ map.on(L.Draw.Event.CREATED, function (event) {
         document.getElementById('fovHorizontal').textContent = `${stats.horizontalFOV}°`;
         document.getElementById('fovVertical').textContent = `${stats.verticalFOV}°`;
         document.getElementById('altitudeInfo').textContent = `${props.flightAltitude} м`;
+        
+        // Сохраняем данные маршрута для симуляции
+        currentRouteData = data.route;
+        
+        // Активируем кнопку симуляции
+        document.getElementById('startSimulation').disabled = false;
       } else {
         alert('Ошибка при расчёте маршрута: ' + data.message);
       }
@@ -391,6 +421,253 @@ function setupCollapsibleSections() {
 // Инициализация сворачиваемых секций при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
   setupCollapsibleSections();
+  setupSimulationControls();
 });
 
 // Темная тема удалена - используем только светлую тему
+
+// === Функции для симуляции полёта ===
+
+/**
+ * Настройка обработчиков элементов управления симуляцией
+ */
+function setupSimulationControls() {
+  // Кнопка запуска симуляции
+  document.getElementById('startSimulation').addEventListener('click', () => {
+    if (!currentRouteData) {
+      alert('Сначала постройте маршрут!');
+      return;
+    }
+    
+    // Показываем панель симуляции
+    document.getElementById('flightSimulationPanel').style.display = 'block';
+    
+    // Создаем экземпляр симулятора, если его нет
+    if (!flightSimulator) {
+      flightSimulator = new FlightSimulator(map, currentRouteData);
+      
+      // Устанавливаем начальную скорость 10x
+      flightSimulator.setSpeed(10);
+      document.getElementById('speedValue').textContent = '10x';
+      
+      // Устанавливаем начальные значения в UI
+      // Показываем только количество точек съемки (снимков)
+      document.getElementById('simTotalWaypoints').textContent = flightSimulator.workWaypoints.length;
+      document.getElementById('simCurrentWaypoint').textContent = '0';
+      document.getElementById('simElapsedTime').textContent = '00:00';
+      document.getElementById('simCurrentPosition').textContent = 'Готов к запуску';
+      document.getElementById('simProgressBar').style.width = '0%';
+      document.getElementById('simTimeline').value = '0';
+      
+      // Сбрасываем кнопки управления
+      updateControlButtons('stopped');
+    }
+  });
+  
+  // Кнопка Play
+  document.getElementById('simPlay').addEventListener('click', () => {
+    if (!flightSimulator) return;
+    flightSimulator.start();
+    updateControlButtons('playing');
+  });
+  
+  // Кнопка Pause/Resume
+  document.getElementById('simPause').addEventListener('click', () => {
+    if (!flightSimulator) return;
+    
+    if (flightSimulator.isPlaying) {
+      flightSimulator.pause();
+      updateControlButtons('paused');
+    } else if (flightSimulator.isPaused) {
+      flightSimulator.resume();
+      updateControlButtons('playing');
+    }
+  });
+  
+  // Кнопка Stop
+  document.getElementById('simStop').addEventListener('click', () => {
+    if (!flightSimulator) return;
+    flightSimulator.stop();
+    updateControlButtons('stopped');
+    
+    // Сбрасываем UI
+    document.getElementById('simCurrentWaypoint').textContent = '0';
+    document.getElementById('simElapsedTime').textContent = '00:00';
+    document.getElementById('simCurrentPosition').textContent = 'Остановлено';
+    document.getElementById('simProgressBar').style.width = '0%';
+    document.getElementById('simTimeline').value = '0';
+  });
+  
+  // Кнопки скорости
+  document.querySelectorAll('.speed-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!flightSimulator) return;
+      
+      const speed = parseFloat(btn.dataset.speed);
+      flightSimulator.setSpeed(speed);
+      
+      // Обновляем активную кнопку
+      document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      document.getElementById('speedValue').textContent = `${speed}x`;
+    });
+  });
+  
+  // Timeline slider
+  let isUserDragging = false;
+  const timelineSlider = document.getElementById('simTimeline');
+  
+  timelineSlider.addEventListener('mousedown', () => {
+    isUserDragging = true;
+  });
+  
+  timelineSlider.addEventListener('mouseup', () => {
+    isUserDragging = false;
+  });
+  
+  timelineSlider.addEventListener('input', (e) => {
+    if (!flightSimulator || !isUserDragging) return;
+    
+    const percent = parseFloat(e.target.value);
+    const waypointIndex = Math.floor((percent / 100) * (flightSimulator.waypoints.length - 1));
+    flightSimulator.seekToWaypoint(waypointIndex);
+  });
+  
+  // Опция "Следовать за дроном"
+  document.getElementById('simFollowDrone').addEventListener('change', (e) => {
+    if (flightSimulator) {
+      flightSimulator.followDrone = e.target.checked;
+    }
+  });
+  
+  // Опция "Показывать зону покрытия"
+  document.getElementById('simShowFootprint').addEventListener('change', (e) => {
+    // Эта опция уже учтена в логике updateFootprint
+    // Можно добавить дополнительное управление, если необходимо
+  });
+  
+  // Закрытие панели
+  document.getElementById('closeSimulation').addEventListener('click', () => {
+    if (flightSimulator) {
+      flightSimulator.stop();
+    }
+    document.getElementById('flightSimulationPanel').style.display = 'none';
+  });
+  
+  // === Слушаем события симулятора ===
+  
+  // Throttle для оптимизации обновлений UI
+  let lastUIUpdateTime = 0;
+  const UI_UPDATE_INTERVAL = 100; // Обновляем UI максимум каждые 100мс
+  
+  // Обновление прогресса
+  window.addEventListener('flightSimulation:progressUpdated', (e) => {
+    const { current, total, currentWaypoint } = e.detail;
+    
+    // Считаем только пройденные точки съемки (снимки)
+    if (flightSimulator) {
+      const workWaypointsPassed = flightSimulator.waypoints
+        .slice(0, current)
+        .filter(wp => wp.takePhoto).length;
+      
+      document.getElementById('simCurrentWaypoint').textContent = workWaypointsPassed;
+      document.getElementById('simTotalWaypoints').textContent = flightSimulator.workWaypoints.length;
+      
+      const percent = (workWaypointsPassed / flightSimulator.workWaypoints.length) * 100;
+      document.getElementById('simProgressBar').style.width = `${percent}%`;
+      
+      // Обновляем timeline на основе всех waypoints (для плавности)
+      if (!isUserDragging) {
+        const totalPercent = (current / total) * 100;
+        document.getElementById('simTimeline').value = totalPercent;
+      }
+    }
+    
+    // Обновляем текущую позицию с throttling
+    const now = performance.now();
+    if (currentWaypoint && (now - lastUIUpdateTime > UI_UPDATE_INTERVAL)) {
+      const posText = `${currentWaypoint.lat.toFixed(6)}°, ${currentWaypoint.lng.toFixed(6)}°`;
+      document.getElementById('simCurrentPosition').textContent = posText;
+      lastUIUpdateTime = now;
+    }
+  });
+  
+  // Обновление времени с throttling
+  let lastTimeUpdateTime = 0;
+  const TIME_UPDATE_INTERVAL = 500; // Обновляем время каждые 500мс
+  
+  window.addEventListener('flightSimulation:timeUpdated', (e) => {
+    const now = performance.now();
+    if (now - lastTimeUpdateTime < TIME_UPDATE_INTERVAL) return;
+    
+    const { elapsedTime } = e.detail;
+    const minutes = Math.floor(elapsedTime / 60);
+    const seconds = Math.floor(elapsedTime % 60);
+    const timeStr = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    document.getElementById('simElapsedTime').textContent = timeStr;
+    lastTimeUpdateTime = now;
+  });
+  
+  // Симуляция завершена
+  window.addEventListener('flightSimulation:simulationCompleted', () => {
+    updateControlButtons('stopped'); // Изменено с 'completed' на 'stopped'
+    document.getElementById('simCurrentPosition').textContent = 'Миссия завершена ✅';
+    
+    // Показываем уведомление
+    setTimeout(() => {
+      alert('Симуляция полёта завершена! ✅\n\nВсе точки маршрута пройдены.');
+    }, 300);
+  });
+  
+  // Симуляция запущена
+  window.addEventListener('flightSimulation:simulationStarted', () => {
+    document.getElementById('simCurrentPosition').textContent = 'Полёт начат...';
+  });
+  
+  // Симуляция остановлена
+  window.addEventListener('flightSimulation:simulationStopped', () => {
+    document.getElementById('simCurrentPosition').textContent = 'Остановлено';
+  });
+  
+  // Симуляция на паузе
+  window.addEventListener('flightSimulation:simulationPaused', () => {
+    document.getElementById('simCurrentPosition').textContent = 'Пауза';
+  });
+}
+
+/**
+ * Обновление состояния кнопок управления
+ */
+function updateControlButtons(state) {
+  const playBtn = document.getElementById('simPlay');
+  const pauseBtn = document.getElementById('simPause');
+  const stopBtn = document.getElementById('simStop');
+  
+  switch (state) {
+    case 'playing':
+      playBtn.disabled = true;
+      pauseBtn.disabled = false;
+      stopBtn.disabled = false;
+      pauseBtn.querySelector('.sim-icon').textContent = '⏸';
+      pauseBtn.title = 'Пауза';
+      break;
+      
+    case 'paused':
+      playBtn.disabled = true;
+      pauseBtn.disabled = false;
+      stopBtn.disabled = false;
+      pauseBtn.querySelector('.sim-icon').textContent = '▶';
+      pauseBtn.title = 'Возобновить';
+      break;
+      
+    case 'stopped':
+    case 'completed':
+      playBtn.disabled = false;
+      pauseBtn.disabled = true;
+      stopBtn.disabled = true;
+      pauseBtn.querySelector('.sim-icon').textContent = '⏸';
+      pauseBtn.title = 'Пауза';
+      break;
+  }
+}
