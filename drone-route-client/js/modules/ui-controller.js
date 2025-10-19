@@ -35,6 +35,11 @@ function clearAllObjects() {
   
   // Отключаем кнопку симуляции
   document.getElementById('startSimulation').disabled = true;
+  
+  // Очищаем данные маршрута для экспорта
+  if (typeof exportManager !== 'undefined') {
+    exportManager.clearCurrentRoute();
+  }
 
   // Сброс настроек полёта к дефолтным значениям
   document.getElementById('flightAltitude').value = 50;
@@ -95,6 +100,11 @@ function updateMissionInfo(data, droneModel) {
   const specs = getDroneSpecs(droneModel);
   const props = data.route.properties;
   const stats = props.missionStats;
+  
+  // Сохраняем маршрут для экспорта
+  if (typeof exportManager !== 'undefined') {
+    exportManager.setCurrentRoute(data.route);
+  }
   
   // УРОВЕНЬ 1: Информация о миссии
   document.getElementById('coverageArea').textContent = `${stats.coverageAreaKm2} км²`;

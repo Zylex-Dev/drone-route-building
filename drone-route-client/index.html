@@ -84,6 +84,20 @@
                 Симуляция полёта
               </button>
             </div>
+            <div class="mb-3">
+              <label class="form-label">Экспорт маршрута</label>
+              <div class="btn-group-vertical w-100" role="group">
+                <button id="exportGeoJSON" class="btn btn-outline-success btn-custom" disabled>
+                  📥 Скачать GeoJSON
+                </button>
+                <button id="exportKML" class="btn btn-outline-primary btn-custom" disabled>
+                  🌍 Скачать KML
+                </button>
+                <button id="exportKMZ" class="btn btn-outline-primary btn-custom" disabled>
+                  📦 Скачать KMZ
+                </button>
+              </div>
+            </div>
           </div>
           <!-- УРОВЕНЬ 1: Информация о миссии (всегда видна) -->
           <div class="card-custom mission-summary glass">
@@ -303,6 +317,8 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <!-- Leaflet.draw JS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+  <!-- JSZip для создания KMZ архивов -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <!-- Конфигурация приложения -->
   <script src="./js/config.js"></script>
   <!-- Спецификации дронов -->
@@ -314,6 +330,7 @@
   <script src="./js/modules/route-builder.js"></script>
   <script src="./js/modules/drawing-controls.js"></script>
   <script src="./js/modules/collapsible-sections.js"></script>
+  <script src="./js/modules/export-manager.js"></script>
   
   <!-- Модуль визуализации маршрута -->
   <script src="./js/visualization/route-visualization.js"></script>

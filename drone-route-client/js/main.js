@@ -29,6 +29,31 @@ document.getElementById('clearAll').addEventListener('click', clearAllObjects);
 // Инициализация обработчиков рисования
 initDrawingControls();
 
+// Обработчики экспорта маршрута
+document.getElementById('exportGeoJSON').addEventListener('click', () => {
+  if (exportManager && exportManager.getCurrentRoute()) {
+    exportManager.exportToGeoJSON();
+  } else {
+    console.warn('Нет маршрута для экспорта');
+  }
+});
+
+document.getElementById('exportKML').addEventListener('click', () => {
+  if (exportManager && exportManager.getCurrentRoute()) {
+    exportManager.exportToKML();
+  } else {
+    console.warn('Нет маршрута для экспорта');
+  }
+});
+
+document.getElementById('exportKMZ').addEventListener('click', () => {
+  if (exportManager && exportManager.getCurrentRoute()) {
+    exportManager.exportToKMZ();
+  } else {
+    console.warn('Нет маршрута для экспорта');
+  }
+});
+
 // Event listener для изменения модели дрона
 document.getElementById('droneModel').addEventListener('change', (e) => {
   updateCameraInfo(e.target.value);
