@@ -5,11 +5,23 @@ const Joi = require('joi');
 const turf = require('@turf/turf'); // Подключаем Turf.js для геометрических операций
 const { getDroneConfig, isValidModel, getAvailableModels } = require('./config/cameras');
 
+// Подключаем систему логирования
+const { app: logger, calculation: calcLogger } = require('./utils/logger');
+const { requestLogger, errorLogger, unhandledErrorHandler } = require('./middleware/logging-middleware');
+const clientLogsRouter = require('./routes/client-logs');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Middleware для парсинга и CORS
 app.use(bodyParser.json());
 app.use(cors());
+
+// Middleware для логирования HTTP запросов
+app.use(requestLogger);
+
+// Роут для приёма клиентских логов
+app.use('/api/logs', clientLogsRouter);
 
 // Схема валидации для запроса на расчёт маршрута
 const calculateRouteSchema = Joi.object({
@@ -69,6 +81,11 @@ const calculateRouteSchema = Joi.object({
 });
 
 app.post('/api/calculate-route', (req, res) => {
+  const requestId = req.requestId;
+  const startTime = Date.now();
+  
+  calcLogger.info('Начало обработки запроса на расчёт маршрута', { requestId });
+  
   // Валидация входных данных с помощью Joi
   const { error, value } = calculateRouteSchema.validate(req.body, { 
     abortEarly: false, // Вернуть все ошибки, а не только первую
@@ -77,7 +94,11 @@ app.post('/api/calculate-route', (req, res) => {
 
   if (error) {
     const errorMessages = error.details.map(detail => detail.message).join('; ');
-    console.error('Ошибка валидации:', errorMessages);
+    calcLogger.error('Ошибка валидации входных данных', { 
+      requestId,
+      errors: errorMessages,
+      receivedFields: Object.keys(req.body)
+    });
     return res.status(400).json({ 
       success: false, 
       message: 'Ошибка валидации данных', 
@@ -87,10 +108,18 @@ app.post('/api/calculate-route', (req, res) => {
 
   const { territory, shootingType, droneModel } = value;
 
-  console.log('Получены данные:');
-  console.log('Territory:', territory);
-  console.log('Shooting Type:', shootingType);
-  console.log('Drone Model:', droneModel);
+  calcLogger.info('Валидация пройдена успешно', { 
+    requestId,
+    territoryPoints: territory.length,
+    shootingType,
+    droneModel: droneModel || 'DJI Matrice 30T (по умолчанию)'
+  });
+  
+  calcLogger.debug('Детали территории', { 
+    requestId,
+    territoryCoordinates: territory.slice(0, 5), // Первые 5 точек для экономии места
+    totalPoints: territory.length
+  });
 
   // Преобразуем массив точек в массив координат для GeoJSON (формат: [lng, lat])
   let coordinates = territory.map(pt => [pt.lng, pt.lat]);
@@ -109,7 +138,19 @@ app.post('/api/calculate-route', (req, res) => {
   const MIN_TERRITORY_AREA = 100; // минимум 100 м² (примерно 10м x 10м)
   const MAX_TERRITORY_AREA = 10000000; // максимум 10 км² (10 млн м²)
   
+  calcLogger.debug('Проверка размера территории', {
+    requestId,
+    territoryArea: `${territoryArea.toFixed(2)} м²`,
+    minAllowed: `${MIN_TERRITORY_AREA} м²`,
+    maxAllowed: `${(MAX_TERRITORY_AREA/1000000).toFixed(2)} км²`
+  });
+  
   if (territoryArea < MIN_TERRITORY_AREA) {
+    calcLogger.warn('Территория слишком мала', {
+      requestId,
+      territoryArea: `${territoryArea.toFixed(2)} м²`,
+      minRequired: `${MIN_TERRITORY_AREA} м²`
+    });
     return res.status(400).json({ 
       success: false, 
       message: `Территория слишком мала для построения маршрута. Минимальная площадь: ${MIN_TERRITORY_AREA} м² (~10×10 м, текущая: ${territoryArea.toFixed(2)} м²). Пожалуйста, выберите большую область.` 
@@ -119,11 +160,21 @@ app.post('/api/calculate-route', (req, res) => {
   if (territoryArea > MAX_TERRITORY_AREA) {
     const currentAreaKm2 = (territoryArea / 1000000).toFixed(2);
     const maxAreaKm2 = (MAX_TERRITORY_AREA / 1000000).toFixed(2);
+    calcLogger.warn('Территория слишком велика', {
+      requestId,
+      territoryArea: `${currentAreaKm2} км²`,
+      maxAllowed: `${maxAreaKm2} км²`
+    });
     return res.status(400).json({ 
       success: false, 
       message: `Территория слишком велика для построения маршрута. Максимальная площадь: ${maxAreaKm2} км² (текущая: ${currentAreaKm2} км²). Для больших территорий рекомендуется разбить на несколько миссий.` 
     });
   }
+  
+  calcLogger.info('Размер территории валиден', {
+    requestId,
+    territoryArea: `${(territoryArea/1000000).toFixed(4)} км²`
+  });
 
   // --- Интеграция технических параметров дрона и пользовательских параметров ---
   // Получаем модель дрона (по умолчанию DJI Matrice 30T)
@@ -131,6 +182,11 @@ app.post('/api/calculate-route', (req, res) => {
   
   // Проверяем, что модель дрона существует
   if (!isValidModel(selectedDroneModel)) {
+    calcLogger.error('Неизвестная модель дрона', {
+      requestId,
+      requestedModel: selectedDroneModel,
+      availableModels: getAvailableModels()
+    });
     return res.status(400).json({ 
       success: false, 
       message: `Неизвестная модель дрона: ${selectedDroneModel}. Доступные модели: ${getAvailableModels().join(', ')}` 
@@ -141,10 +197,27 @@ app.post('/api/calculate-route', (req, res) => {
   const droneConfig = getDroneConfig(selectedDroneModel);
   const { focalLength, sensorWidth, sensorHeight } = droneConfig.camera;
   
+  calcLogger.info('Конфигурация дрона загружена', {
+    requestId,
+    droneModel: selectedDroneModel,
+    camera: {
+      focalLength: `${focalLength} мм`,
+      sensorWidth: `${sensorWidth} мм`,
+      sensorHeight: `${sensorHeight} мм`
+    }
+  });
+  
   // Получаем параметры из запроса (если они не указаны, устанавливаем значения по умолчанию)
   const flightAltitude = Number(value.flightAltitude) || 50;    // м
   const desiredOverlap = Number(value.desiredOverlap) || 0.3;     // доля (0.3 = 30%)
   const forwardOverlap = Number(value.forwardOverlap) || 0.7;     // доля (0.7 = 70%)
+  
+  calcLogger.debug('Параметры полёта', {
+    requestId,
+    flightAltitude: `${flightAltitude} м`,
+    desiredOverlap: `${(desiredOverlap * 100).toFixed(0)}%`,
+    forwardOverlap: `${(forwardOverlap * 100).toFixed(0)}%`
+  });
 
   // Вычисляем горизонтальный угол обзора (в радианах)
   const horizontalFOV = 2 * Math.atan(sensorWidth / (2 * focalLength));
@@ -168,31 +241,81 @@ app.post('/api/calculate-route', (req, res) => {
   const metersPerDegreeLng = 111320 * Math.cos(centerLat * Math.PI / 180); // Метров на градус долготы
   const effectiveSpacingDegrees = effectiveSpacingMeters / metersPerDegreeLng;
 
-  console.log('Расчет параметров съемки:');
-  console.log(`Фокусное расстояние: ${focalLength} мм`);
-  console.log(`Ширина матрицы: ${sensorWidth} мм, Высота матрицы: ${sensorHeight} мм`);
-  console.log(`Высота полёта: ${flightAltitude} м`);
-  console.log(`Горизонтальный угол обзора (rad): ${horizontalFOV.toFixed(4)}`);
-  console.log(`Вертикальный угол обзора (rad): ${verticalFOV.toFixed(4)}`);
-  console.log(`Земная ширина кадра: ${groundWidth.toFixed(2)} м`);
-  console.log(`Земная длина кадра: ${groundLength.toFixed(2)} м`);
-  console.log(`Эффективный шаг между полосами (боковое перекрытие ${(desiredOverlap*100).toFixed(0)}%): ${effectiveSpacingMeters.toFixed(2)} м`);
-  console.log(`Эффективный шаг между снимками (продольное перекрытие ${(forwardOverlap*100).toFixed(0)}%): ${forwardSpacingMeters.toFixed(2)} м`);
+  calcLogger.info('Расчёт параметров съёмки завершён', {
+    requestId,
+    camera: {
+      focalLength: `${focalLength} мм`,
+      sensorWidth: `${sensorWidth} мм`,
+      sensorHeight: `${sensorHeight} мм`
+    },
+    flightAltitude: `${flightAltitude} м`,
+    fieldOfView: {
+      horizontal: `${horizontalFOV.toFixed(4)} rad (${(horizontalFOV * 180 / Math.PI).toFixed(2)}°)`,
+      vertical: `${verticalFOV.toFixed(4)} rad (${(verticalFOV * 180 / Math.PI).toFixed(2)}°)`
+    },
+    groundCoverage: {
+      width: `${groundWidth.toFixed(2)} м`,
+      length: `${groundLength.toFixed(2)} м`
+    },
+    spacing: {
+      lateral: `${effectiveSpacingMeters.toFixed(2)} м (боковое перекрытие ${(desiredOverlap*100).toFixed(0)}%)`,
+      forward: `${forwardSpacingMeters.toFixed(2)} м (продольное перекрытие ${(forwardOverlap*100).toFixed(0)}%)`,
+      lateralDegrees: `${effectiveSpacingDegrees.toFixed(8)}°`
+    },
+    geoCalculations: {
+      centerLat: centerLat.toFixed(6),
+      metersPerDegreeLng: metersPerDegreeLng.toFixed(2)
+    }
+  });
+  
+  calcLogger.trace('Детальные расчёты FOV и покрытия', {
+    requestId,
+    horizontalFOV_rad: horizontalFOV,
+    verticalFOV_rad: verticalFOV,
+    groundWidth_m: groundWidth,
+    groundLength_m: groundLength,
+    effectiveSpacingMeters: effectiveSpacingMeters,
+    forwardSpacingMeters: forwardSpacingMeters,
+    effectiveSpacingDegrees: effectiveSpacingDegrees
+  });
 
   // --- Построение маршрута ---
   // Константы для защиты от больших территорий
   const MAX_FLIGHT_LINES = 1000; // Максимальное количество полос
   const MAX_EXECUTION_TIME = 30000; // Максимальное время выполнения в миллисекундах (30 секунд)
   
+  calcLogger.info('Начало генерации полос маршрута', {
+    requestId,
+    bbox: {
+      minLng: bbox[0].toFixed(6),
+      minLat: bbox[1].toFixed(6),
+      maxLng: bbox[2].toFixed(6),
+      maxLat: bbox[3].toFixed(6)
+    },
+    effectiveSpacingDegrees: effectiveSpacingDegrees.toFixed(8),
+    estimatedLines: Math.ceil((bbox[2] - bbox[0]) / effectiveSpacingDegrees),
+    limits: {
+      maxLines: MAX_FLIGHT_LINES,
+      maxTimeMs: MAX_EXECUTION_TIME
+    }
+  });
+  
   let flightLines = [];
   let lineCount = 0;
-  const startTime = Date.now();
+  const routeStartTime = Date.now();
+  let lastProgressLog = 0;
 
   // Генерируем вертикальные линии через bounding box с шагом, вычисленным на основе параметров
   for (let x = bbox[0]; x <= bbox[2]; x += effectiveSpacingDegrees) {
     // Проверка на превышение лимита линий
     if (++lineCount > MAX_FLIGHT_LINES) {
-      console.error(`Превышен лимит линий: ${lineCount} > ${MAX_FLIGHT_LINES}`);
+      calcLogger.error('Превышен лимит количества полос', {
+        requestId,
+        lineCount,
+        maxAllowed: MAX_FLIGHT_LINES,
+        territoryWidth: `${(bbox[2] - bbox[0]).toFixed(6)}°`,
+        spacing: `${effectiveSpacingDegrees.toFixed(8)}°`
+      });
       return res.status(400).json({ 
         success: false, 
         message: `Территория слишком велика или шаг слишком мал. Максимальное количество полос: ${MAX_FLIGHT_LINES}. Рекомендуем увеличить высоту полёта или уменьшить площадь.` 
@@ -200,12 +323,32 @@ app.post('/api/calculate-route', (req, res) => {
     }
     
     // Проверка на превышение времени выполнения
-    if (Date.now() - startTime > MAX_EXECUTION_TIME) {
-      console.error(`Превышено время выполнения: ${Date.now() - startTime}ms > ${MAX_EXECUTION_TIME}ms`);
+    const currentTime = Date.now() - routeStartTime;
+    if (currentTime > MAX_EXECUTION_TIME) {
+      calcLogger.error('Превышено максимальное время выполнения', {
+        requestId,
+        executionTime: `${currentTime}ms`,
+        maxAllowed: `${MAX_EXECUTION_TIME}ms`,
+        linesProcessed: lineCount
+      });
       return res.status(408).json({ 
         success: false, 
         message: 'Время расчёта маршрута превышено. Попробуйте упростить задачу или уменьшить территорию.' 
       });
+    }
+    
+    // Логируем прогресс каждые 10%
+    const totalWidth = bbox[2] - bbox[0];
+    const currentWidth = x - bbox[0];
+    const progressPercent = Math.floor((currentWidth / totalWidth) * 100);
+    if (progressPercent >= lastProgressLog + 10 && progressPercent <= 100) {
+      calcLogger.debug(`Прогресс генерации полос: ${progressPercent}%`, {
+        requestId,
+        linesGenerated: flightLines.length,
+        linesChecked: lineCount,
+        executionTime: `${Date.now() - routeStartTime}ms`
+      });
+      lastProgressLog = progressPercent;
     }
     // Создаем вертикальную линию от нижней до верхней границы bbox
     const line = turf.lineString([[x, bbox[1]], [x, bbox[3]]]);
@@ -225,7 +368,20 @@ app.post('/api/calculate-route', (req, res) => {
     }
   }
 
+  calcLogger.info('Генерация полос завершена', {
+    requestId,
+    totalFlightLines: flightLines.length,
+    linesChecked: lineCount,
+    generationTime: `${Date.now() - routeStartTime}ms`
+  });
+
   if (flightLines.length === 0) {
+    calcLogger.error('Не удалось сгенерировать ни одной полосы маршрута', {
+      requestId,
+      linesChecked: lineCount,
+      bbox,
+      spacing: effectiveSpacingDegrees
+    });
     return res.status(400).json({ success: false, message: 'Не удалось построить маршрут по заданной территории' });
   }
 
@@ -235,6 +391,8 @@ app.post('/api/calculate-route', (req, res) => {
     const bAvg = (b.geometry.coordinates[0][0] + b.geometry.coordinates[1][0]) / 2;
     return aAvg - bAvg;
   });
+  
+  calcLogger.debug('Полосы отсортированы по X-координате', { requestId });
 
   // Функция для генерации waypoints вдоль линии с заданным интервалом
   function generateWaypoints(startPoint, endPoint, spacingMeters) {
@@ -263,6 +421,12 @@ app.post('/api/calculate-route', (req, res) => {
 
   // Объединяем отрезки в единую зигзагообразную траекторию с waypoints
   // Также создаём массив сегментов для детальной визуализации
+  calcLogger.info('Начало генерации waypoints вдоль полос', {
+    requestId,
+    totalLines: flightLines.length,
+    forwardSpacing: `${forwardSpacingMeters.toFixed(2)} м`
+  });
+  
   let routeCoordinates = [];
   let totalWaypoints = 0;
   let segments = []; // Массив сегментов: {type: 'work'|'transition', coordinates: [...]}
@@ -272,6 +436,12 @@ app.post('/api/calculate-route', (req, res) => {
     
     // Генерируем waypoints вдоль линии
     let waypoints = generateWaypoints(startPoint, endPoint, forwardSpacingMeters);
+    
+    calcLogger.trace(`Полоса ${index + 1}/${flightLines.length}: сгенерировано ${waypoints.length} waypoints`, {
+      requestId,
+      lineIndex: index,
+      waypointsCount: waypoints.length
+    });
     
     // Переворачиваем каждую вторую линию для обеспечения непрерывности маршрута
     if (index % 2 === 1) {
@@ -302,11 +472,21 @@ app.post('/api/calculate-route', (req, res) => {
     routeCoordinates = routeCoordinates.concat(waypoints);
     totalWaypoints += waypoints.length;
   });
+  
+  calcLogger.info('Генерация waypoints завершена', {
+    requestId,
+    totalWaypoints,
+    totalSegments: segments.length,
+    workSegments: segments.filter(s => s.type === 'work').length,
+    transitionSegments: segments.filter(s => s.type === 'transition').length
+  });
 
   // --- Расчёт расширенных метрик миссии ---
+  calcLogger.info('Начало расчёта метрик миссии', { requestId });
   
   // 1. Площадь покрытия (км²)
   const coverageAreaKm2 = (turf.area(polygon) / 1000000).toFixed(2); // м² → км²
+  calcLogger.debug('Метрика: Площадь покрытия', { requestId, coverageAreaKm2: `${coverageAreaKm2} км²` });
   
   // 2. Общая длина маршрута (км)
   let totalFlightDistanceMeters = 0;
@@ -319,10 +499,12 @@ app.post('/api/calculate-route', (req, res) => {
     totalFlightDistanceMeters += dist;
   }
   const totalFlightDistanceKm = (totalFlightDistanceMeters / 1000).toFixed(2);
+  calcLogger.debug('Метрика: Длина маршрута', { requestId, totalFlightDistanceKm: `${totalFlightDistanceKm} км` });
   
   // 3. GSD (Ground Sample Distance) - разрешение на местности (см/пиксель)
   const { imageWidth } = droneConfig.camera;
   const gsdCmPerPixel = ((groundWidth * 100) / imageWidth).toFixed(2);
+  calcLogger.debug('Метрика: GSD', { requestId, gsdCmPerPixel: `${gsdCmPerPixel} см/пиксель`, imageWidth });
   
   // 4. Расчётное время полёта (минуты)
   const droneSpeed = droneConfig.specs.cruiseSpeed; // м/с
@@ -330,29 +512,50 @@ app.post('/api/calculate-route', (req, res) => {
   const timeForPhotosSec = totalWaypoints * 2; // ~2 секунды на снимок (стабилизация + съёмка)
   const totalTimeSec = timeForFlightSec + timeForPhotosSec;
   const estimatedFlightTimeMin = (totalTimeSec / 60).toFixed(1);
+  calcLogger.debug('Метрика: Время полёта', { 
+    requestId, 
+    estimatedFlightTimeMin: `${estimatedFlightTimeMin} мин`,
+    breakdown: {
+      flightTime: `${(timeForFlightSec / 60).toFixed(1)} мин`,
+      photoTime: `${(timeForPhotosSec / 60).toFixed(1)} мин`
+    }
+  });
   
   // 5. Количество снимков
   const estimatedPhotos = totalWaypoints;
+  calcLogger.debug('Метрика: Количество снимков', { requestId, estimatedPhotos });
   
   // 6. Требуемая память (ГБ) - предполагаем ~20 МБ на RAW снимок
   const bytesPerPhoto = 20 * 1024 * 1024; // 20 МБ в байтах
   const estimatedStorageGB = ((estimatedPhotos * bytesPerPhoto) / (1024 * 1024 * 1024)).toFixed(2);
+  calcLogger.debug('Метрика: Требуемая память', { requestId, estimatedStorageGB: `${estimatedStorageGB} ГБ` });
   
   // 7. Использование батареи (%)
   const maxFlightTimeSec = droneConfig.specs.maxFlightTime * 60 * 0.8; // 80% запаса
   const batteryUsagePercent = Math.min(((totalTimeSec / maxFlightTimeSec) * 100), 999).toFixed(0);
+  calcLogger.debug('Метрика: Использование батареи', { 
+    requestId, 
+    batteryUsagePercent: `${batteryUsagePercent}%`,
+    maxFlightTime: `${droneConfig.specs.maxFlightTime} мин`
+  });
   
-  // Логирование результатов
+  // Финальный лог с результатами
   const executionTime = Date.now() - startTime;
-  console.log(`Маршрут построен успешно:`);
-  console.log(`- Количество полос: ${flightLines.length}`);
-  console.log(`- Общее количество waypoints: ${totalWaypoints}`);
-  console.log(`- Площадь покрытия: ${coverageAreaKm2} км²`);
-  console.log(`- Длина маршрута: ${totalFlightDistanceKm} км`);
-  console.log(`- Расчётное время: ${estimatedFlightTimeMin} мин`);
-  console.log(`- GSD: ${gsdCmPerPixel} см/пиксель`);
-  console.log(`- Использование батареи: ${batteryUsagePercent}%`);
-  console.log(`- Время выполнения: ${executionTime}ms`);
+  calcLogger.info('Маршрут построен успешно', {
+    requestId,
+    summary: {
+      flightLines: flightLines.length,
+      totalWaypoints,
+      coverageArea: `${coverageAreaKm2} км²`,
+      flightDistance: `${totalFlightDistanceKm} км`,
+      estimatedTime: `${estimatedFlightTimeMin} мин`,
+      estimatedPhotos,
+      gsd: `${gsdCmPerPixel} см/пиксель`,
+      batteryUsage: `${batteryUsagePercent}%`,
+      storage: `${estimatedStorageGB} ГБ`,
+      executionTime: `${executionTime}ms`
+    }
+  });
 
   const routeGeoJSON = {
     type: "Feature",
@@ -392,12 +595,33 @@ app.post('/api/calculate-route', (req, res) => {
     }
   };
 
+  calcLogger.info('Отправка ответа клиенту', {
+    requestId,
+    responseSize: `${JSON.stringify(routeGeoJSON).length} bytes`
+  });
+
   return res.json({
     success: true,
     route: routeGeoJSON
   });
 });
 
+// Middleware для обработки ошибок
+app.use(errorLogger);
+app.use(unhandledErrorHandler);
+
+// Запуск сервера
 app.listen(PORT, () => {
-  console.log(`Сервер запущен на порту ${PORT}`);
+  logger.info('Сервер успешно запущен', {
+    port: PORT,
+    environment: process.env.NODE_ENV || 'development',
+    logLevel: process.env.LOG_LEVEL || 'debug',
+    timestamp: new Date().toISOString()
+  });
+  logger.info('Доступные endpoints:', {
+    routes: [
+      'POST /api/calculate-route - Расчёт маршрута полёта',
+      'POST /api/logs/client - Приём клиентских логов'
+    ]
+  });
 });

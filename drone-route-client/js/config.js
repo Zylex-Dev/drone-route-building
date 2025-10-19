@@ -4,9 +4,9 @@
  */
 
 // Определение базового URL API в зависимости от окружения
-const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://localhost:3000'
-  : `${window.location.protocol}//${window.location.hostname}:3000`;
+// Для Docker с Nginx прокси используем пустую строку (относительные пути)
+// Для локальной разработки без Docker используем localhost:3000
+const API_BASE_URL = ''; // Все запросы идут через Nginx прокси на /api/*
 
 // Экспорт конфигурации
 window.APP_CONFIG = {
@@ -16,5 +16,16 @@ window.APP_CONFIG = {
   }
 };
 
-console.log('API Configuration loaded:', window.APP_CONFIG);
+// Логируем конфигурацию через глобальный логгер (если доступен)
+if (window.logger) {
+  window.logger.info('Конфигурация API загружена', {
+    module: 'Config',
+    context: {
+      apiBaseUrl: API_BASE_URL,
+      endpoints: window.APP_CONFIG.API_ENDPOINTS
+    }
+  });
+} else {
+  console.log('API Configuration loaded:', window.APP_CONFIG);
+}
 

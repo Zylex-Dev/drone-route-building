@@ -8,6 +8,8 @@
  * а также сброса информации в карточке параметров съемки и настроек
  */
 function clearAllObjects() {
+  logger.info('Очистка всех объектов и сброс миссии', { module: 'UIController' });
+  
   // Удаляем все нарисованные объекты с карты
   drawnItems.clearLayers();
 
@@ -49,6 +51,8 @@ function clearAllObjects() {
   
   // Обновляем параметры камеры для дефолтной модели
   updateCameraInfo('DJI Matrice 30T');
+  
+  logger.debug('Миссия полностью очищена, UI сброшен к значениям по умолчанию', { module: 'UIController' });
 
   // УРОВЕНЬ 1: Очистка информации о миссии
   document.getElementById('coverageArea').textContent = '-';
@@ -101,10 +105,30 @@ function updateMissionInfo(data, droneModel) {
   const props = data.route.properties;
   const stats = props.missionStats;
   
+  logger.info('Обновление информации о миссии в UI', {
+    module: 'UIController',
+    context: {
+      droneModel,
+      waypoints: props.totalWaypoints,
+      lines: props.numberOfLines
+    }
+  });
+  
   // Сохраняем маршрут для экспорта
   if (typeof exportManager !== 'undefined') {
     exportManager.setCurrentRoute(data.route);
   }
+  
+  logger.debug('Метрики миссии', {
+    module: 'UIController',
+    context: {
+      coverageArea: `${stats.coverageAreaKm2} км²`,
+      flightDistance: `${stats.totalFlightDistanceKm} км`,
+      estimatedTime: `${stats.estimatedFlightTimeMin} мин`,
+      photos: stats.estimatedPhotos,
+      battery: `${stats.batteryUsagePercent}%`
+    }
+  });
   
   // УРОВЕНЬ 1: Информация о миссии
   document.getElementById('coverageArea').textContent = `${stats.coverageAreaKm2} км²`;

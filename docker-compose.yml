@@ -7,6 +7,14 @@ services:
     ports:
       - "3000:3000"
     restart: unless-stopped
+    volumes:
+      - ./drone-route-server/logs:/app/drone-route-server/logs
+    environment:
+      - LOG_LEVEL=debug
+      - LOG_DIR=./logs
+      - NODE_ENV=production
+    networks:
+      - drone-network
 
   client:
     build:
@@ -16,3 +24,11 @@ services:
     ports:
       - "80:80"
     restart: unless-stopped
+    depends_on:
+      - server
+    networks:
+      - drone-network
+
+networks:
+  drone-network:
+    driver: bridge

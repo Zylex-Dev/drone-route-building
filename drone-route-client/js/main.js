@@ -8,15 +8,24 @@
 // ============================================================================
 
 document.addEventListener('DOMContentLoaded', function() {
+  logger.info('DOM полностью загружен, начало инициализации приложения', {
+    module: 'Main'
+  });
+  
   // Инициализация сворачиваемых секций
   setupCollapsibleSections();
+  logger.debug('Сворачиваемые секции инициализированы', { module: 'Main' });
   
   // Инициализация панели визуализации
   setupVisualizationPanelToggle();
   setupVisualizationCheckboxes();
+  logger.debug('Панель визуализации инициализирована', { module: 'Main' });
   
   // Инициализация управления симуляцией
   setupSimulationControls();
+  logger.debug('Управление симуляцией инициализировано', { module: 'Main' });
+  
+  logger.info('Приложение успешно инициализировано', { module: 'Main' });
 });
 
 // ============================================================================
@@ -31,35 +40,40 @@ initDrawingControls();
 
 // Обработчики экспорта маршрута
 document.getElementById('exportGeoJSON').addEventListener('click', () => {
+  logger.debug('Клик по кнопке экспорта GeoJSON', { module: 'Main' });
   if (exportManager && exportManager.getCurrentRoute()) {
     exportManager.exportToGeoJSON();
   } else {
-    console.warn('Нет маршрута для экспорта');
+    logger.warn('Попытка экспорта без маршрута', { module: 'Main', format: 'GeoJSON' });
   }
 });
 
 document.getElementById('exportKML').addEventListener('click', () => {
+  logger.debug('Клик по кнопке экспорта KML', { module: 'Main' });
   if (exportManager && exportManager.getCurrentRoute()) {
     exportManager.exportToKML();
   } else {
-    console.warn('Нет маршрута для экспорта');
+    logger.warn('Попытка экспорта без маршрута', { module: 'Main', format: 'KML' });
   }
 });
 
 document.getElementById('exportKMZ').addEventListener('click', () => {
+  logger.debug('Клик по кнопке экспорта KMZ', { module: 'Main' });
   if (exportManager && exportManager.getCurrentRoute()) {
     exportManager.exportToKMZ();
   } else {
-    console.warn('Нет маршрута для экспорта');
+    logger.warn('Попытка экспорта без маршрута', { module: 'Main', format: 'KMZ' });
   }
 });
 
 // Event listener для изменения модели дрона
 document.getElementById('droneModel').addEventListener('change', (e) => {
+  logger.info('Изменена модель дрона', { module: 'Main', droneModel: e.target.value });
   updateCameraInfo(e.target.value);
 });
 
 // Инициализация параметров камеры при загрузке страницы
+logger.debug('Инициализация параметров камеры по умолчанию', { module: 'Main', droneModel: 'DJI Matrice 30T' });
 updateCameraInfo('DJI Matrice 30T');
 
 // ============================================================================

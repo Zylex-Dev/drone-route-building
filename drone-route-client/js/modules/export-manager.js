@@ -21,7 +21,13 @@ let currentRoute = null; // Хранение текущего построенн
 function setCurrentRoute(routeData) {
   currentRoute = routeData;
   enableExportButtons();
-  console.log('Маршрут сохранён для экспорта:', routeData);
+  logger.info('Маршрут сохранён для экспорта', {
+    module: 'ExportManager',
+    context: {
+      coordinatesCount: routeData.geometry?.coordinates?.length,
+      properties: Object.keys(routeData.properties || {})
+    }
+  });
 }
 
 /**
@@ -30,7 +36,7 @@ function setCurrentRoute(routeData) {
 function clearCurrentRoute() {
   currentRoute = null;
   disableExportButtons();
-  console.log('Маршрут очищен');
+  logger.debug('Маршрут очищен', { module: 'ExportManager' });
 }
 
 /**
@@ -119,10 +125,17 @@ function downloadFile(content, filename, mimeType) {
     // Освобождаем память
     setTimeout(() => URL.revokeObjectURL(url), 100);
     
-    console.log(`✓ Файл ${filename} успешно экспортирован`);
+    logger.info('Файл успешно экспортирован', {
+      module: 'ExportManager',
+      context: { filename, size: `${blob.size} bytes`, mimeType }
+    });
     showExportNotification(`Файл ${filename} успешно экспортирован`, 'success');
   } catch (error) {
-    console.error('Ошибка при скачивании файла:', error);
+    logger.error('Ошибка при скачивании файла', {
+      module: 'ExportManager',
+      context: { filename, mimeType },
+      error: { message: error.message, stack: error.stack }
+    });
     showExportNotification('Ошибка при экспорте файла', 'error');
   }
 }
@@ -148,13 +161,13 @@ function generateFilename(baseName, extension, routeData) {
  * @param {string} type - Тип сообщения ('success', 'error', 'info')
  */
 function showExportNotification(message, type = 'info') {
-  // Простое уведомление через console (можно заменить на более продвинутое)
+  // Логируем уведомление
   if (type === 'success') {
-    console.log('✓', message);
+    logger.info(message, { module: 'ExportManager' });
   } else if (type === 'error') {
-    console.error('✗', message);
+    logger.error(message, { module: 'ExportManager' });
   } else {
-    console.info('ℹ', message);
+    logger.info(message, { module: 'ExportManager' });
   }
   
   // TODO: Добавить визуальное уведомление (toast/alert) в будущем
@@ -170,8 +183,10 @@ function showExportNotification(message, type = 'info') {
  * @param {string} filename - Имя файла (опционально)
  */
 function exportToGeoJSON(routeData = currentRoute, filename = null) {
+  logger.info('Начало экспорта GeoJSON', { module: 'ExportManager' });
+  
   if (!routeData) {
-    console.error('Нет данных маршрута для экспорта');
+    logger.error('Нет данных маршрута для экспорта GeoJSON', { module: 'ExportManager' });
     showExportNotification('Нет данных маршрута для экспорта', 'error');
     return;
   }
@@ -188,13 +203,20 @@ function exportToGeoJSON(routeData = currentRoute, filename = null) {
     // Скачиваем файл
     downloadFile(geoJSONString, filename, 'application/geo+json');
     
-    console.log('GeoJSON экспортирован:', {
-      filename,
-      size: `${(geoJSONString.length / 1024).toFixed(2)} KB`,
-      waypoints: routeData.geometry.coordinates.length
+    logger.info('GeoJSON успешно экспортирован', {
+      module: 'ExportManager',
+      context: {
+        filename,
+        size: `${(geoJSONString.length / 1024).toFixed(2)} KB`,
+        waypoints: routeData.geometry.coordinates.length
+      }
     });
   } catch (error) {
-    console.error('Ошибка при экспорте GeoJSON:', error);
+    logger.error('Ошибка при экспорте GeoJSON', {
+      module: 'ExportManager',
+      context: { filename },
+      error: { message: error.message, stack: error.stack }
+    });
     showExportNotification('Ошибка при экспорте GeoJSON', 'error');
   }
 }
@@ -354,8 +376,10 @@ function escapeXML(text) {
  * @param {string} filename - Имя файла (опционально)
  */
 function exportToKML(routeData = currentRoute, filename = null) {
+  logger.info('Начало экспорта KML', { module: 'ExportManager' });
+  
   if (!routeData) {
-    console.error('Нет данных маршрута для экспорта');
+    logger.error('Нет данных маршрута для экспорта KML', { module: 'ExportManager' });
     showExportNotification('Нет данных маршрута для экспорта', 'error');
     return;
   }
@@ -372,13 +396,20 @@ function exportToKML(routeData = currentRoute, filename = null) {
     // Скачиваем файл
     downloadFile(kmlContent, filename, 'application/vnd.google-earth.kml+xml');
     
-    console.log('KML экспортирован:', {
-      filename,
-      size: `${(kmlContent.length / 1024).toFixed(2)} KB`,
-      waypoints: routeData.geometry.coordinates.length
+    logger.info('KML успешно экспортирован', {
+      module: 'ExportManager',
+      context: {
+        filename,
+        size: `${(kmlContent.length / 1024).toFixed(2)} KB`,
+        waypoints: routeData.geometry.coordinates.length
+      }
     });
   } catch (error) {
-    console.error('Ошибка при экспорте KML:', error);
+    logger.error('Ошибка при экспорте KML', {
+      module: 'ExportManager',
+      context: { filename },
+      error: { message: error.message, stack: error.stack }
+    });
     showExportNotification('Ошибка при экспорте KML', 'error');
   }
 }
@@ -393,15 +424,17 @@ function exportToKML(routeData = currentRoute, filename = null) {
  * @param {string} filename - Имя файла (опционально)
  */
 async function exportToKMZ(routeData = currentRoute, filename = null) {
+  logger.info('Начало экспорта KMZ', { module: 'ExportManager' });
+  
   if (!routeData) {
-    console.error('Нет данных маршрута для экспорта');
+    logger.error('Нет данных маршрута для экспорта KMZ', { module: 'ExportManager' });
     showExportNotification('Нет данных маршрута для экспорта', 'error');
     return;
   }
   
   // Проверяем наличие библиотеки JSZip
   if (typeof JSZip === 'undefined') {
-    console.error('Библиотека JSZip не загружена');
+    logger.error('Библиотека JSZip не загружена', { module: 'ExportManager' });
     showExportNotification('Ошибка: библиотека JSZip не загружена', 'error');
     return;
   }
@@ -429,15 +462,22 @@ async function exportToKMZ(routeData = currentRoute, filename = null) {
     // Скачиваем файл
     downloadFile(blob, filename, 'application/vnd.google-earth.kmz');
     
-    console.log('KMZ экспортирован:', {
-      filename,
-      originalSize: `${(kmlContent.length / 1024).toFixed(2)} KB`,
-      compressedSize: `${(blob.size / 1024).toFixed(2)} KB`,
-      compression: `${((1 - blob.size / kmlContent.length) * 100).toFixed(1)}%`,
-      waypoints: routeData.geometry.coordinates.length
+    logger.info('KMZ успешно экспортирован', {
+      module: 'ExportManager',
+      context: {
+        filename,
+        originalSize: `${(kmlContent.length / 1024).toFixed(2)} KB`,
+        compressedSize: `${(blob.size / 1024).toFixed(2)} KB`,
+        compression: `${((1 - blob.size / kmlContent.length) * 100).toFixed(1)}%`,
+        waypoints: routeData.geometry.coordinates.length
+      }
     });
   } catch (error) {
-    console.error('Ошибка при экспорте KMZ:', error);
+    logger.error('Ошибка при экспорте KMZ', {
+      module: 'ExportManager',
+      context: { filename },
+      error: { message: error.message, stack: error.stack }
+    });
     showExportNotification('Ошибка при экспорте KMZ', 'error');
   }
 }
@@ -463,5 +503,5 @@ window.exportManager = {
   generateFilename
 };
 
-console.log('✓ Export Manager загружен');
+logger.info('Export Manager загружен', { module: 'ExportManager' });
 

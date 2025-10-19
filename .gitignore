@@ -12,4 +12,9 @@ secrets.json
 
 # Docker
 docker-compose.override.yml
+
+# Logs
+logs/
 *.log
+drone-route-server/logs/
+drone-route-client/logs/
