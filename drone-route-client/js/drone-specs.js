@@ -7,31 +7,37 @@ const DRONE_SPECS = {
   'DJI Matrice 30T': {
     focalLength: 4.5,
     sensorWidth: 7.6,
+    sensorHeight: 5.7,
     description: 'Профессиональный дрон для промышленной съемки'
   },
   'DJI Mavic 3': {
     focalLength: 24,
     sensorWidth: 17.3,
+    sensorHeight: 13.0,
     description: 'Профессиональный дрон с камерой Hasselblad'
   },
   'DJI Phantom 4 Pro': {
     focalLength: 8.8,
     sensorWidth: 13.2,
+    sensorHeight: 8.8,
     description: 'Популярный дрон для фотограмметрии'
   },
   'DJI Air 2S': {
     focalLength: 22,
     sensorWidth: 13.2,
+    sensorHeight: 8.8,
     description: 'Компактный дрон с 1-дюймовой матрицей'
   },
   'DJI Mini 3 Pro': {
     focalLength: 6.7,
     sensorWidth: 9.7,
+    sensorHeight: 7.3,
     description: 'Легкий компактный дрон'
   },
   'Autel EVO Lite+': {
     focalLength: 20,
     sensorWidth: 13.2,
+    sensorHeight: 8.8,
     description: 'Профессиональный дрон с съемкой в 6K'
   }
 };
@@ -61,7 +67,7 @@ function updateCameraInfo(model) {
   }
   
   if (sensorSizeEl) {
-    sensorSizeEl.textContent = `${specs.sensorWidth} × ${specs.sensorWidth} мм`;
+    sensorSizeEl.textContent = `${specs.sensorWidth} × ${specs.sensorHeight} мм`;
   }
   
   // Если маршрут уже построен, пересчитываем параметры

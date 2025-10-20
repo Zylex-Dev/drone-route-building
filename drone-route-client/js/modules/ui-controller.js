@@ -165,7 +165,7 @@ function updateMissionInfo(data, droneModel) {
   // УРОВЕНЬ 3: Технические параметры
   document.getElementById('droneModelDisplay').textContent = droneModel;
   document.getElementById('focalLength').textContent = `${specs.focalLength} мм`;
-  document.getElementById('sensorSize').textContent = `${specs.sensorWidth} × ${specs.sensorWidth} мм`;
+  document.getElementById('sensorSize').textContent = `${specs.sensorWidth} × ${specs.sensorHeight} мм`;
   document.getElementById('fovHorizontal').textContent = `${stats.horizontalFOV}°`;
   document.getElementById('fovVertical').textContent = `${stats.verticalFOV}°`;
   document.getElementById('altitudeInfo').textContent = `${props.flightAltitude} м`;

@@ -4,7 +4,6 @@
  */
 
 const { http: logger } = require('../utils/logger');
-const { v4: uuidv4 } = require('crypto');
 
 /**
  * Генерирует уникальный ID запроса
