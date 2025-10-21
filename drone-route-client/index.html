@@ -62,6 +62,17 @@
               <small class="form-text text-muted">Перекрытие между последовательными снимками</small>
             </div>
             <div class="mb-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="enableTerrainFollowing">
+                <label class="form-check-label" for="enableTerrainFollowing">
+                  Учитывать рельеф местности
+                </label>
+              </div>
+              <small class="form-text text-muted">
+                Дрон полетит на постоянной абсолютной высоте выше максимальной точки рельефа
+              </small>
+            </div>
+            <div class="mb-3">
               <label class="form-label">Тип съёмки</label>
               <input type="text" class="form-control" value="Панорамная съемка" disabled>
             </div>
@@ -97,6 +108,11 @@
                   📦 Скачать KMZ
                 </button>
               </div>
+            </div>
+            <div class="mb-3">
+              <button id="showTerrainProfile" class="btn btn-outline-info btn-custom w-100" disabled>
+                🏔️ Профиль рельефа
+              </button>
             </div>
           </div>
           <!-- УРОВЕНЬ 1: Информация о миссии (всегда видна) -->
@@ -216,6 +232,49 @@
     </div>
   </div>
 
+  <!-- Модальное окно профиля рельефа -->
+  <div class="modal fade" id="terrainProfileModal" tabindex="-1" aria-labelledby="terrainProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="terrainProfileModalLabel">🏔️ Профиль рельефа маршрута</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="terrainProfileChart" style="width:100%; height:500px;"></div>
+          <div class="terrain-stats mt-4">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="stat-card">
+                  <div class="stat-label">Макс. высота рельефа</div>
+                  <div class="stat-value" id="maxElevation">-</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="stat-card">
+                  <div class="stat-label">Мин. высота рельефа</div>
+                  <div class="stat-value" id="minElevation">-</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="stat-card">
+                  <div class="stat-label">Перепад высот</div>
+                  <div class="stat-value" id="terrainRange">-</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="stat-card">
+                  <div class="stat-label">Абсолютная высота полета</div>
+                  <div class="stat-value" id="absoluteAltitude">-</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Панель управления симуляцией полёта -->
   <div id="flightSimulationPanel" class="flight-simulation-panel" style="display: none;">
     <div class="simulation-header">
@@ -317,6 +376,10 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <!-- Leaflet.draw JS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+  <!-- Leaflet.heat для тепловой карты высот -->
+  <script src="https://leaflet.github.io/Leaflet.heat/dist/leaflet-heat.js"></script>
+  <!-- Plotly.js для интерактивного графика профиля высот -->
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
   <!-- JSZip для создания KMZ архивов -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   
@@ -339,6 +402,9 @@
   
   <!-- Модуль визуализации маршрута -->
   <script src="./js/visualization/route-visualization.js"></script>
+  
+  <!-- Модуль визуализации рельефа -->
+  <script src="./js/visualization/terrain-visualization.js"></script>
   
   <!-- Модули симуляции -->
   <script src="./js/simulation/flight-simulation.js"></script>

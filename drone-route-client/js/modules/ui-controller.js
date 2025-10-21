@@ -35,8 +35,17 @@ function clearAllObjects() {
     simPanel.style.display = 'none';
   }
   
-  // Отключаем кнопку симуляции
+  // Очищаем данные о рельефе
+  if (typeof removeElevationHeatmap !== 'undefined') {
+    removeElevationHeatmap(map);
+  }
+  if (typeof clearTerrainData !== 'undefined') {
+    clearTerrainData();
+  }
+  
+  // Отключаем кнопки
   document.getElementById('startSimulation').disabled = true;
+  document.getElementById('showTerrainProfile').disabled = true;
   
   // Очищаем данные маршрута для экспорта
   if (typeof exportManager !== 'undefined') {
@@ -48,6 +57,7 @@ function clearAllObjects() {
   document.getElementById('desiredOverlap').value = 30;
   document.getElementById('forwardOverlap').value = 70;
   document.getElementById('droneModel').value = 'DJI Matrice 30T';
+  document.getElementById('enableTerrainFollowing').checked = false;
   
   // Обновляем параметры камеры для дефолтной модели
   updateCameraInfo('DJI Matrice 30T');
@@ -169,6 +179,77 @@ function updateMissionInfo(data, droneModel) {
   document.getElementById('fovHorizontal').textContent = `${stats.horizontalFOV}°`;
   document.getElementById('fovVertical').textContent = `${stats.verticalFOV}°`;
   document.getElementById('altitudeInfo').textContent = `${props.flightAltitude} м`;
+  
+  // Отображение информации о рельефе (если включено)
+  if (props.terrainData && props.terrainData.enabled) {
+    logger.info('Добавление информации о рельефе в UI', {
+      module: 'UIController',
+      terrainData: {
+        maxElevation: props.terrainData.maxTerrainElevation,
+        absoluteAltitude: props.terrainData.absoluteFlightAltitude
+      }
+    });
+    
+    // Проверяем, существует ли уже карточка с информацией о рельефе
+    let terrainInfoCard = document.querySelector('.terrain-info');
+    
+    if (!terrainInfoCard) {
+      // Создаем новую карточку
+      terrainInfoCard = document.createElement('div');
+      terrainInfoCard.className = 'card-custom terrain-info glass';
+      terrainInfoCard.innerHTML = `
+        <h5 class="section-title">🏔️ Информация о рельефе</h5>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item metric-item">
+            <span class="metric-label">Макс. высота рельефа:</span>
+            <strong class="metric-value" id="terrainMaxHeight">-</strong>
+          </li>
+          <li class="list-group-item metric-item">
+            <span class="metric-label">Мин. высота рельефа:</span>
+            <strong class="metric-value" id="terrainMinHeight">-</strong>
+          </li>
+          <li class="list-group-item metric-item">
+            <span class="metric-label">Перепад высот:</span>
+            <strong class="metric-value" id="terrainRangeDisplay">-</strong>
+          </li>
+          <li class="list-group-item metric-item">
+            <span class="metric-label">Абсолютная высота полета:</span>
+            <strong class="metric-value" id="terrainAbsoluteAltitude">-</strong>
+          </li>
+        </ul>
+      `;
+      
+      // Вставляем карточку после "Информации о миссии"
+      const missionSummary = document.querySelector('.mission-summary');
+      if (missionSummary && missionSummary.parentNode) {
+        missionSummary.parentNode.insertBefore(terrainInfoCard, missionSummary.nextSibling);
+      }
+      
+      logger.debug('Карточка информации о рельефе создана', { module: 'UIController' });
+    }
+    
+    // Заполняем данные
+    document.getElementById('terrainMaxHeight').textContent = `${props.terrainData.maxTerrainElevation} м`;
+    document.getElementById('terrainMinHeight').textContent = `${props.terrainData.minTerrainElevation} м`;
+    document.getElementById('terrainRangeDisplay').textContent = `${props.terrainData.terrainRange} м`;
+    document.getElementById('terrainAbsoluteAltitude').textContent = `${props.terrainData.absoluteFlightAltitude} м`;
+    
+    // Предупреждение о плоской местности
+    if (props.terrainData.isFlat) {
+      const terrainRangeElem = document.getElementById('terrainRangeDisplay');
+      if (terrainRangeElem) {
+        terrainRangeElem.style.color = '#28a745'; // Зеленый цвет
+        terrainRangeElem.title = 'Рельеф практически плоский';
+      }
+    }
+  } else {
+    // Удаляем карточку о рельефе, если она была
+    const terrainInfoCard = document.querySelector('.terrain-info');
+    if (terrainInfoCard) {
+      terrainInfoCard.remove();
+      logger.debug('Карточка информации о рельефе удалена', { module: 'UIController' });
+    }
+  }
 }
 
 /**

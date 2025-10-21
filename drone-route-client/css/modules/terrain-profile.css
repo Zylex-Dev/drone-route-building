@@ -1,0 +1,144 @@
+/**
+ * Стили для модального окна профиля рельефа
+ */
+
+/* Модальное окно */
+#terrainProfileModal .modal-content {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+#terrainProfileModal .modal-header {
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  color: white;
+  border-bottom: none;
+  border-radius: 15px 15px 0 0;
+  padding: 1.5rem;
+}
+
+#terrainProfileModal .modal-title {
+  font-weight: 600;
+  font-size: 1.4rem;
+}
+
+#terrainProfileModal .btn-close {
+  filter: brightness(0) invert(1);
+  opacity: 0.8;
+}
+
+#terrainProfileModal .btn-close:hover {
+  opacity: 1;
+}
+
+#terrainProfileModal .modal-body {
+  padding: 2rem;
+}
+
+/* График профиля */
+#terrainProfileChart {
+  background: white;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Статистика рельефа */
+.terrain-stats {
+  margin-top: 2rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 10px;
+  padding: 1.2rem;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card .stat-label {
+  font-size: 0.9rem;
+  color: #6c757d;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.stat-card .stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2c3e50;
+  display: block;
+}
+
+/* Карточка информации о рельефе в левой панели */
+.terrain-info {
+  margin-top: 1rem;
+  animation: slideIn 0.3s ease-out;
+}
+
+.terrain-info .section-title {
+  color: #4a90e2;
+}
+
+.terrain-info .metric-value {
+  color: #4a90e2;
+  font-weight: 600;
+}
+
+/* Анимация появления */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  #terrainProfileModal .modal-dialog {
+    margin: 0.5rem;
+  }
+  
+  #terrainProfileModal .modal-body {
+    padding: 1rem;
+  }
+  
+  #terrainProfileChart {
+    height: 400px !important;
+  }
+  
+  .stat-card {
+    margin-bottom: 1rem;
+  }
+  
+  .stat-card .stat-value {
+    font-size: 1.2rem;
+  }
+}
+
+/* Предупреждение о плоской местности */
+.terrain-warning {
+  background-color: #d1ecf1;
+  border: 1px solid #bee5eb;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+  color: #0c5460;
+}
+
+.terrain-warning strong {
+  font-weight: 600;
+}
+

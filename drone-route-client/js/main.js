@@ -72,6 +72,19 @@ document.getElementById('droneModel').addEventListener('change', (e) => {
   updateCameraInfo(e.target.value);
 });
 
+// Обработчик кнопки "Профиль рельефа"
+document.getElementById('showTerrainProfile').addEventListener('click', () => {
+  logger.debug('Клик по кнопке "Профиль рельефа"', { module: 'Main' });
+  
+  // Получаем данные о рельефе из текущего маршрута
+  if (currentRouteData && currentRouteData.properties && currentRouteData.properties.terrainData) {
+    showTerrainProfileModal(currentRouteData.properties.terrainData);
+  } else {
+    logger.warn('Попытка открыть профиль рельефа без данных', { module: 'Main' });
+    alert('Данные о рельефе недоступны. Убедитесь, что маршрут построен с включенной опцией "Учитывать рельеф местности".');
+  }
+});
+
 // Инициализация параметров камеры при загрузке страницы
 logger.debug('Инициализация параметров камеры по умолчанию', { module: 'Main', droneModel: 'DJI Matrice 30T' });
 updateCameraInfo('DJI Matrice 30T');

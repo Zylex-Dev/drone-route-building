@@ -56,6 +56,7 @@ function buildRoute(territoryPoints) {
   const flightAltitude = Number(document.getElementById('flightAltitude').value);
   const desiredOverlapInput = Number(document.getElementById('desiredOverlap').value);
   const forwardOverlapInput = Number(document.getElementById('forwardOverlap').value);
+  const enableTerrainFollowing = document.getElementById('enableTerrainFollowing').checked;
 
   if (!validateInputs(flightAltitude, desiredOverlapInput, forwardOverlapInput)) {
     logger.warn('Построение маршрута прервано из-за невалидных параметров', { module: 'RouteBuilder' });
@@ -72,11 +73,18 @@ function buildRoute(territoryPoints) {
       flightAltitude,
       desiredOverlap: `${desiredOverlapInput}%`,
       forwardOverlap: `${forwardOverlapInput}%`,
+      enableTerrainFollowing,
       territoryPoints: territoryPoints.length
     }
   });
   
   const requestStartTime = Date.now();
+  
+  // Показываем индикатор загрузки, если включен учет рельефа
+  let loadingIndicator = null;
+  if (enableTerrainFollowing) {
+    loadingIndicator = showLoadingIndicator('Загрузка данных о рельефе местности...');
+  }
 
   // Отправка POST-запроса на сервер
   const apiUrl = `${window.APP_CONFIG.API_BASE_URL}${window.APP_CONFIG.API_ENDPOINTS.CALCULATE_ROUTE}`;
@@ -89,7 +97,8 @@ function buildRoute(territoryPoints) {
       droneModel,
       flightAltitude,
       desiredOverlap,
-      forwardOverlap
+      forwardOverlap,
+      enableTerrainFollowing
     })
   })
     .then(response => {
@@ -101,6 +110,12 @@ function buildRoute(territoryPoints) {
           duration: `${requestDuration}ms`
         }
       });
+      
+      // Скрываем индикатор загрузки
+      if (loadingIndicator) {
+        hideLoadingIndicator(loadingIndicator);
+      }
+      
       return response.json();
     })
     .then(data => {
@@ -164,6 +179,30 @@ function buildRoute(territoryPoints) {
         updateMissionInfo(data, droneModel);
         logger.debug('Информация о миссии обновлена', { module: 'RouteBuilder' });
         
+        // Обработка данных о рельефе (если есть)
+        if (data.route.properties.terrainData && data.route.properties.terrainData.enabled) {
+          logger.info('Обработка данных о рельефе на клиенте', {
+            module: 'RouteBuilder',
+            terrainData: {
+              maxElevation: data.route.properties.terrainData.maxTerrainElevation,
+              minElevation: data.route.properties.terrainData.minTerrainElevation,
+              absoluteAltitude: data.route.properties.terrainData.absoluteFlightAltitude,
+              isFlat: data.route.properties.terrainData.isFlat
+            }
+          });
+          
+          // Создаем тепловую карту высот
+          const heatmapLayer = createElevationHeatmap(map, data.route.properties.terrainData.elevationGrid);
+          if (heatmapLayer) {
+            heatmapLayer.addTo(map);
+            logger.debug('Тепловая карта высот добавлена на карту', { module: 'RouteBuilder' });
+          }
+          
+          // Активируем кнопку "Профиль рельефа"
+          document.getElementById('showTerrainProfile').disabled = false;
+          logger.debug('Кнопка "Профиль рельефа" активирована', { module: 'RouteBuilder' });
+        }
+        
         // Сохраняем данные маршрута для симуляции
         currentRouteData = data.route;
         
@@ -179,6 +218,11 @@ function buildRoute(territoryPoints) {
       }
     })
     .catch(error => {
+      // Скрываем индикатор загрузки при ошибке
+      if (loadingIndicator) {
+        hideLoadingIndicator(loadingIndicator);
+      }
+      
       logger.error('Ошибка соединения с сервером', {
         module: 'RouteBuilder',
         error: {
@@ -189,5 +233,41 @@ function buildRoute(territoryPoints) {
       });
       alert('Ошибка соединения с сервером: ' + error);
     });
+}
+
+/**
+ * Показать индикатор загрузки
+ * @param {string} message - Текст сообщения
+ * @returns {HTMLElement} Элемент индикатора
+ */
+function showLoadingIndicator(message) {
+  const indicator = document.createElement('div');
+  indicator.id = 'terrain-loading-indicator';
+  indicator.className = 'loading-indicator';
+  indicator.innerHTML = `
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <div class="loading-message">${message}</div>
+    </div>
+  `;
+  document.body.appendChild(indicator);
+  
+  logger.debug('Индикатор загрузки показан', { 
+    module: 'RouteBuilder',
+    message 
+  });
+  
+  return indicator;
+}
+
+/**
+ * Скрыть индикатор загрузки
+ * @param {HTMLElement} indicator - Элемент индикатора
+ */
+function hideLoadingIndicator(indicator) {
+  if (indicator && indicator.parentNode) {
+    indicator.parentNode.removeChild(indicator);
+    logger.debug('Индикатор загрузки скрыт', { module: 'RouteBuilder' });
+  }
 }
 

@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --verbose --coverage",
+    "test:watch": "jest --watch",
+    "test:elevation": "jest tests/elevation-service.test.js"
   },
   "keywords": [],
   "author": "",
@@ -11,11 +13,15 @@
   "description": "",
   "dependencies": {
     "@turf/turf": "^7.2.0",
+    "axios": "^1.12.2",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "joi": "^18.0.1",
     "winston": "^3.18.3",
     "winston-daily-rotate-file": "^5.0.0"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0"
   }
 }

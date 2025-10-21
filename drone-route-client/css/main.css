@@ -16,6 +16,7 @@
 @import url('./components/cards.css');
 @import url('./components/forms.css');
 @import url('./components/metrics.css');
+@import url('./components/loading-indicator.css');
 
 /* === Modules === */
 @import url('./modules/visualization-panel.css');
@@ -23,6 +24,7 @@
 @import url('./modules/camera-footprints.css');
 @import url('./modules/waypoint-markers.css');
 @import url('./modules/simulation-panel.css');
+@import url('./modules/terrain-profile.css');
 
 /* === Simulation === */
 @import url('./simulation/controls.css');

@@ -4,6 +4,7 @@ const cors = require('cors');
 const Joi = require('joi');
 const turf = require('@turf/turf'); // Подключаем Turf.js для геометрических операций
 const { getDroneConfig, isValidModel, getAvailableModels } = require('./config/cameras');
+const elevationService = require('./services/elevation-service');
 
 // Подключаем систему логирования
 const { app: logger, calculation: calcLogger } = require('./utils/logger');
@@ -77,10 +78,14 @@ const calculateRouteSchema = Joi.object({
     .messages({
       'number.min': 'Продольное перекрытие должно быть не менее 50%',
       'number.max': 'Продольное перекрытие не может превышать 95%'
-    })
+    }),
+  
+  enableTerrainFollowing: Joi.boolean()
+    .optional()
+    .default(false)
 });
 
-app.post('/api/calculate-route', (req, res) => {
+app.post('/api/calculate-route', async (req, res) => {
   const requestId = req.requestId;
   const startTime = Date.now();
   
@@ -106,13 +111,14 @@ app.post('/api/calculate-route', (req, res) => {
     });
   }
 
-  const { territory, shootingType, droneModel } = value;
+  const { territory, shootingType, droneModel, enableTerrainFollowing } = value;
 
   calcLogger.info('Валидация пройдена успешно', { 
     requestId,
     territoryPoints: territory.length,
     shootingType,
-    droneModel: droneModel || 'DJI Matrice 30T (по умолчанию)'
+    droneModel: droneModel || 'DJI Matrice 30T (по умолчанию)',
+    enableTerrainFollowing: enableTerrainFollowing || false
   });
   
   calcLogger.debug('Детали территории', { 
@@ -539,6 +545,108 @@ app.post('/api/calculate-route', (req, res) => {
     maxFlightTime: `${droneConfig.specs.maxFlightTime} мин`
   });
   
+  // --- Обработка данных о рельефе (если включена) ---
+  let terrainData = null;
+  
+  if (enableTerrainFollowing) {
+    calcLogger.info('Начало обработки данных о рельефе', { requestId });
+    
+    try {
+      // Проверка площади для elevation запросов
+      const MAX_ELEVATION_AREA_KM2 = 50; // 50 км²
+      if (parseFloat(coverageAreaKm2) > MAX_ELEVATION_AREA_KM2) {
+        calcLogger.warn('Территория слишком велика для запроса данных о рельефе', {
+          requestId,
+          areaKm2: coverageAreaKm2,
+          maxAllowed: MAX_ELEVATION_AREA_KM2
+        });
+        return res.status(400).json({
+          success: false,
+          message: `Территория слишком велика для учета рельефа (${coverageAreaKm2} км²). Максимум: ${MAX_ELEVATION_AREA_KM2} км². Отключите опцию "Учитывать рельеф" или уменьшите площадь.`
+        });
+      }
+      
+      const elevationStartTime = Date.now();
+      
+      // Получаем данные о высотах для всей территории (сетка для heatmap)
+      const gridDensity = Math.min(20, Math.max(10, Math.floor(100 / Math.sqrt(parseFloat(coverageAreaKm2)))));
+      calcLogger.debug('Расчет плотности сетки для elevation', {
+        requestId,
+        gridDensity,
+        areaKm2: coverageAreaKm2
+      });
+      
+      const elevationGrid = await elevationService.getElevationForBoundingBox(bbox, gridDensity);
+      
+      // Получаем данные о высотах вдоль маршрута
+      const samplingInterval = Math.max(1, Math.floor(routeCoordinates.length / 500)); // Максимум 500 точек
+      const elevationProfile = await elevationService.getElevationAlongRoute(routeCoordinates, samplingInterval);
+      
+      calcLogger.debug('Данные о рельефе получены', {
+        requestId,
+        gridPoints: elevationGrid.length,
+        profilePoints: elevationProfile.length,
+        duration: `${Date.now() - elevationStartTime}ms`
+      });
+      
+      // Вычисляем максимальную и минимальную высоты рельефа
+      const elevations = elevationProfile.map(p => p.elevation);
+      const maxTerrainElevation = Math.max(...elevations);
+      const minTerrainElevation = Math.min(...elevations);
+      
+      // Рассчитываем абсолютную высоту полета
+      // absoluteFlightAltitude = максимальная высота рельефа + заданная относительная высота
+      const absoluteFlightAltitude = maxTerrainElevation + flightAltitude;
+      
+      calcLogger.info('Рассчитана абсолютная высота полета', {
+        requestId,
+        maxTerrainElevation: `${maxTerrainElevation.toFixed(2)} м`,
+        minTerrainElevation: `${minTerrainElevation.toFixed(2)} м`,
+        relativeAltitude: `${flightAltitude} м`,
+        absoluteFlightAltitude: `${absoluteFlightAltitude.toFixed(2)} м`,
+        terrainRange: `${(maxTerrainElevation - minTerrainElevation).toFixed(2)} м`
+      });
+      
+      // Проверка на плоскую местность
+      const terrainRange = maxTerrainElevation - minTerrainElevation;
+      if (terrainRange < 5) {
+        calcLogger.info('Рельеф практически плоский', {
+          requestId,
+          terrainRange: `${terrainRange.toFixed(2)} м`
+        });
+      }
+      
+      terrainData = {
+        enabled: true,
+        maxTerrainElevation: parseFloat(maxTerrainElevation.toFixed(2)),
+        minTerrainElevation: parseFloat(minTerrainElevation.toFixed(2)),
+        absoluteFlightAltitude: parseFloat(absoluteFlightAltitude.toFixed(2)),
+        relativeAltitude: flightAltitude,
+        terrainRange: parseFloat(terrainRange.toFixed(2)),
+        elevationProfile: elevationProfile,
+        elevationGrid: elevationGrid,
+        isFlat: terrainRange < 5
+      };
+      
+      calcLogger.info('Обработка данных о рельефе завершена', {
+        requestId,
+        duration: `${Date.now() - elevationStartTime}ms`
+      });
+      
+    } catch (error) {
+      calcLogger.error('Ошибка при получении данных о рельефе', {
+        requestId,
+        error: error.message,
+        stack: error.stack
+      });
+      
+      return res.status(500).json({
+        success: false,
+        message: `Не удалось получить данные о рельефе: ${error.message}. Попробуйте построить маршрут без учета рельефа.`
+      });
+    }
+  }
+  
   // Финальный лог с результатами
   const executionTime = Date.now() - startTime;
   calcLogger.info('Маршрут построен успешно', {
@@ -553,6 +661,7 @@ app.post('/api/calculate-route', (req, res) => {
       gsd: `${gsdCmPerPixel} см/пиксель`,
       batteryUsage: `${batteryUsagePercent}%`,
       storage: `${estimatedStorageGB} ГБ`,
+      terrainEnabled: enableTerrainFollowing,
       executionTime: `${executionTime}ms`
     }
   });
@@ -584,16 +693,18 @@ app.post('/api/calculate-route', (req, res) => {
         batteryUsagePercent: parseInt(batteryUsagePercent),
         gsdCmPerPixel: parseFloat(gsdCmPerPixel),
         cruiseSpeed: droneSpeed, // Крейсерская скорость дрона для симуляции
-        // Технические детали для экспертов
-        horizontalFOV: (horizontalFOV * 180 / Math.PI).toFixed(1), // в градусах
-        verticalFOV: (verticalFOV * 180 / Math.PI).toFixed(1) // в градусах
-      }
+      // Технические детали для экспертов
+      horizontalFOV: (horizontalFOV * 180 / Math.PI).toFixed(1), // в градусах
+      verticalFOV: (verticalFOV * 180 / Math.PI).toFixed(1) // в градусах
     },
-    geometry: {
-      type: "LineString",
-      coordinates: routeCoordinates
-    }
-  };
+    // Данные о рельефе (если включено)
+    terrainData: terrainData
+  },
+  geometry: {
+    type: "LineString",
+    coordinates: routeCoordinates
+  }
+};
 
   calcLogger.info('Отправка ответа клиенту', {
     requestId,
