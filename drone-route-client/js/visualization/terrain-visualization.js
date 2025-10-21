@@ -315,91 +315,146 @@ function showTerrainProfileModal(terrainData) {
     elevationRange: `${minTerrainElevation.toFixed(2)} - ${maxTerrainElevation.toFixed(2)} м`
   });
   
-  // Создаем линию рельефа
+  // Создаем линию рельефа с улучшенным дизайном
   const terrainTrace = {
     x: distances,
     y: elevations,
     type: 'scatter',
     mode: 'lines',
-    name: 'Рельеф местности',
+    name: '🏔️ Рельеф местности',
     fill: 'tozeroy',
-    fillcolor: 'rgba(139, 69, 19, 0.3)',
+    fillcolor: 'rgba(139, 98, 61, 0.25)',
     line: {
-      color: 'rgb(139, 69, 19)',
-      width: 2
+      color: 'rgb(139, 98, 61)',
+      width: 3,
+      shape: 'spline',
+      smoothing: 0.8
     },
-    hovertemplate: '<b>Расстояние:</b> %{x:.2f} км<br>' +
-                   '<b>Высота:</b> %{y:.2f} м<br>' +
+    hovertemplate: '<b>📍 Расстояние:</b> %{x:.2f} км<br>' +
+                   '<b>⛰️ Высота рельефа:</b> %{y:.1f} м<br>' +
                    '<extra></extra>'
   };
   
-  // Создаем линию полета дрона (прямая горизонтальная)
+  // Создаем линию полета дрона (прямая горизонтальная) с улучшенным стилем
   const droneTrace = {
     x: distances,
     y: Array(distances.length).fill(absoluteFlightAltitude),
     type: 'scatter',
     mode: 'lines',
-    name: 'Линия полета дрона',
+    name: '✈️ Линия полета дрона',
     line: {
-      color: 'rgb(0, 123, 255)',
-      width: 3,
-      dash: 'dash'
+      color: 'rgb(102, 126, 234)',
+      width: 4,
+      dash: 'dot'
     },
-    hovertemplate: '<b>Расстояние:</b> %{x:.2f} км<br>' +
-                   '<b>Абсолютная высота:</b> %{y:.2f} м<br>' +
+    hovertemplate: '<b>📍 Расстояние:</b> %{x:.2f} км<br>' +
+                   '<b>✈️ Абсолютная высота:</b> %{y:.1f} м<br>' +
+                   '<b>📏 Запас высоты:</b> ' + (absoluteFlightAltitude - Math.max(...elevations)).toFixed(1) + ' м<br>' +
                    '<extra></extra>'
   };
   
-  // Настройки графика
+  // Настройки графика - полная ширина контейнера
   const layout = {
     title: {
       text: 'Профиль высот маршрута полета',
       font: {
-        size: 18,
-        family: 'Inter, sans-serif'
+        size: 20,
+        family: 'Inter, sans-serif',
+        weight: 700,
+        color: '#2c3e50'
       }
     },
     xaxis: {
-      title: 'Расстояние вдоль маршрута (км)',
-      gridcolor: '#e0e0e0'
+      title: {
+        text: 'Расстояние вдоль маршрута (км)',
+        font: {
+          size: 14,
+          family: 'Inter, sans-serif',
+          weight: 600,
+          color: '#495057'
+        }
+      },
+      gridcolor: '#e9ecef',
+      gridwidth: 1,
+      linecolor: '#dee2e6',
+      linewidth: 2,
+      tickfont: {
+        size: 12,
+        family: 'Inter, sans-serif',
+        color: '#6c757d'
+      }
     },
     yaxis: {
-      title: 'Высота над уровнем моря (м)',
-      gridcolor: '#e0e0e0'
+      title: {
+        text: 'Высота над уровнем моря (м)',
+        font: {
+          size: 14,
+          family: 'Inter, sans-serif',
+          weight: 600,
+          color: '#495057'
+        }
+      },
+      gridcolor: '#e9ecef',
+      gridwidth: 1,
+      linecolor: '#dee2e6',
+      linewidth: 2,
+      tickfont: {
+        size: 12,
+        family: 'Inter, sans-serif',
+        color: '#6c757d'
+      }
     },
     hovermode: 'x unified',
     showlegend: true,
     legend: {
-      x: 0.01,
-      y: 0.99,
-      bgcolor: 'rgba(255, 255, 255, 0.8)',
-      bordercolor: '#ccc',
-      borderwidth: 1
+      x: 0.02,
+      y: 0.98,
+      bgcolor: 'rgba(255, 255, 255, 0.95)',
+      bordercolor: '#dee2e6',
+      borderwidth: 2,
+      font: {
+        size: 13,
+        family: 'Inter, sans-serif'
+      }
     },
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: '#ffffff',
     margin: {
-      l: 60,
-      r: 40,
-      t: 60,
-      b: 60
-    }
+      l: 70,
+      r: 30,
+      t: 80,
+      b: 70,
+      pad: 5
+    },
+    autosize: true
   };
   
   const config = {
     responsive: true,
     displayModeBar: true,
-    modeBarButtonsToRemove: ['lasso2d', 'select2d'],
+    modeBarButtonsToRemove: ['lasso2d', 'select2d', 'autoScale2d'],
     displaylogo: false,
     toImageButtonOptions: {
       format: 'png',
       filename: 'terrain_profile',
-      height: 800,
-      width: 1200,
+      height: 1000,
+      width: 1600,
       scale: 2
     }
   };
   
-  // Строим график
+  // Строим график с автоматическим размером
   Plotly.newPlot('terrainProfileChart', [terrainTrace, droneTrace], layout, config);
+  
+  // Автоматическое изменение размера при изменении окна
+  window.addEventListener('resize', () => {
+    Plotly.Plots.resize('terrainProfileChart');
+  });
+  
+  // Также пересчитываем размер при открытии модального окна
+  setTimeout(() => {
+    Plotly.Plots.resize('terrainProfileChart');
+  }, 300);
   
   logger.info('График профиля рельефа построен', {
     module: 'TerrainVisualization'
