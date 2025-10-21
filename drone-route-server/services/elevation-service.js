@@ -274,13 +274,24 @@ async function getElevationForBoundingBox(bbox, gridDensity = 20) {
       maxPoints: MAX_GRID_POINTS
     });
     
-    // Пересчитываем плотность
-    const bboxWidth = bbox[2] - bbox[0];
-    const bboxHeight = bbox[3] - bbox[1];
-    const area = bboxWidth * bboxHeight;
-    const newDensity = Math.floor(Math.sqrt(MAX_GRID_POINTS / area));
+    // Рассчитываем новую плотность на основе соотношения точек
+    // newDensity должна быть меньше текущей, чтобы избежать бесконечной рекурсии
+    const scaleFactor = Math.sqrt(MAX_GRID_POINTS / gridPoints.length);
+    const newDensity = Math.max(Math.floor(gridDensity * scaleFactor), 5);
     
-    return getElevationForBoundingBox(bbox, Math.max(newDensity, 5));
+    // Проверяем, что новая плотность действительно меньше
+    if (newDensity >= gridDensity) {
+      // Если расчет не уменьшил плотность, принудительно уменьшаем вдвое
+      const forcedDensity = Math.max(Math.floor(gridDensity / 2), 5);
+      logger.warn('Принудительное уменьшение плотности', {
+        module: 'ElevationService',
+        originalDensity: gridDensity,
+        forcedDensity
+      });
+      return getElevationForBoundingBox(bbox, forcedDensity);
+    }
+    
+    return getElevationForBoundingBox(bbox, newDensity);
   }
   
   return await fetchElevationData(gridPoints);

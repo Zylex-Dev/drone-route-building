@@ -15,7 +15,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware для парсинга и CORS
-app.use(bodyParser.json());
+// Увеличиваем лимит для больших запросов (логи, terrain данные)
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 app.use(cors());
 
 // Middleware для логирования HTTP запросов
