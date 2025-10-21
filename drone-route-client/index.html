@@ -237,36 +237,68 @@
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="terrainProfileModalLabel">🏔️ Профиль рельефа маршрута</h5>
+          <h5 class="modal-title" id="terrainProfileModalLabel">
+            <i class="terrain-icon">🏔️</i> Профиль рельефа маршрута
+          </h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div id="terrainProfileChart" style="width:100%; height:500px;"></div>
-          <div class="terrain-stats mt-4">
-            <div class="row">
-              <div class="col-md-3">
-                <div class="stat-card">
-                  <div class="stat-label">Макс. высота рельефа</div>
-                  <div class="stat-value" id="maxElevation">-</div>
+          <!-- График на всю ширину -->
+          <div id="terrainProfileChart" class="terrain-chart-container"></div>
+          
+          <!-- Статистика рельефа - 4 одинаковых блока -->
+          <div class="terrain-stats">
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-icon elevation-max">📈</div>
+                <div class="stat-label">Макс. высота рельефа</div>
+                <div class="stat-value" id="maxElevation">-</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon elevation-min">📉</div>
+                <div class="stat-label">Мин. высота рельефа</div>
+                <div class="stat-value" id="minElevation">-</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon elevation-range">📊</div>
+                <div class="stat-label">Перепад высот</div>
+                <div class="stat-value" id="terrainRange">-</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon flight-altitude">✈️</div>
+                <div class="stat-label">Абсолютная высота полета</div>
+                <div class="stat-value" id="absoluteAltitude">-</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Анализ рельефа -->
+          <div class="terrain-analysis">
+            <h6 class="analysis-title">
+              <i class="analysis-icon">🔍</i> Анализ рельефа местности
+            </h6>
+            <div class="analysis-content">
+              <div class="terrain-type-card">
+                <div class="type-badge" id="terrainTypeBadge">
+                  <span class="badge-icon" id="terrainTypeIcon">🏔️</span>
+                  <span class="badge-text" id="terrainTypeText">Определяется...</span>
+                </div>
+                <div class="type-description" id="terrainTypeDescription">
+                  Анализируем характер рельефа...
                 </div>
               </div>
-              <div class="col-md-3">
-                <div class="stat-card">
-                  <div class="stat-label">Мин. высота рельефа</div>
-                  <div class="stat-value" id="minElevation">-</div>
-                </div>
-              </div>
-              <div class="col-md-3">
-                <div class="stat-card">
-                  <div class="stat-label">Перепад высот</div>
-                  <div class="stat-value" id="terrainRange">-</div>
-                </div>
-              </div>
-              <div class="col-md-3">
-                <div class="stat-card">
-                  <div class="stat-label">Абсолютная высота полета</div>
-                  <div class="stat-value" id="absoluteAltitude">-</div>
-                </div>
+            </div>
+          </div>
+          
+          <!-- Рекомендации -->
+          <div class="terrain-recommendations">
+            <h6 class="recommendations-title">
+              <i class="recommendations-icon">💡</i> Рекомендации по высоте полета
+            </h6>
+            <div class="recommendations-content" id="terrainRecommendations">
+              <div class="recommendation-item">
+                <div class="rec-icon">⚙️</div>
+                <div class="rec-text">Загрузка рекомендаций...</div>
               </div>
             </div>
           </div>

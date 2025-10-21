@@ -1,103 +1,272 @@
 /**
- * Стили для модального окна профиля рельефа
+ * Улучшенные стили для модального окна профиля рельефа
  */
 
 /* Модальное окно */
 #terrainProfileModal .modal-content {
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   border: none;
-  border-radius: 15px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
 }
 
 #terrainProfileModal .modal-header {
-  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border-bottom: none;
-  border-radius: 15px 15px 0 0;
-  padding: 1.5rem;
+  padding: 1.8rem 2rem;
 }
 
 #terrainProfileModal .modal-title {
-  font-weight: 600;
-  font-size: 1.4rem;
+  font-weight: 700;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#terrainProfileModal .modal-title .terrain-icon {
+  font-size: 1.8rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
 #terrainProfileModal .btn-close {
   filter: brightness(0) invert(1);
-  opacity: 0.8;
+  opacity: 0.9;
+  transition: all 0.3s ease;
 }
 
 #terrainProfileModal .btn-close:hover {
   opacity: 1;
+  transform: rotate(90deg);
 }
 
 #terrainProfileModal .modal-body {
-  padding: 2rem;
+  padding: 2.5rem;
+  max-height: 85vh;
+  overflow-y: auto;
 }
 
-/* График профиля */
-#terrainProfileChart {
+/* График профиля - на всю ширину */
+.terrain-chart-container {
+  width: 100%;
+  height: 450px;
   background: white;
-  border-radius: 10px;
-  padding: 1rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 15px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
 }
 
-/* Статистика рельефа */
+/* Статистика рельефа - сетка из 4 одинаковых карточек */
 .terrain-stats {
-  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.2rem;
 }
 
 .stat-card {
   background: white;
-  border-radius: 10px;
-  padding: 1.2rem;
+  border-radius: 12px;
+  padding: 1.5rem;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 140px;
 }
 
 .stat-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
-.stat-card .stat-label {
-  font-size: 0.9rem;
-  color: #6c757d;
-  font-weight: 500;
+.stat-icon {
+  font-size: 2rem;
   margin-bottom: 0.5rem;
-  display: block;
 }
 
-.stat-card .stat-value {
-  font-size: 1.5rem;
+.stat-icon.elevation-max { filter: hue-rotate(0deg); }
+.stat-icon.elevation-min { filter: hue-rotate(120deg); }
+.stat-icon.elevation-range { filter: hue-rotate(240deg); }
+.stat-icon.flight-altitude { filter: hue-rotate(180deg); }
+
+.stat-label {
+  font-size: 0.85rem;
+  color: #6c757d;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Анализ рельефа */
+.terrain-analysis {
+  background: white;
+  border-radius: 15px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.analysis-title {
+  font-size: 1.2rem;
   font-weight: 700;
   color: #2c3e50;
-  display: block;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-/* Карточка информации о рельефе в левой панели */
-.terrain-info {
+.analysis-icon {
+  font-size: 1.4rem;
+}
+
+.analysis-content {
   margin-top: 1rem;
-  animation: slideIn 0.3s ease-out;
 }
 
-.terrain-info .section-title {
-  color: #4a90e2;
+.terrain-type-card {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  border-radius: 12px;
+  padding: 1.5rem;
+  color: white;
 }
 
-.terrain-info .metric-value {
-  color: #4a90e2;
-  font-weight: 600;
+.type-badge {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.badge-icon {
+  font-size: 2.5rem;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.badge-text {
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.type-description {
+  font-size: 1rem;
+  line-height: 1.6;
+  opacity: 0.95;
+}
+
+/* Рекомендации */
+.terrain-recommendations {
+  background: white;
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.recommendations-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.recommendations-icon {
+  font-size: 1.4rem;
+}
+
+.recommendations-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.recommendation-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+  border-radius: 10px;
+  border-left: 4px solid #00acc1;
+  transition: all 0.3s ease;
+}
+
+.recommendation-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.recommendation-item.warning {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  border-left-color: #ffc107;
+}
+
+.recommendation-item.danger {
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  border-left-color: #dc3545;
+}
+
+.recommendation-item.success {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  border-left-color: #28a745;
+}
+
+.rec-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+}
+
+.rec-text {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #2c3e50;
+}
+
+.rec-text strong {
+  font-weight: 700;
+  color: #000;
 }
 
 /* Анимация появления */
 @keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-20px);
   }
   to {
     opacity: 1;
@@ -105,40 +274,68 @@
   }
 }
 
+.terrain-analysis, .terrain-recommendations {
+  animation: slideIn 0.5s ease-out;
+}
+
+/* Адаптивность для планшетов */
+@media (max-width: 992px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 /* Адаптивность для мобильных устройств */
 @media (max-width: 768px) {
   #terrainProfileModal .modal-dialog {
     margin: 0.5rem;
+    max-width: calc(100% - 1rem);
   }
   
   #terrainProfileModal .modal-body {
+    padding: 1.5rem;
+  }
+  
+  .terrain-chart-container {
+    height: 350px;
     padding: 1rem;
   }
   
-  #terrainProfileChart {
-    height: 400px !important;
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
   
   .stat-card {
-    margin-bottom: 1rem;
+    min-height: 120px;
   }
   
-  .stat-card .stat-value {
-    font-size: 1.2rem;
+  .stat-value {
+    font-size: 1.5rem;
+  }
+  
+  .terrain-analysis,
+  .terrain-recommendations {
+    padding: 1.5rem;
   }
 }
 
-/* Предупреждение о плоской местности */
-.terrain-warning {
-  background-color: #d1ecf1;
-  border: 1px solid #bee5eb;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-top: 1rem;
-  color: #0c5460;
+/* Скроллбар для модального окна */
+#terrainProfileModal .modal-body::-webkit-scrollbar {
+  width: 8px;
 }
 
-.terrain-warning strong {
-  font-weight: 600;
+#terrainProfileModal .modal-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+#terrainProfileModal .modal-body::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+}
+
+#terrainProfileModal .modal-body::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
 }
 
