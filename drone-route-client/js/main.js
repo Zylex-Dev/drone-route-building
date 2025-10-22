@@ -96,6 +96,32 @@ document.getElementById('showHeatmap').addEventListener('change', function(e) {
   });
 });
 
+// Обработчик переключения учета рельефа (управляет доступностью чекбокса тепловой карты)
+document.getElementById('enableTerrainFollowing').addEventListener('change', function(e) {
+  const enableTerrain = e.target.checked;
+  const heatmapCheckbox = document.getElementById('showHeatmap');
+  
+  if (!enableTerrain) {
+    // Если рельеф выключен, отключаем и чекбокс тепловой карты
+    heatmapCheckbox.checked = false;
+    heatmapCheckbox.disabled = true;
+    
+    // Скрываем тепловую карту, если она отображена
+    toggleElevationHeatmap(map, false);
+    
+    logger.info('Учет рельефа выключен, тепловая карта отключена', {
+      module: 'Main'
+    });
+  } else {
+    // Если рельеф включен, разблокируем чекбокс тепловой карты
+    heatmapCheckbox.disabled = false;
+    
+    logger.info('Учет рельефа включен, тепловая карта доступна', {
+      module: 'Main'
+    });
+  }
+});
+
 // Инициализация параметров камеры при загрузке страницы
 logger.debug('Инициализация параметров камеры по умолчанию', { module: 'Main', droneModel: 'DJI Matrice 30T' });
 updateCameraInfo('DJI Matrice 30T');

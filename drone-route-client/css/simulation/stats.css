@@ -10,7 +10,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 12px;
+  padding: 12px 16px;
   background: #ffffff;
   border-radius: 10px;
   transition: all 0.3s ease;
@@ -25,9 +25,16 @@
   margin-bottom: 12px;
 }
 
-.stat-icon {
-  font-size: 22px;
+.stat-item .stat-icon {
+  font-size: 24px;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  flex-shrink: 0;
 }
 
 .stat-content {
