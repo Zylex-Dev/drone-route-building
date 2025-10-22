@@ -57,7 +57,8 @@ function clearAllObjects() {
   document.getElementById('desiredOverlap').value = 30;
   document.getElementById('forwardOverlap').value = 70;
   document.getElementById('droneModel').value = 'DJI Matrice 30T';
-  document.getElementById('enableTerrainFollowing').checked = false;
+  document.getElementById('enableTerrainFollowing').checked = true; // По умолчанию включен
+  document.getElementById('showHeatmap').checked = true; // По умолчанию включен
   
   // Обновляем параметры камеры для дефолтной модели
   updateCameraInfo('DJI Matrice 30T');

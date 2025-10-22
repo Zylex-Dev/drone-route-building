@@ -194,8 +194,14 @@ function buildRoute(territoryPoints) {
           // Создаем тепловую карту высот
           const heatmapLayer = createElevationHeatmap(map, data.route.properties.terrainData.elevationGrid);
           if (heatmapLayer) {
-            heatmapLayer.addTo(map);
-            logger.debug('Тепловая карта высот добавлена на карту', { module: 'RouteBuilder' });
+            // Добавляем только если чекбокс включен
+            const showHeatmapCheckbox = document.getElementById('showHeatmap');
+            if (showHeatmapCheckbox && showHeatmapCheckbox.checked) {
+              heatmapLayer.addTo(map);
+              logger.debug('Тепловая карта высот добавлена на карту', { module: 'RouteBuilder' });
+            } else {
+              logger.debug('Тепловая карта создана, но не отображена (чекбокс выключен)', { module: 'RouteBuilder' });
+            }
           }
           
           // Активируем кнопку "Профиль рельефа"

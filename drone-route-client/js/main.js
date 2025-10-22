@@ -85,6 +85,17 @@ document.getElementById('showTerrainProfile').addEventListener('click', () => {
   }
 });
 
+// Обработчик переключения тепловой карты рельефа
+document.getElementById('showHeatmap').addEventListener('change', function(e) {
+  const shouldShow = e.target.checked;
+  toggleElevationHeatmap(map, shouldShow);
+  
+  logger.info('Тепловая карта рельефа ' + (shouldShow ? 'показана' : 'скрыта'), {
+    module: 'Main',
+    heatmapVisible: shouldShow
+  });
+});
+
 // Инициализация параметров камеры при загрузке страницы
 logger.debug('Инициализация параметров камеры по умолчанию', { module: 'Main', droneModel: 'DJI Matrice 30T' });
 updateCameraInfo('DJI Matrice 30T');

@@ -28,20 +28,21 @@ function interpolateColor(color1, color2, factor) {
 
 /**
  * Функция для получения градиентного цвета в зависимости от прогресса
+ * Tech стиль: сине-голубой градиент (контрастирует с тепловой картой)
  * @param {number} progress - Прогресс от 0 до 1
  * @returns {string} - Цвет в формате hex
  */
 function getGradientColor(progress) {
-  const greenColor = '#28a745';  // Зеленый (начало)
-  const yellowColor = '#ffc107'; // Желтый (середина)
-  const redColor = '#dc3545';    // Красный (конец)
+  const startColor = '#1e3a8a';  // Темно-синий (начало)
+  const midColor = '#3b82f6';    // Яркий синий (середина)
+  const endColor = '#06b6d4';    // Циан/бирюзовый (конец)
   
   if (progress < 0.5) {
-    // От зеленого к желтому (0-50%)
-    return interpolateColor(greenColor, yellowColor, progress * 2);
+    // От темно-синего к яркому синему (0-50%)
+    return interpolateColor(startColor, midColor, progress * 2);
   } else {
-    // От желтого к красному (50-100%)
-    return interpolateColor(yellowColor, redColor, (progress - 0.5) * 2);
+    // От яркого синего к циану (50-100%)
+    return interpolateColor(midColor, endColor, (progress - 0.5) * 2);
   }
 }
 

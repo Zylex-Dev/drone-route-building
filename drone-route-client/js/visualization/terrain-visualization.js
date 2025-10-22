@@ -48,12 +48,13 @@ function createElevationHeatmap(map, elevationGrid) {
     return [point.lat, point.lng, intensity];
   });
   
-  // Создаем слой тепловой карты
+  // Создаем слой тепловой карты с улучшенной видимостью
   const heatLayer = L.heatLayer(heatData, {
-    radius: 25,
-    blur: 35,
+    radius: 30,           // Увеличен радиус для лучшей видимости
+    blur: 30,             // Уменьшен blur для большей четкости
     maxZoom: 17,
     max: 1.0,
+    minOpacity: 0.5,      // Минимальная прозрачность для видимости
     gradient: {
       0.0: 'blue',
       0.3: 'lime',
