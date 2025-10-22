@@ -315,13 +315,13 @@ function showTerrainProfileModal(terrainData) {
     elevationRange: `${minTerrainElevation.toFixed(2)} - ${maxTerrainElevation.toFixed(2)} м`
   });
   
-  // Создаем линию рельефа с улучшенным дизайном
+  // Создаем линию рельефа с улучшенным дизайном (без эмодзи в легенде)
   const terrainTrace = {
     x: distances,
     y: elevations,
     type: 'scatter',
     mode: 'lines',
-    name: '🏔️ Рельеф местности',
+    name: 'Рельеф местности',
     fill: 'tozeroy',
     fillcolor: 'rgba(139, 98, 61, 0.25)',
     line: {
@@ -330,26 +330,26 @@ function showTerrainProfileModal(terrainData) {
       shape: 'spline',
       smoothing: 0.8
     },
-    hovertemplate: '<b>📍 Расстояние:</b> %{x:.2f} км<br>' +
-                   '<b>⛰️ Высота рельефа:</b> %{y:.1f} м<br>' +
+    hovertemplate: '<b>Расстояние:</b> %{x:.2f} км<br>' +
+                   '<b>Высота рельефа:</b> %{y:.1f} м<br>' +
                    '<extra></extra>'
   };
   
-  // Создаем линию полета дрона (прямая горизонтальная) с улучшенным стилем
+  // Создаем линию полета дрона (прямая горизонтальная) с улучшенным стилем (без эмодзи в легенде)
   const droneTrace = {
     x: distances,
     y: Array(distances.length).fill(absoluteFlightAltitude),
     type: 'scatter',
     mode: 'lines',
-    name: '✈️ Линия полета дрона',
+    name: 'Линия полета дрона',
     line: {
       color: 'rgb(102, 126, 234)',
       width: 4,
       dash: 'dot'
     },
-    hovertemplate: '<b>📍 Расстояние:</b> %{x:.2f} км<br>' +
-                   '<b>✈️ Абсолютная высота:</b> %{y:.1f} м<br>' +
-                   '<b>📏 Запас высоты:</b> ' + (absoluteFlightAltitude - Math.max(...elevations)).toFixed(1) + ' м<br>' +
+    hovertemplate: '<b>Расстояние:</b> %{x:.2f} км<br>' +
+                   '<b>Абсолютная высота:</b> %{y:.1f} м<br>' +
+                   '<b>Запас высоты:</b> ' + (absoluteFlightAltitude - Math.max(...elevations)).toFixed(1) + ' м<br>' +
                    '<extra></extra>'
   };
   
@@ -407,8 +407,11 @@ function showTerrainProfileModal(terrainData) {
     hovermode: 'x unified',
     showlegend: true,
     legend: {
-      x: 0.02,
-      y: 0.98,
+      x: 0.01,
+      y: 1.15,
+      xanchor: 'left',
+      yanchor: 'top',
+      orientation: 'h',
       bgcolor: 'rgba(255, 255, 255, 0.95)',
       bordercolor: '#dee2e6',
       borderwidth: 2,
@@ -422,7 +425,7 @@ function showTerrainProfileModal(terrainData) {
     margin: {
       l: 70,
       r: 30,
-      t: 80,
+      t: 100,
       b: 70,
       pad: 5
     },

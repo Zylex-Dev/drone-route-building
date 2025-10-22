@@ -75,21 +75,56 @@
   border-radius: 15px;
 }
 
-/* Стили для Plotly компонентов */
+/* Стили для Plotly компонентов - исправление видимости иконок */
 #terrainProfileChart .modebar {
   top: 10px !important;
   right: 10px !important;
+  background: transparent !important;
+}
+
+#terrainProfileChart .modebar-group {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-radius: 8px !important;
+  padding: 4px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
 }
 
 #terrainProfileChart .modebar-btn {
-  background: rgba(255, 255, 255, 0.9) !important;
-  border-radius: 5px !important;
-  margin: 2px !important;
-  padding: 5px !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 4px !important;
+  margin: 0 2px !important;
+  padding: 4px !important;
+  transition: all 0.2s ease !important;
 }
 
 #terrainProfileChart .modebar-btn:hover {
+  background: rgba(102, 126, 234, 0.15) !important;
+  transform: scale(1.05) !important;
+}
+
+/* Делаем иконки видимыми - темно-серые вместо белых */
+#terrainProfileChart .modebar-btn svg,
+#terrainProfileChart .modebar-btn path {
+  fill: #495057 !important;
+  stroke: none !important;
+}
+
+#terrainProfileChart .modebar-btn:hover svg,
+#terrainProfileChart .modebar-btn:hover path {
+  fill: rgb(102, 126, 234) !important;
+}
+
+#terrainProfileChart .modebar-btn.active,
+#terrainProfileChart .modebar-btn[data-toggle="true"] {
   background: rgba(102, 126, 234, 0.2) !important;
+}
+
+#terrainProfileChart .modebar-btn.active svg,
+#terrainProfileChart .modebar-btn.active path,
+#terrainProfileChart .modebar-btn[data-toggle="true"] svg,
+#terrainProfileChart .modebar-btn[data-toggle="true"] path {
+  fill: rgb(102, 126, 234) !important;
 }
 
 /* Статистика рельефа - сетка из 4 одинаковых карточек */

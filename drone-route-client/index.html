@@ -63,7 +63,7 @@
             </div>
             <div class="mb-3">
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="enableTerrainFollowing">
+                <input class="form-check-input" type="checkbox" id="enableTerrainFollowing" checked>
                 <label class="form-check-label" for="enableTerrainFollowing">
                   Учитывать рельеф местности
                 </label>
@@ -96,6 +96,11 @@
               </button>
             </div>
             <div class="mb-3">
+              <button id="showTerrainProfile" class="btn btn-outline-info btn-custom w-100" disabled>
+                🏔️ Профиль рельефа
+              </button>
+            </div>
+            <div class="mb-3">
               <label class="form-label">Экспорт маршрута</label>
               <div class="btn-group-vertical w-100" role="group">
                 <button id="exportGeoJSON" class="btn btn-outline-success btn-custom" disabled>
@@ -108,11 +113,6 @@
                   📦 Скачать KMZ
                 </button>
               </div>
-            </div>
-            <div class="mb-3">
-              <button id="showTerrainProfile" class="btn btn-outline-info btn-custom w-100" disabled>
-                🏔️ Профиль рельефа
-              </button>
             </div>
           </div>
           <!-- УРОВЕНЬ 1: Информация о миссии (всегда видна) -->
