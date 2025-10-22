@@ -235,14 +235,23 @@ function generateKML(routeData) {
   const coords = routeData.geometry.coordinates;
   const stats = props.missionStats || {};
   
+  // Определяем высоту полета: если включен учет рельефа, используем абсолютную высоту
+  const flightAltitude = (props.terrainData && props.terrainData.absoluteFlightAltitude) 
+    ? props.terrainData.absoluteFlightAltitude 
+    : (props.flightAltitude || 50);
+  
+  const terrainInfo = props.terrainData 
+    ? `\n🏔️ Параметры рельефа:\n• Учет рельефа: Включен\n• Относительная высота: ${props.flightAltitude || 'N/A'} м\n• Абсолютная высота полета: ${props.terrainData.absoluteFlightAltitude?.toFixed(1) || 'N/A'} м\n• Макс. высота рельефа: ${props.terrainData.maxElevation?.toFixed(1) || 'N/A'} м\n• Мин. высота рельефа: ${props.terrainData.minElevation?.toFixed(1) || 'N/A'} м\n• Перепад высот: ${props.terrainData.terrainRange?.toFixed(1) || 'N/A'} м\n`
+    : '';
+  
   // Формируем описание миссии
   const description = `
 Модель дрона: ${props.droneModel || 'Не указана'}
 Тип съёмки: ${props.shootingType || 'Панорамная съёмка'}
-Высота полёта: ${props.flightAltitude || 'N/A'} м
+Высота полёта: ${props.flightAltitude || 'N/A'} м${props.terrainData ? ' (относительная)' : ''}
 Боковое перекрытие: ${props.desiredOverlap || 'N/A'}%
 Продольное перекрытие: ${props.forwardOverlap || 'N/A'}%
-
+${terrainInfo}
 📊 Статистика миссии:
 • Площадь покрытия: ${stats.coverageAreaKm2 || 'N/A'} км²
 • Длина маршрута: ${stats.totalFlightDistanceKm || 'N/A'} км
@@ -261,7 +270,6 @@ function generateKML(routeData) {
   `.trim();
   
   // Формируем координаты для LineString (lng,lat,altitude)
-  const flightAltitude = props.flightAltitude || 50;
   const coordinatesString = coords
     .map(coord => `${coord[0]},${coord[1]},${flightAltitude}`)
     .join('\n          ');
