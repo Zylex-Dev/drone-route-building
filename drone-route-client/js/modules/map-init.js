@@ -15,6 +15,9 @@ const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.pn
 // Инициализируем карту
 const map = L.map('map', { layers: [tileLayer] }).setView(kolomnaCoords, 13);
 
+// Экспортируем map в window для доступа из других модулей
+window.map = map;
+
 // Маркер центра Коломны (опционально)
 L.marker(kolomnaCoords).addTo(map)
   .bindPopup('Коломна')

@@ -37,21 +37,20 @@ const MissionLoader = (function() {
       
       const mission = result.mission;
       
-      // Восстанавливаем территорию на карте
-      if (mission.territory && mission.territory.coordinates) {
-        restoreTerritory(mission.territory);
-      }
-      
-      // Заполняем параметры в форме
+      // Заполняем параметры в форме (делаем это до восстановления территории)
       restoreMissionParameters(mission);
       
-      // Строим маршрут автоматически
-      setTimeout(() => {
-        const buildButton = document.querySelector('[onclick*="buildRoute"]');
-        if (buildButton) {
-          buildButton.click();
+      // Восстанавливаем территорию на карте
+      if (mission.territory && mission.territory.coordinates) {
+        const territoryPoints = restoreTerritory(mission.territory);
+        
+        // Строим маршрут автоматически после восстановления территории
+        if (territoryPoints && typeof buildRoute === 'function') {
+          setTimeout(() => {
+            buildRoute(territoryPoints);
+          }, 500);
         }
-      }, 500);
+      }
       
       if (window.logger) {
         window.logger.info('Миссия успешно загружена', { 
@@ -71,10 +70,11 @@ const MissionLoader = (function() {
   
   /**
    * Восстановление территории на карте
+   * @returns {Array} Массив точек территории для построения маршрута
    */
   function restoreTerritory(territory) {
     if (!window.map || !territory.coordinates) {
-      return;
+      return null;
     }
     
     try {
@@ -91,14 +91,22 @@ const MissionLoader = (function() {
       
       // Сохраняем в глобальную переменную (если используется)
       if (window.drawnItems) {
+        window.drawnItems.clearLayers(); // Очищаем предыдущие слои
         window.drawnItems.addLayer(polygon);
       }
       
       // Центрируем карту на территории
       window.map.fitBounds(polygon.getBounds());
       
+      // Возвращаем точки в формате {lat, lng} для построения маршрута
+      return coordinates.map(coord => ({
+        lat: coord[1],
+        lng: coord[0]
+      }));
+      
     } catch (error) {
       console.error('Error restoring territory:', error);
+      return null;
     }
   }
   
