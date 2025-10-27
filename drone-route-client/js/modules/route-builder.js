@@ -215,6 +215,15 @@ function buildRoute(territoryPoints) {
         // Активируем кнопку симуляции
         document.getElementById('startSimulation').disabled = false;
         logger.info('Кнопка симуляции активирована', { module: 'RouteBuilder' });
+        
+        // Обновляем погоду для построенного маршрута
+        logger.debug('Запрос данных о погоде для маршрута', { module: 'RouteBuilder' });
+        updateWeatherForRoute(data.route.geometry.coordinates).catch(err => {
+          logger.warn('Не удалось загрузить погоду, но маршрут построен успешно', {
+            module: 'RouteBuilder',
+            error: err.message
+          });
+        });
       } else {
         logger.error('Сервер вернул ошибку при расчёте маршрута', {
           module: 'RouteBuilder',

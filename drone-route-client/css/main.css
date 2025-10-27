@@ -25,6 +25,7 @@
 @import url('./modules/waypoint-markers.css');
 @import url('./modules/simulation-panel.css');
 @import url('./modules/terrain-profile.css');
+@import url('./modules/weather-bar.css');
 
 /* === Simulation === */
 @import url('./simulation/controls.css');

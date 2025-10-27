@@ -43,6 +43,11 @@ function clearAllObjects() {
     clearTerrainData();
   }
   
+  // Скрываем погодную панель
+  if (typeof hideWeatherBar !== 'undefined') {
+    hideWeatherBar();
+  }
+  
   // Отключаем кнопки
   document.getElementById('startSimulation').disabled = true;
   document.getElementById('showTerrainProfile').disabled = true;

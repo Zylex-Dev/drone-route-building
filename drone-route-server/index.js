@@ -26,6 +26,10 @@ app.use(requestLogger);
 // Роут для приёма клиентских логов
 app.use('/api/logs', clientLogsRouter);
 
+// Роут для получения данных о погоде
+const weatherRouter = require('./routes/weather');
+app.use('/api/weather', weatherRouter);
+
 // Схема валидации для запроса на расчёт маршрута
 const calculateRouteSchema = Joi.object({
   territory: Joi.array()
@@ -734,7 +738,8 @@ app.listen(PORT, () => {
   logger.info('Доступные endpoints:', {
     routes: [
       'POST /api/calculate-route - Расчёт маршрута полёта',
-      'POST /api/logs/client - Приём клиентских логов'
+      'POST /api/logs/client - Приём клиентских логов',
+      'GET /api/weather - Получение прогноза погоды'
     ]
   });
 });
