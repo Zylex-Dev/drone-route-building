@@ -3,7 +3,7 @@
 /* Панель управления визуализацией маршрута (в правом верхнем углу) */
 .visualization-control-panel {
   position: fixed;
-  top: 20px;
+  top: 80px;
   right: 20px;
   z-index: 1000;
   background: rgba(255, 255, 255, 0.95);
@@ -99,7 +99,7 @@
 /* Адаптивность для мобильных устройств */
 @media (max-width: 767.98px) {
   .visualization-control-panel {
-    top: 20px;
+    top: 70px;
     right: 10px;
     min-width: 240px;
     padding: 12px;

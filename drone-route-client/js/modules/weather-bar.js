@@ -20,9 +20,21 @@ async function fetchWeatherData(latitude, longitude) {
   });
   
   try {
-    const apiUrl = `${window.APP_CONFIG.API_BASE_URL}/api/weather?latitude=${latitude}&longitude=${longitude}`;
+    // Используем конфигурацию эндпоинтов
+    const apiUrl = `${window.APP_CONFIG.API_ENDPOINTS.WEATHER}?latitude=${latitude}&longitude=${longitude}`;
+    
+    logger.debug('Отправка запроса на получение погоды', {
+      module: 'WeatherBar',
+      url: apiUrl
+    });
     
     const response = await fetch(apiUrl);
+    
+    // Проверяем, что ответ успешен
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
     const data = await response.json();
     
     if (!data.success) {

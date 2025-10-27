@@ -1,0 +1,229 @@
+/**
+ * Стили для страницы личного кабинета
+ */
+
+body {
+  background: #f5f7fa;
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+}
+
+.navbar {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+  font-size: 1.25rem;
+}
+
+/* Пустое состояние */
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.empty-state-icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+}
+
+.empty-state h3 {
+  color: #2d3748;
+  margin-bottom: 10px;
+}
+
+.empty-state p {
+  color: #718096;
+  font-size: 16px;
+}
+
+/* Карточка миссии */
+.mission-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.mission-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.mission-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.mission-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.mission-status {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-left: 12px;
+  white-space: nowrap;
+}
+
+.mission-status.draft {
+  background: #edf2f7;
+  color: #4a5568;
+}
+
+.mission-status.active {
+  background: #c6f6d5;
+  color: #22543d;
+}
+
+.mission-status.completed {
+  background: #bee3f8;
+  color: #2c5282;
+}
+
+.mission-status.archived {
+  background: #fed7d7;
+  color: #742a2a;
+}
+
+.mission-description {
+  color: #718096;
+  font-size: 14px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  min-height: 42px;
+}
+
+.mission-meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.mission-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #4a5568;
+}
+
+.mission-meta-icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+.mission-meta-label {
+  color: #a0aec0;
+  min-width: 80px;
+}
+
+.mission-meta-value {
+  font-weight: 500;
+  color: #2d3748;
+}
+
+.mission-footer {
+  display: flex;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.mission-footer .btn {
+  flex: 1;
+  font-size: 14px;
+  padding: 8px 12px;
+}
+
+/* Alerts */
+.alert {
+  border-radius: 8px;
+  border: none;
+}
+
+/* Пагинация */
+.pagination {
+  margin-top: 40px;
+}
+
+.pagination .page-link {
+  border-radius: 8px;
+  margin: 0 4px;
+  border: 1px solid #e2e8f0;
+  color: #4a5568;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: #667eea;
+  border-color: #667eea;
+}
+
+.pagination .page-link:hover {
+  background-color: #f7fafc;
+  border-color: #cbd5e0;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .mission-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .mission-status {
+    margin-left: 0;
+    margin-top: 8px;
+  }
+  
+  .mission-footer {
+    flex-direction: column;
+  }
+  
+  .mission-footer .btn {
+    width: 100%;
+  }
+}
+
+/* Анимация загрузки */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.loading-skeleton {
+  animation: pulse 1.5s ease-in-out infinite;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+}
+

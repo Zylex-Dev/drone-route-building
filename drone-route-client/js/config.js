@@ -4,15 +4,26 @@
  */
 
 // Определение базового URL API в зависимости от окружения
-// Для Docker с Nginx прокси используем пустую строку (относительные пути)
-// Для локальной разработки без Docker используем localhost:3000
-const API_BASE_URL = ''; // Все запросы идут через Nginx прокси на /api/*
+// В Docker с Nginx прокси используем относительные пути (пустую строку)
+// Nginx проксирует запросы на соответствующие сервисы
+const API_BASE_URL = ''; // Относительные пути через Nginx прокси
 
 // Экспорт конфигурации
 window.APP_CONFIG = {
   API_BASE_URL: API_BASE_URL,
   API_ENDPOINTS: {
-    CALCULATE_ROUTE: '/api/calculate-route'
+    // Route service (проксируется Nginx на drone_route_server:3000)
+    CALCULATE_ROUTE: `${API_BASE_URL}/api/calculate-route`,
+    LOGS: `${API_BASE_URL}/api/logs/client`,
+    WEATHER: `${API_BASE_URL}/api/weather`,
+    
+    // Auth service (проксируется Nginx на drone_route_auth:8000)
+    REGISTER: `${API_BASE_URL}/api/auth/register`,
+    LOGIN: `${API_BASE_URL}/api/auth/login`,
+    GET_ME: `${API_BASE_URL}/api/auth/me`,
+    
+    // Mission service (проксируется Nginx на drone_route_auth:8000)
+    MISSIONS: `${API_BASE_URL}/api/missions`
   }
 };
 

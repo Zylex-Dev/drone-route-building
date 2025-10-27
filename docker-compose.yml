@@ -1,4 +1,44 @@
 services:
+  postgres:
+    image: postgis/postgis:16-3.4-alpine
+    container_name: drone_route_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-droneuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dronepass2024}
+      POSTGRES_DB: ${POSTGRES_DB:-drone_missions}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./drone-route-server/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5433:5432" # <-- ИЗМЕНИТЬ: хост:контейнер
+    restart: unless-stopped
+    networks:
+      - drone-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-droneuser} -d ${POSTGRES_DB:-drone_missions}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  auth:
+    build:
+      context: ./drone-route-auth
+      dockerfile: Dockerfile.auth
+    container_name: drone_route_auth
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-droneuser}:${POSTGRES_PASSWORD:-dronepass2024}@postgres:5432/${POSTGRES_DB:-drone_missions}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-your-secret-key-change-in-production-min-32-chars-required}
+      JWT_ALGORITHM: HS256
+      JWT_EXPIRE_DAYS: 7
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - drone-network
+
   server:
     build:
       context: .
@@ -26,8 +66,12 @@ services:
     restart: unless-stopped
     depends_on:
       - server
+      - auth
     networks:
       - drone-network
+
+volumes:
+  postgres-data:
 
 networks:
   drone-network:

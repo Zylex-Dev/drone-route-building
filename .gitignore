@@ -4,9 +4,13 @@ venv/
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+.Python
+*.egg-info/
 
 # configuration files and sensitive data 
 .env
+drone-route-auth/.env
 config.json
 secrets.json
 

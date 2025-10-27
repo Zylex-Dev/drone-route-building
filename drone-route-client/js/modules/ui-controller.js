@@ -28,6 +28,7 @@ function clearAllObjects() {
     flightSimulator = null;
   }
   currentRouteData = null;
+  window.currentRouteData = null;
   
   // Скрываем панель симуляции
   const simPanel = document.getElementById('flightSimulationPanel');
@@ -51,6 +52,12 @@ function clearAllObjects() {
   // Отключаем кнопки
   document.getElementById('startSimulation').disabled = true;
   document.getElementById('showTerrainProfile').disabled = true;
+  
+  // Деактивируем кнопку "Сохранить миссию"
+  if (typeof SaveMissionModal !== 'undefined') {
+    SaveMissionModal.toggleSaveButton(false);
+    logger.debug('Кнопка "Сохранить миссию" деактивирована', { module: 'UIController' });
+  }
   
   // Очищаем данные маршрута для экспорта
   if (typeof exportManager !== 'undefined') {

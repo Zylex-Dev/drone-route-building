@@ -12,6 +12,22 @@ document.addEventListener('DOMContentLoaded', function() {
     module: 'Main'
   });
   
+  // Инициализация UI авторизации
+  initAuthUI();
+  logger.debug('UI авторизации инициализирован', { module: 'Main' });
+  
+  // Инициализация модального окна сохранения миссии
+  if (typeof SaveMissionModal !== 'undefined') {
+    SaveMissionModal.init();
+    logger.debug('Модальное окно сохранения миссии инициализировано', { module: 'Main' });
+  }
+  
+  // Проверка URL параметров для загрузки миссии
+  if (typeof MissionLoader !== 'undefined') {
+    MissionLoader.checkURLParameters();
+    logger.debug('Проверка URL параметров выполнена', { module: 'Main' });
+  }
+  
   // Инициализация сворачиваемых секций
   setupCollapsibleSections();
   logger.debug('Сворачиваемые секции инициализированы', { module: 'Main' });
@@ -27,6 +43,35 @@ document.addEventListener('DOMContentLoaded', function() {
   
   logger.info('Приложение успешно инициализировано', { module: 'Main' });
 });
+
+// ============================================================================
+// Инициализация UI авторизации
+// ============================================================================
+
+function initAuthUI() {
+  const unauthenticatedNav = document.getElementById('unauthenticatedNav');
+  const authenticatedNav = document.getElementById('authenticatedNav');
+  const userEmailNav = document.getElementById('userEmailNav');
+  
+  if (typeof AuthModule === 'undefined') {
+    // Модуль авторизации не загружен
+    if (unauthenticatedNav) unauthenticatedNav.style.display = 'block';
+    return;
+  }
+  
+  if (AuthModule.isAuthenticated()) {
+    // Пользователь авторизован
+    if (authenticatedNav) authenticatedNav.style.display = 'flex';
+    
+    const user = AuthModule.getUser();
+    if (user && user.email && userEmailNav) {
+      userEmailNav.textContent = user.email;
+    }
+  } else {
+    // Пользователь не авторизован
+    if (unauthenticatedNav) unauthenticatedNav.style.display = 'block';
+  }
+}
 
 // ============================================================================
 // Обработчики событий

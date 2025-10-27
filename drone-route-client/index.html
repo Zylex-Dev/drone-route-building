@@ -18,6 +18,26 @@
 </head>
 
 <body>
+  <!-- Навигационная панель -->
+  <nav class="navbar navbar-light bg-light border-bottom">
+    <div class="container-fluid px-3">
+      <span class="navbar-brand mb-0 h1">✈️ Drone Route Planner</span>
+      <div class="d-flex align-items-center gap-2">
+        <!-- Не авторизован -->
+        <div id="unauthenticatedNav" style="display: none;">
+          <a href="login.html" class="btn btn-outline-primary btn-sm">Вход</a>
+          <a href="register.html" class="btn btn-primary btn-sm">Регистрация</a>
+        </div>
+        <!-- Авторизован -->
+        <div id="authenticatedNav" style="display: none;">
+          <span class="text-muted me-2" id="userEmailNav"></span>
+          <a href="profile.html" class="btn btn-outline-primary btn-sm">Личный кабинет</a>
+          <button onclick="AuthModule.logout()" class="btn btn-outline-secondary btn-sm">Выход</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
   <!-- Панель управления визуализацией маршрута -->
   <div id="visualizationControlPanel" class="visualization-control-panel glass" style="display: none;">
     <h6 class="control-panel-title">
@@ -97,6 +117,11 @@
                 <option value="DJI Mini 3 Pro">DJI Mini 3 Pro</option>
                 <option value="Autel EVO Lite+">Autel EVO Lite+</option>
               </select>
+            </div>
+            <div class="mb-3">
+              <button id="saveMissionBtn" class="btn btn-secondary btn-custom w-100" disabled title="Сначала постройте маршрут">
+                💾 Сохранить миссию
+              </button>
             </div>
             <div class="mb-3">
               <button id="clearAll" class="btn btn-danger btn-custom w-100">Удалить миссию</button>
@@ -242,6 +267,35 @@
         <!-- Погодная панель (status bar) -->
         <div id="weatherBar" class="weather-bar"></div>
       </main>
+    </div>
+  </div>
+
+  <!-- Модальное окно сохранения миссии -->
+  <div class="modal fade" id="saveMissionModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">💾 Сохранить миссию</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="saveMissionAlert" class="alert" style="display: none;"></div>
+          <form id="saveMissionForm">
+            <div class="mb-3">
+              <label for="missionName" class="form-label">Название миссии <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="missionName" required maxlength="255" placeholder="Например: Съёмка центра Коломны">
+            </div>
+            <div class="mb-3">
+              <label for="missionDescription" class="form-label">Описание (опционально)</label>
+              <textarea class="form-control" id="missionDescription" rows="3" maxlength="500" placeholder="Краткое описание миссии"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="button" class="btn btn-primary" id="confirmSaveMissionBtn">Сохранить</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -455,6 +509,12 @@
   <!-- Модули симуляции -->
   <script src="./js/simulation/flight-simulation.js"></script>
   <script src="./js/simulation/simulation-controls.js"></script>
+  
+  <!-- Модули авторизации и миссий -->
+  <script src="./js/modules/auth.js"></script>
+  <script src="./js/modules/mission-manager.js"></script>
+  <script src="./js/modules/mission-loader.js"></script>
+  <script src="./js/modules/save-mission-modal.js"></script>
   
   <!-- Главный файл приложения (orchestrator) -->
   <script src="./js/main.js"></script>

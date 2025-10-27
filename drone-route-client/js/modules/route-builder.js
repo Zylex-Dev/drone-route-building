@@ -209,12 +209,19 @@ function buildRoute(territoryPoints) {
           logger.debug('Кнопка "Профиль рельефа" активирована', { module: 'RouteBuilder' });
         }
         
-        // Сохраняем данные маршрута для симуляции
+        // Сохраняем данные маршрута для симуляции (и для сохранения миссии)
         currentRouteData = data.route;
+        window.currentRouteData = data.route;
         
         // Активируем кнопку симуляции
         document.getElementById('startSimulation').disabled = false;
         logger.info('Кнопка симуляции активирована', { module: 'RouteBuilder' });
+        
+        // Активируем кнопку "Сохранить миссию" после построения маршрута
+        if (typeof SaveMissionModal !== 'undefined') {
+          SaveMissionModal.toggleSaveButton(true);
+          logger.debug('Кнопка "Сохранить миссию" активирована', { module: 'RouteBuilder' });
+        }
         
         // Обновляем погоду для построенного маршрута
         logger.debug('Запрос данных о погоде для маршрута', { module: 'RouteBuilder' });

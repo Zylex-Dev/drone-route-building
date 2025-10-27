@@ -24,12 +24,18 @@ L.marker(kolomnaCoords).addTo(map)
 const drawnItems = new L.FeatureGroup();
 map.addLayer(drawnItems);
 
+// Экспортируем drawnItems в window для доступа из других модулей
+window.drawnItems = drawnItems;
+
 // Объект для хранения визуализации маршрута
 let currentRouteVisualization = null;
 
 // Объект для хранения симулятора полёта
 let flightSimulator = null;
 let currentRouteData = null; // Сохраняем данные маршрута для симуляции
+
+// Экспортируем currentRouteData в window для доступа из других модулей
+window.currentRouteData = null;
 
 // Настройка панели рисования
 const drawControl = new L.Control.Draw({
