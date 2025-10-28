@@ -4,7 +4,7 @@ services:
     container_name: drone_route_postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-droneuser}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dronepass2024}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dronepass2025}
       POSTGRES_DB: ${POSTGRES_DB:-drone_missions}
     volumes:
       - postgres-data:/var/lib/postgresql/data

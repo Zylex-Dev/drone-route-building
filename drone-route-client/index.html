@@ -25,14 +25,14 @@
       <div class="d-flex align-items-center gap-2">
         <!-- Не авторизован -->
         <div id="unauthenticatedNav" style="display: none;">
-          <a href="login.html" class="btn btn-outline-primary btn-sm">Вход</a>
-          <a href="register.html" class="btn btn-primary btn-sm">Регистрация</a>
+          <a href="login.html" class="btn btn-outline-primary btn-sm">🔑 Вход</a>
+          <a href="register.html" class="btn btn-primary btn-sm">✨ Регистрация</a>
         </div>
         <!-- Авторизован -->
         <div id="authenticatedNav" style="display: none;">
-          <span class="text-muted me-2" id="userEmailNav"></span>
-          <a href="profile.html" class="btn btn-outline-primary btn-sm">Личный кабинет</a>
-          <button onclick="AuthModule.logout()" class="btn btn-outline-secondary btn-sm">Выход</button>
+          <span id="userEmailNav"></span>
+          <a href="profile.html" class="btn btn-outline-primary btn-sm">📋 Кабинет</a>
+          <button onclick="AuthModule.logout()" class="btn btn-outline-secondary btn-sm">🚪 Выход</button>
         </div>
       </div>
     </div>

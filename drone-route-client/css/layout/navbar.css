@@ -1,0 +1,183 @@
+/**
+ * Стили для навигационной панели
+ * Минималистичный современный дизайн
+ */
+
+/* Основной контейнер navbar */
+.navbar {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Правая часть с кнопками */
+.navbar .d-flex {
+  gap: 0.75rem;
+}
+
+/* Стили для неавторизованного состояния */
+#unauthenticatedNav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Стили для авторизованного состояния */
+#authenticatedNav {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Email пользователя - красивый бадж */
+#userEmailNav {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.85rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #495057;
+  margin: 0;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+#userEmailNav::before {
+  content: "👤";
+  margin-right: 0.5rem;
+  font-size: 0.9rem;
+}
+
+#userEmailNav:hover {
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+  border-color: rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Кнопки в navbar - улучшенный дизайн */
+.navbar .btn {
+  border-radius: 20px;
+  padding: 0.4rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-width: 1.5px;
+  letter-spacing: 0.01em;
+}
+
+/* Кнопка "Вход" */
+.navbar .btn-outline-primary {
+  color: #0d6efd;
+  border-color: #0d6efd;
+  background: transparent;
+}
+
+.navbar .btn-outline-primary:hover {
+  color: #fff;
+  background: #0d6efd;
+  border-color: #0d6efd;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+}
+
+/* Кнопка "Регистрация" */
+.navbar .btn-primary {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  border: none;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(13, 110, 253, 0.25);
+}
+
+.navbar .btn-primary:hover {
+  background: linear-gradient(135deg, #0a58ca 0%, #084298 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(13, 110, 253, 0.4);
+}
+
+/* Кнопка "Личный кабинет" */
+.navbar a.btn-outline-primary[href="profile.html"] {
+  color: #6c757d;
+  border-color: #6c757d;
+  background: transparent;
+}
+
+.navbar a.btn-outline-primary[href="profile.html"]:hover {
+  color: #fff;
+  background: #6c757d;
+  border-color: #6c757d;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+/* Кнопка "Выход" */
+.navbar .btn-outline-secondary {
+  color: #dc3545;
+  border-color: #dc3545;
+  background: transparent;
+}
+
+.navbar .btn-outline-secondary:hover {
+  color: #fff;
+  background: #dc3545;
+  border-color: #dc3545;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+/* Иконки в кнопках */
+.navbar .btn::before {
+  margin-right: 0.35rem;
+}
+
+/* Адаптивность для маленьких экранов */
+@media (max-width: 768px) {
+  .navbar .btn {
+    padding: 0.3rem 0.75rem;
+    font-size: 0.8rem;
+  }
+  
+  #userEmailNav {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.8rem;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  #authenticatedNav {
+    gap: 0.5rem;
+  }
+}
+
+/* Анимация появления */
+#authenticatedNav,
+#unauthenticatedNav {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Улучшенный разделитель между элементами */
+#authenticatedNav > * + * {
+  position: relative;
+}
+
+/* Hover эффект для всего контейнера */
+.navbar .d-flex:hover #userEmailNav {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+

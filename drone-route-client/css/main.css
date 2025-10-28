@@ -8,6 +8,7 @@
 @import url('./base/variables.css');
 
 /* === Layout === */
+@import url('./layout/navbar.css');
 @import url('./layout/sidebar.css');
 @import url('./layout/map.css');
 
