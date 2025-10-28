@@ -4,9 +4,28 @@
   backdrop-filter: blur(10px);
   padding: 20px;
   overflow-y: auto;
+  overflow-x: hidden;
   height: 100%;
   border-right: 1px solid rgba(0, 0, 0, 0.1);
   transition: background 0.3s, border-color 0.3s;
+}
+
+/* Стили для скроллбара сайдбара */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
 }
 
 /* Адаптивность */
@@ -15,6 +34,7 @@
     height: auto;
     border-right: none;
     margin-bottom: 20px;
+    overflow-y: visible;
   }
 }
 

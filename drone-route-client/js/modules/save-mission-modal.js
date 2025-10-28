@@ -171,14 +171,10 @@ const SaveMissionModal = (function() {
       if (result.success) {
         showModalAlert('success', 'Миссия успешно сохранена!');
         
-        // Закрываем модальное окно через 1.5 секунды
+        // Закрываем модальное окно и перенаправляем в профиль через 1.5 секунды
         setTimeout(() => {
           modal.hide();
-          
-          // Предлагаем перейти в профиль
-          if (confirm('Миссия сохранена! Перейти в личный кабинет?')) {
-            window.location.href = 'profile.html';
-          }
+          window.location.href = 'profile.html';
         }, 1500);
       } else {
         showModalAlert('danger', result.error || 'Ошибка сохранения миссии');
