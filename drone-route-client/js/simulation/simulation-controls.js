@@ -14,8 +14,11 @@ function setupSimulationControls() {
       return;
     }
     
-    // Показываем панель симуляции
-    document.getElementById('flightSimulationPanel').style.display = 'block';
+    const simPanelEl = document.getElementById('flightSimulationPanel');
+    simPanelEl.style.display = 'block';
+    if (typeof refreshLucideIcons === 'function') {
+      refreshLucideIcons();
+    }
     
     // Создаем экземпляр симулятора, если его нет
     if (!flightSimulator) {
@@ -187,11 +190,11 @@ function setupSimulationControls() {
   // Симуляция завершена
   window.addEventListener('flightSimulation:simulationCompleted', () => {
     updateControlButtons('stopped'); // Изменено с 'completed' на 'stopped'
-    document.getElementById('simCurrentPosition').textContent = 'Миссия завершена ✅';
+    document.getElementById('simCurrentPosition').textContent = 'Миссия завершена';
     
     // Показываем уведомление
     setTimeout(() => {
-      alert('Симуляция полёта завершена! ✅\n\nВсе точки маршрута пройдены.');
+      alert('Симуляция полёта завершена.\n\nВсе точки маршрута пройдены.');
     }, 300);
   });
   

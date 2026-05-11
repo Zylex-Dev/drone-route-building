@@ -1,6 +1,5 @@
 /**
- * Стили для погодной панели (Weather Status Bar)
- * Дизайн в стиле IDE status bar - тонкая белая полоса снизу карты
+ * Погодная строка — компактный статус-бар
  */
 
 #weatherBar {
@@ -8,127 +7,116 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 36px;
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  display: none; /* Скрыто по умолчанию, показывается после построения маршрута */
+  height: 38px;
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border-subtle);
+  display: none;
   align-items: center;
-  padding: 0 16px;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 12px;
-  color: #333;
+  padding: 0 12px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  color: var(--color-text-secondary);
   z-index: 1000;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 -2px 8px rgba(15, 23, 42, 0.04);
   gap: 0;
   overflow-x: auto;
   overflow-y: hidden;
 }
 
-/* Скрываем скроллбар, но оставляем возможность прокрутки */
 #weatherBar::-webkit-scrollbar {
-  height: 3px;
-}
-
-#weatherBar::-webkit-scrollbar-track {
-  background: transparent;
+  height: 4px;
 }
 
 #weatherBar::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--color-border);
   border-radius: 2px;
 }
 
-#weatherBar::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.3);
-}
-
-/* Секция погоды */
 .weather-section {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 0 12px;
+  padding: 0 10px;
   height: 100%;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .weather-section:hover {
-  background: rgba(0, 0, 0, 0.03);
+  background: var(--color-surface-muted);
 }
 
-/* Иконка погоды */
-.weather-icon {
-  font-size: 16px;
-  line-height: 1;
-  display: flex;
+.weather-lucide-wrap {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-}
-
-/* Значение */
-.weather-value {
-  font-weight: 600;
-  color: #1a1a1a;
-  font-size: 13px;
-}
-
-/* Подпись */
-.weather-label {
-  color: #666;
-  font-size: 11px;
-  font-weight: 400;
-}
-
-/* Разделитель между секциями */
-.weather-separator {
-  width: 1px;
-  height: 20px;
-  background: rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
 }
 
-/* Статус условий полета */
-.weather-status {
-  cursor: help;
-  transition: background-color 0.2s ease;
+.weather-lucide-wrap svg.lucide {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--color-text-muted);
 }
 
-.weather-status-good {
-  /* Зеленый оттенок для хороших условий */
+.weather-icon {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  min-width: 2.25rem;
+}
+
+.weather-cond {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--color-accent);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.weather-value {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.weather-label {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.weather-separator {
+  width: 1px;
+  height: 18px;
+  background: var(--color-border-subtle);
+  flex-shrink: 0;
+}
+
+.weather-status {
+  cursor: help;
 }
 
 .weather-status-good .weather-value {
-  color: #10b981;
-}
-
-.weather-status-moderate {
-  /* Желтый оттенок для приемлемых условий */
+  color: var(--color-success);
 }
 
 .weather-status-moderate .weather-value {
-  color: #f59e0b;
-}
-
-.weather-status-poor {
-  /* Оранжевый оттенок для плохих условий */
+  color: var(--color-warning);
 }
 
 .weather-status-poor .weather-value {
-  color: #f97316;
-}
-
-.weather-status-dangerous {
-  /* Красный оттенок для опасных условий */
+  color: #c2410c;
 }
 
 .weather-status-dangerous .weather-value {
-  color: #ef4444;
+  color: var(--color-danger);
   font-weight: 700;
 }
 
-/* Кнопка обновления */
 .weather-refresh {
   margin-left: auto;
   padding: 0 12px;
@@ -137,35 +125,32 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
   flex-shrink: 0;
-  border-left: 1px solid rgba(0, 0, 0, 0.1);
+  border-left: 1px solid var(--color-border-subtle);
+  color: var(--color-text-muted);
+  font-size: 14px;
+  line-height: 1;
 }
 
 .weather-refresh:hover {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-.weather-refresh:active {
-  background: rgba(0, 0, 0, 0.1);
+  background: var(--color-surface-muted);
+  color: var(--color-accent);
 }
 
 .refresh-icon {
-  font-size: 14px;
   display: block;
-  transition: transform 0.3s ease;
+  transition: transform 0.25s ease;
 }
 
-.weather-refresh:hover .refresh-icon {
+.weather-refresh:hover svg.lucide {
   transform: rotate(90deg);
 }
 
-/* Анимация обновления */
-.weather-refresh.refreshing .refresh-icon {
-  animation: spin 1s linear infinite;
+.weather-refresh.refreshing svg.lucide {
+  animation: weatherSpin 0.8s linear infinite;
 }
 
-@keyframes spin {
+@keyframes weatherSpin {
   from {
     transform: rotate(0deg);
   }
@@ -174,87 +159,34 @@
   }
 }
 
-/* Секция с ошибкой */
 .weather-error {
-  color: #ef4444;
+  color: var(--color-danger);
   flex: 1;
   justify-content: center;
 }
 
 .weather-error .weather-value {
-  color: #ef4444;
+  color: var(--color-danger);
   font-weight: 600;
 }
 
 .weather-error .weather-label {
-  color: #dc2626;
+  color: var(--color-danger);
   font-size: 10px;
 }
 
-/* Адаптивность для маленьких экранов */
 @media (max-width: 768px) {
   #weatherBar {
-    height: 32px;
-    font-size: 11px;
+    height: 34px;
+    font-size: 10px;
     padding: 0 8px;
   }
-  
+
   .weather-section {
     padding: 0 8px;
-    gap: 4px;
   }
-  
-  .weather-icon {
-    font-size: 14px;
-  }
-  
+
   .weather-value {
-    font-size: 12px;
-  }
-  
-  .weather-label {
-    font-size: 10px;
-  }
-  
-  .weather-refresh {
-    padding: 0 8px;
+    font-size: 11px;
   }
 }
-
-/* Темная тема (опционально, если будет добавлена) */
-@media (prefers-color-scheme: dark) {
-  #weatherBar {
-    background: rgba(30, 30, 30, 0.98);
-    border-top-color: rgba(255, 255, 255, 0.1);
-    color: #e5e5e5;
-  }
-  
-  .weather-value {
-    color: #f5f5f5;
-  }
-  
-  .weather-label {
-    color: #a3a3a3;
-  }
-  
-  .weather-separator {
-    background: rgba(255, 255, 255, 0.1);
-  }
-  
-  .weather-section:hover {
-    background: rgba(255, 255, 255, 0.05);
-  }
-  
-  .weather-refresh {
-    border-left-color: rgba(255, 255, 255, 0.1);
-  }
-  
-  .weather-refresh:hover {
-    background: rgba(255, 255, 255, 0.08);
-  }
-  
-  .weather-refresh:active {
-    background: rgba(255, 255, 255, 0.12);
-  }
-}
-

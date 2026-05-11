@@ -1,0 +1,292 @@
+/* Lucide (SVG через data-lucide) */
+
+svg.lucide {
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+  stroke-width: 2;
+  vertical-align: -0.125em;
+}
+
+.navbar-brand svg.lucide {
+  width: 1.35rem;
+  height: 1.35rem;
+  margin-right: 0.35rem;
+}
+
+.navbar .btn svg.lucide {
+  width: 0.95rem;
+  height: 0.95rem;
+  margin-right: 0.35rem;
+}
+
+.navbar .btn:not(.btn-icon-only) {
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-icon-only {
+  padding: 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon-only svg.lucide {
+  margin-right: 0;
+}
+
+.btn-lucide svg.lucide {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.4rem;
+}
+
+.btn-lucide {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-group-vertical .btn-lucide svg.lucide {
+  margin-right: 0.45rem;
+}
+
+.metric-item .metric-icon-wrap svg.lucide,
+.metric-item .metric-icon svg.lucide {
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-accent);
+}
+
+.section-title .section-title-icon svg.lucide {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.35rem;
+  color: var(--color-text-muted);
+}
+
+.section-title.collapsible .toggle-icon-wrap svg.lucide {
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-text-muted);
+}
+
+.control-panel-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.control-panel-title .control-panel-title-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.control-panel-title .control-panel-title-text svg.lucide {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.visualization-control-panel .form-check {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.visualization-control-panel .form-check-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.visualization-control-panel .form-check-label svg.lucide {
+  width: 0.85rem;
+  height: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.weather-lucide svg.lucide {
+  width: 0.8125rem;
+  height: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.weather-refresh svg.lucide {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.sim-btn svg.lucide {
+  width: 1.15rem;
+  height: 1.15rem;
+  stroke-width: 2.25;
+}
+
+.btn-close-sim svg.lucide {
+  width: 1rem;
+  height: 1rem;
+}
+
+.simulation-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.5rem;
+}
+
+.simulation-title > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.simulation-title > span:first-child svg.lucide {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.stat-item .stat-icon-wrap svg.lucide {
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-accent);
+  margin-top: 0.15rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+}
+
+.stat-card .stat-icon-wrap {
+  margin-bottom: 0.35rem;
+}
+
+.stat-card .stat-icon-wrap svg.lucide {
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--color-accent);
+}
+
+.type-badge .badge-icon svg.lucide {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--color-accent);
+}
+
+.recommendation-item .rec-icon {
+  display: flex;
+  align-items: flex-start;
+  padding-top: 0.1rem;
+}
+
+.recommendation-item .rec-icon svg.lucide {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+.recommendation-item.danger .rec-icon svg.lucide {
+  color: var(--color-danger);
+}
+
+.recommendation-item.warning .rec-icon svg.lucide {
+  color: var(--color-warning);
+}
+
+.recommendation-item.success .rec-icon svg.lucide {
+  color: var(--color-success);
+}
+
+.recommendation-item.info .rec-icon svg.lucide {
+  color: var(--color-accent);
+}
+
+.recommendation-item.info .rec-icon svg.lucide-loader-circle {
+  animation: lucideSpin 0.85s linear infinite;
+}
+
+@keyframes lucideSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.modal-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.modal-title svg.lucide {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.auth-brand-icon svg.lucide {
+  width: 2rem;
+  height: 2rem;
+  color: var(--color-accent);
+  margin-bottom: 0.5rem;
+}
+
+.mission-footer .btn-lucide svg.lucide {
+  width: 0.9rem;
+  height: 0.9rem;
+  margin-right: 0.35rem;
+}
+
+.user-email-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.user-email-nav svg.lucide {
+  width: 0.85rem;
+  height: 0.85rem;
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+.user-email-nav .user-email-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-page-title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.profile-page-title svg.lucide {
+  width: 1.35rem;
+  height: 1.35rem;
+  color: var(--color-accent);
+}
+
+.empty-state-visual {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.empty-state-visual svg.lucide {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--color-border);
+}
+
+.mission-meta-icon-wrap svg.lucide {
+  width: 0.85rem;
+  height: 0.85rem;
+  color: var(--color-accent);
+  flex-shrink: 0;
+}

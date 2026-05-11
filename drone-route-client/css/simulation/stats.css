@@ -1,60 +1,47 @@
-/* Метрики в реальном времени */
 .simulation-stats {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-radius: 12px;
-  padding: 14px;
-  border: 2px solid #dee2e6;
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  border: 1px solid var(--color-border-subtle);
 }
 
 .stat-item {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  background: #ffffff;
-  border-radius: 10px;
-  transition: all 0.3s ease;
-}
-
-.stat-item:hover {
-  transform: translateX(4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-subtle);
 }
 
 .stat-item:not(:last-child) {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
-.stat-item .stat-icon {
-  font-size: 24px;
-  line-height: 1;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+.stat-item .stat-icon-wrap {
   flex-shrink: 0;
 }
 
 .stat-content {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   flex: 1;
+  min-width: 0;
 }
 
-.stat-label {
-  font-size: 11px;
-  color: #6c757d;
+.stat-item .stat-label {
+  font-size: 10px;
+  color: var(--color-text-muted);
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.04em;
 }
 
-.stat-value {
-  font-size: 15px;
-  color: #2c3e50;
-  font-weight: 700;
+.stat-item .stat-value {
+  font-size: 13px;
+  color: var(--color-text);
+  font-weight: 600;
+  line-height: 1.3;
 }
-

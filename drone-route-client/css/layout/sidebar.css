@@ -1,18 +1,16 @@
-/* Левая панель */
+/* Левая панель: сплошная поверхность, без glassmorphism */
+
 .sidebar {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  padding: 20px;
+  background: var(--color-surface);
+  padding: 1rem 1rem 1.25rem;
   overflow-y: auto;
   overflow-x: hidden;
   height: 100%;
-  border-right: 1px solid rgba(0, 0, 0, 0.1);
-  transition: background 0.3s, border-color 0.3s;
+  border-right: 1px solid var(--color-border-subtle);
 }
 
-/* Стили для скроллбара сайдбара */
 .sidebar::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 .sidebar::-webkit-scrollbar-track {
@@ -20,21 +18,20 @@
 }
 
 .sidebar::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 3px;
+  background: var(--color-border);
+  border-radius: 4px;
 }
 
 .sidebar::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.3);
+  background: #94a3b8;
 }
 
-/* Адаптивность */
 @media (max-width: 767.98px) {
   .sidebar {
     height: auto;
     border-right: none;
-    margin-bottom: 20px;
+    border-bottom: 1px solid var(--color-border-subtle);
+    margin-bottom: 0;
     overflow-y: visible;
   }
 }
-

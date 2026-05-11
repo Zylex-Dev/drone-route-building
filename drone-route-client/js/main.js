@@ -42,6 +42,10 @@ document.addEventListener('DOMContentLoaded', function() {
   logger.debug('Управление симуляцией инициализировано', { module: 'Main' });
   
   logger.info('Приложение успешно инициализировано', { module: 'Main' });
+
+  if (typeof refreshLucideIcons === 'function') {
+    refreshLucideIcons();
+  }
 });
 
 // ============================================================================
@@ -65,7 +69,13 @@ function initAuthUI() {
     
     const user = AuthModule.getUser();
     if (user && user.email && userEmailNav) {
-      userEmailNav.textContent = user.email;
+      userEmailNav.classList.add('user-email-nav');
+      userEmailNav.innerHTML = `<i data-lucide="user"></i><span class="user-email-text"></span>`;
+      const textEl = userEmailNav.querySelector('.user-email-text');
+      if (textEl) textEl.textContent = user.email;
+      if (typeof refreshLucideIcons === 'function') {
+        refreshLucideIcons();
+      }
     }
   } else {
     // Пользователь не авторизован

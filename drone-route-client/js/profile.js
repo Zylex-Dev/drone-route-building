@@ -32,6 +32,10 @@ document.addEventListener('DOMContentLoaded', async function() {
       await deleteMission(missionToDelete);
     }
   });
+
+  if (typeof refreshLucideIcons === 'function') {
+    refreshLucideIcons();
+  }
 });
 
 /**
@@ -40,13 +44,23 @@ document.addEventListener('DOMContentLoaded', async function() {
 async function loadUserData() {
   const user = AuthModule.getUser();
   
+  const emailEl = document.getElementById('userEmail');
+  if (!emailEl) return;
+
+  const setEmailHtml = (email) => {
+    emailEl.classList.add('user-email-nav');
+    emailEl.innerHTML = `<i data-lucide="user"></i><span class="user-email-text"></span>`;
+    const t = emailEl.querySelector('.user-email-text');
+    if (t) t.textContent = email;
+    if (typeof refreshLucideIcons === 'function') refreshLucideIcons();
+  };
+
   if (user && user.email) {
-    document.getElementById('userEmail').textContent = user.email;
+    setEmailHtml(user.email);
   } else {
-    // Если нет данных в localStorage, запросим с сервера
     const result = await AuthModule.getCurrentUser();
     if (result.success) {
-      document.getElementById('userEmail').textContent = result.user.email;
+      setEmailHtml(result.user.email);
     }
   }
 }
@@ -102,6 +116,10 @@ function displayMissions(missions) {
     const card = createMissionCard(mission);
     grid.appendChild(card);
   });
+
+  if (typeof refreshLucideIcons === 'function') {
+    refreshLucideIcons();
+  }
 }
 
 /**
@@ -141,33 +159,33 @@ function createMissionCard(mission) {
       
       <div class="mission-meta">
         <div class="mission-meta-item">
-          <span class="mission-meta-icon">📅</span>
+          <span class="mission-meta-icon-wrap" aria-hidden="true"><i data-lucide="calendar"></i></span>
           <span class="mission-meta-label">Создана:</span>
           <span class="mission-meta-value">${createdDate}</span>
         </div>
         <div class="mission-meta-item">
-          <span class="mission-meta-icon">🚁</span>
+          <span class="mission-meta-icon-wrap" aria-hidden="true"><i data-lucide="plane"></i></span>
           <span class="mission-meta-label">Дрон:</span>
           <span class="mission-meta-value">${escapeHtml(mission.drone_model)}</span>
         </div>
         <div class="mission-meta-item">
-          <span class="mission-meta-icon">🗺️</span>
+          <span class="mission-meta-icon-wrap" aria-hidden="true"><i data-lucide="map-pinned"></i></span>
           <span class="mission-meta-label">Площадь:</span>
           <span class="mission-meta-value">${coverageArea} км²</span>
         </div>
         <div class="mission-meta-item">
-          <span class="mission-meta-icon">📸</span>
+          <span class="mission-meta-icon-wrap" aria-hidden="true"><i data-lucide="camera"></i></span>
           <span class="mission-meta-label">Снимков:</span>
           <span class="mission-meta-value">${photos}</span>
         </div>
       </div>
       
       <div class="mission-footer">
-        <button class="btn btn-primary btn-sm" onclick="loadMission('${mission.id}')">
-          📂 Загрузить
+        <button type="button" class="btn btn-primary btn-sm btn-lucide" onclick="loadMission('${mission.id}')">
+          <i data-lucide="folder-open"></i><span>Загрузить</span>
         </button>
-        <button class="btn btn-danger btn-sm" onclick="confirmDelete('${mission.id}', '${escapeHtml(mission.name)}')">
-          🗑️ Удалить
+        <button type="button" class="btn btn-danger btn-sm btn-lucide" onclick="confirmDelete('${mission.id}', '${escapeHtml(mission.name)}')">
+          <i data-lucide="trash-2"></i><span>Удалить</span>
         </button>
       </div>
     </div>

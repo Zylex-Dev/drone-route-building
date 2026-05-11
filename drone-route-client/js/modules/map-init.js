@@ -9,11 +9,14 @@ const kolomnaCoords = [55.095276, 38.765574];
 // Создаем слой карты OpenStreetMap
 const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
-  attribution: '&copy; OpenStreetMap contributors'
+  attribution: ''
 });
 
-// Инициализируем карту
-const map = L.map('map', { layers: [tileLayer] }).setView(kolomnaCoords, 13);
+// attributionControl: false — без подписи Leaflet/OSM в углу карты
+const map = L.map('map', {
+  layers: [tileLayer],
+  attributionControl: false
+}).setView(kolomnaCoords, 13);
 
 // Экспортируем map в window для доступа из других модулей
 window.map = map;

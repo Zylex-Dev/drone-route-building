@@ -1,6 +1,38 @@
-/* Кнопки */
+/* Кнопки панели */
+
 .btn-custom {
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-weight: 500;
+  font-size: 0.875rem;
 }
 
+.btn-primary,
+.btn-info {
+  --bs-btn-bg: var(--color-accent);
+  --bs-btn-border-color: var(--color-accent);
+  --bs-btn-hover-bg: var(--color-accent-hover);
+  --bs-btn-hover-border-color: var(--color-accent-hover);
+  --bs-btn-active-bg: var(--color-accent-hover);
+  --bs-btn-active-border-color: var(--color-accent-hover);
+}
+
+.btn-info {
+  color: #fff;
+}
+
+.btn-secondary {
+  --bs-btn-bg: #475569;
+  --bs-btn-border-color: #475569;
+  --bs-btn-hover-bg: #334155;
+  --bs-btn-hover-border-color: #334155;
+}
+
+.btn-danger {
+  --bs-btn-bg: var(--color-danger);
+  --bs-btn-border-color: var(--color-danger);
+}
+
+.btn-outline-success,
+.btn-outline-primary {
+  font-weight: 500;
+}

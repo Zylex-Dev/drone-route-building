@@ -3,52 +3,41 @@
  * Управление сворачиванием/разворачиванием секций боковой панели
  */
 
-/**
- * Функция для сворачивания/разворачивания секций
- */
 function setupCollapsibleSections() {
-  // Секция "Параметры покрытия"
   const coverageToggle = document.getElementById('coverageToggle');
   const coverageContent = document.getElementById('coverageContent');
-  
+
   if (coverageToggle && coverageContent) {
-    coverageToggle.addEventListener('click', function() {
-      const icon = this.querySelector('.toggle-icon');
+    coverageToggle.addEventListener('click', function () {
       if (coverageContent.classList.contains('collapsed')) {
         coverageContent.classList.remove('collapsed');
         coverageContent.style.display = 'block';
-        icon.textContent = '▼';
-        icon.classList.remove('rotated');
+        this.classList.add('is-open');
       } else {
         coverageContent.classList.add('collapsed');
         setTimeout(() => {
           coverageContent.style.display = 'none';
         }, 300);
-        icon.textContent = '▶';
-        icon.classList.add('rotated');
+        this.classList.remove('is-open');
       }
     });
   }
-  
-  // Секция "Технические параметры"
+
   const techToggle = document.getElementById('techToggle');
   const techContent = document.getElementById('techContent');
-  
+
   if (techToggle && techContent) {
-    techToggle.addEventListener('click', function() {
-      const icon = this.querySelector('.toggle-icon');
+    techToggle.addEventListener('click', function () {
       if (techContent.classList.contains('collapsed')) {
         techContent.classList.remove('collapsed');
         techContent.style.display = 'block';
-        icon.textContent = '▼';
-        icon.classList.remove('rotated');
+        this.classList.add('is-open');
       } else {
         techContent.classList.add('collapsed');
         setTimeout(() => {
           techContent.style.display = 'none';
         }, 300);
-        icon.textContent = '▶';
-        icon.classList.add('rotated');
+        this.classList.remove('is-open');
       }
     });
   }
@@ -60,16 +49,16 @@ function setupCollapsibleSections() {
 function setupVisualizationPanelToggle() {
   const togglePanelBtn = document.getElementById('toggleControlPanel');
   const controlPanelContent = document.getElementById('controlPanelContent');
-  
+
   if (togglePanelBtn && controlPanelContent) {
     togglePanelBtn.addEventListener('click', () => {
       if (controlPanelContent.classList.contains('collapsed')) {
         controlPanelContent.classList.remove('collapsed');
-        togglePanelBtn.textContent = '▼';
+        togglePanelBtn.classList.remove('is-collapsed');
         togglePanelBtn.title = 'Свернуть';
       } else {
         controlPanelContent.classList.add('collapsed');
-        togglePanelBtn.textContent = '▶';
+        togglePanelBtn.classList.add('is-collapsed');
         togglePanelBtn.title = 'Развернуть';
       }
     });
@@ -82,7 +71,7 @@ function setupVisualizationPanelToggle() {
 function setupVisualizationCheckboxes() {
   const showFootprintsCheckbox = document.getElementById('showFootprints');
   const showWaypointsCheckbox = document.getElementById('showWaypoints');
-  
+
   if (showFootprintsCheckbox) {
     showFootprintsCheckbox.addEventListener('change', (e) => {
       if (currentRouteVisualization && currentRouteVisualization.footprintsLayer) {
@@ -94,7 +83,7 @@ function setupVisualizationCheckboxes() {
       }
     });
   }
-  
+
   if (showWaypointsCheckbox) {
     showWaypointsCheckbox.addEventListener('change', (e) => {
       if (currentRouteVisualization && currentRouteVisualization.waypointsLayer) {
@@ -107,4 +96,3 @@ function setupVisualizationCheckboxes() {
     });
   }
 }
-

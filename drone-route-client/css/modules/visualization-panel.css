@@ -1,54 +1,63 @@
-/* === Панель управления визуализацией === */
+/* Панель визуализации на карте */
 
-/* Панель управления визуализацией маршрута (в правом верхнем углу) */
 .visualization-control-panel {
   position: fixed;
-  top: 80px;
-  right: 20px;
+  top: 72px;
+  right: 16px;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  padding: 15px;
-  min-width: 310px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s ease;
-  animation: slideInFromRight 0.3s ease-out;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  min-width: 280px;
+  box-shadow: var(--shadow-md);
+  transition: box-shadow 0.15s ease;
+  animation: slideInFromRight 0.2s ease-out;
 }
 
 .control-panel-title {
-  margin: 0 0 12px 0;
-  font-size: 14px;
+  margin: 0 0 10px 0;
+  font-size: 0.8125rem;
   font-weight: 600;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #333;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  color: var(--color-text);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .btn-close-panel {
-  background: none;
-  border: none;
-  font-size: 12px;
-  color: #666;
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-muted);
   cursor: pointer;
-  padding: 2px 6px;
-  border-radius: 4px;
-  transition: all 0.2s;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s, color 0.15s, transform 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
 }
 
 .btn-close-panel:hover {
-  background: rgba(0, 0, 0, 0.1);
-  color: #333;
+  background: var(--color-border-subtle);
+  color: var(--color-text);
+}
+
+.btn-close-panel.is-collapsed svg.lucide {
+  transform: rotate(-90deg);
 }
 
 .control-panel-content {
-  transition: max-height 0.3s ease, opacity 0.3s ease;
+  transition: max-height 0.2s ease, opacity 0.2s ease;
   max-height: 200px;
   opacity: 1;
   overflow: hidden;
+  padding: 4px 2px 0 10px;
 }
 
 .control-panel-content.collapsed {
@@ -57,11 +66,11 @@
 }
 
 .visualization-control-panel .form-check {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   padding-left: 0;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .visualization-control-panel .form-check:last-child {
@@ -72,23 +81,28 @@
   cursor: pointer;
   margin: 0;
   flex-shrink: 0;
+  border-color: var(--color-border);
+}
+
+.visualization-control-panel .form-check-input:checked {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
 }
 
 .visualization-control-panel .form-check-label {
   cursor: pointer;
-  font-size: 13px;
-  color: #444;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
   user-select: none;
   padding: 0;
   margin: 0;
   white-space: nowrap;
 }
 
-/* Анимация появления панели */
 @keyframes slideInFromRight {
   from {
     opacity: 0;
-    transform: translateX(20px);
+    transform: translateX(12px);
   }
   to {
     opacity: 1;
@@ -96,13 +110,11 @@
   }
 }
 
-/* Адаптивность для мобильных устройств */
 @media (max-width: 767.98px) {
   .visualization-control-panel {
-    top: 70px;
-    right: 10px;
-    min-width: 240px;
-    padding: 12px;
+    top: 60px;
+    right: 8px;
+    min-width: 220px;
+    padding: 10px 12px;
   }
 }
-

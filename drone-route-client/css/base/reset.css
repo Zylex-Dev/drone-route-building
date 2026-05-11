@@ -11,43 +11,42 @@ html {
 body {
   height: 100vh;
   margin: 0;
-  overflow: hidden; /* Убираем глобальный скролл */
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  font-family: 'Inter', sans-serif;
-  background: #f0f2f5;
-  color: #333;
-  transition: background 0.3s, color 0.3s;
+  font-family: var(--font-sans);
+  background: var(--color-canvas);
+  color: var(--color-text);
 }
 
-/* Navbar занимает только необходимую высоту */
 .navbar {
   flex-shrink: 0;
-  padding: 0.35rem 0.75rem; /* Компактнее */
-  min-height: 48px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  padding: 0.4rem 0.75rem;
+  min-height: 52px;
+  box-shadow: var(--shadow-sm);
 }
 
 .navbar-brand {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: 600;
+  letter-spacing: -0.02em;
   margin-bottom: 0 !important;
+  color: var(--color-text) !important;
 }
 
-/* Компактные кнопки в navbar */
 .navbar .btn-sm {
-  padding: 0.25rem 0.6rem;
-  font-size: 0.85rem;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
 }
 
 .navbar .text-muted {
-  font-size: 0.9rem;
+  font-size: 0.875rem;
 }
 
-/* Контейнер занимает все оставшееся пространство */
 .container-fluid {
   flex: 1;
-  min-height: 0; /* Важно для Firefox */
+  min-height: 0;
   overflow: hidden;
   padding: 0;
 }
@@ -56,4 +55,3 @@ body {
   height: 100%;
   margin: 0;
 }
-

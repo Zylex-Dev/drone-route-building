@@ -22,3 +22,5 @@ logs/
 *.log
 drone-route-server/logs/
 drone-route-client/logs/
+
+.cursor/

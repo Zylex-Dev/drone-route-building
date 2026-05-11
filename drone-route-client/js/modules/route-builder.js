@@ -216,6 +216,12 @@ function buildRoute(territoryPoints) {
         // Активируем кнопку симуляции
         document.getElementById('startSimulation').disabled = false;
         logger.info('Кнопка симуляции активирована', { module: 'RouteBuilder' });
+
+        const clearBtn = document.getElementById('clearAll');
+        if (clearBtn) {
+          clearBtn.disabled = false;
+          clearBtn.title = 'Удалить миссию и очистить карту';
+        }
         
         // Активируем кнопку "Сохранить миссию" после построения маршрута
         if (typeof SaveMissionModal !== 'undefined') {

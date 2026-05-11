@@ -80,15 +80,13 @@ function showWeatherBar(weatherData) {
   const conditions = weatherData.flightConditions;
   
   // Определяем иконку погоды
-  const weatherIcon = getWeatherIcon(current.weatherCode);
-  
-  // Определяем цвет и иконку статуса полета
+  const weatherLabel = getWeatherIcon(current.weatherCode);
+  const weatherLucide = getWeatherLucideIcon(current.weatherCode);
   const statusInfo = getFlightStatusInfo(conditions.level);
-  
-  // Формируем HTML содержимое
+
   weatherBar.innerHTML = `
-    <div class="weather-section">
-      <span class="weather-icon" title="${current.weatherDescription}">${weatherIcon}</span>
+    <div class="weather-section" title="${current.weatherDescription} (${weatherLabel})">
+      <span class="weather-lucide-wrap"><i data-lucide="${weatherLucide}"></i></span>
       <span class="weather-value">${Math.round(current.temperature)}°C</span>
       <span class="weather-label">Температура</span>
     </div>
@@ -96,7 +94,7 @@ function showWeatherBar(weatherData) {
     <div class="weather-separator"></div>
     
     <div class="weather-section">
-      <span class="weather-icon">💧</span>
+      <span class="weather-lucide-wrap"><i data-lucide="droplets"></i></span>
       <span class="weather-value">${current.humidity}%</span>
       <span class="weather-label">Влажность</span>
     </div>
@@ -104,7 +102,7 @@ function showWeatherBar(weatherData) {
     <div class="weather-separator"></div>
     
     <div class="weather-section">
-      <span class="weather-icon">💨</span>
+      <span class="weather-lucide-wrap"><i data-lucide="wind"></i></span>
       <span class="weather-value">${Math.round(current.windSpeed)} м/с</span>
       <span class="weather-label">${current.windDirectionText}</span>
     </div>
@@ -112,7 +110,7 @@ function showWeatherBar(weatherData) {
     <div class="weather-separator"></div>
     
     <div class="weather-section">
-      <span class="weather-icon">🌬️</span>
+      <span class="weather-lucide-wrap"><i data-lucide="gauge"></i></span>
       <span class="weather-value">${Math.round(current.windGusts)} м/с</span>
       <span class="weather-label">Порывы</span>
     </div>
@@ -120,7 +118,7 @@ function showWeatherBar(weatherData) {
     <div class="weather-separator"></div>
     
     <div class="weather-section">
-      <span class="weather-icon">☁️</span>
+      <span class="weather-lucide-wrap"><i data-lucide="cloud"></i></span>
       <span class="weather-value">${current.cloudCover}%</span>
       <span class="weather-label">Облачность</span>
     </div>
@@ -128,7 +126,7 @@ function showWeatherBar(weatherData) {
     <div class="weather-separator"></div>
     
     <div class="weather-section">
-      <span class="weather-icon">🌡️</span>
+      <span class="weather-lucide-wrap"><i data-lucide="thermometer"></i></span>
       <span class="weather-value">${Math.round(current.pressure)} гПа</span>
       <span class="weather-label">Давление</span>
     </div>
@@ -137,13 +135,13 @@ function showWeatherBar(weatherData) {
     
     <div class="weather-section weather-status weather-status-${conditions.level}" 
          title="${conditions.warnings.join('; ')}">
-      <span class="weather-icon">${statusInfo.icon}</span>
+      <span class="weather-lucide-wrap"><i data-lucide="${statusInfo.lucideIcon}"></i></span>
       <span class="weather-value">${statusInfo.text}</span>
-      <span class="weather-label">Условия полета</span>
+      <span class="weather-label">Условия полёта</span>
     </div>
     
     <div class="weather-refresh" id="weatherRefresh" title="Обновить данные о погоде">
-      <span class="refresh-icon">🔄</span>
+      <i data-lucide="refresh-cw"></i>
     </div>
   `;
   
@@ -155,7 +153,11 @@ function showWeatherBar(weatherData) {
   if (refreshButton) {
     refreshButton.addEventListener('click', handleWeatherRefresh);
   }
-  
+
+  if (typeof refreshLucideIcons === 'function') {
+    refreshLucideIcons();
+  }
+
   logger.info('Погодная панель отображена', {
     module: 'WeatherBar',
     conditions: conditions.level
@@ -217,43 +219,43 @@ async function handleWeatherRefresh() {
 }
 
 /**
- * Получить иконку погоды по коду WMO
+ * Краткая метка условий по коду WMO (без emoji)
  * @param {number} code - WMO Weather code
- * @returns {string} Emoji иконка
+ * @returns {string}
  */
 function getWeatherIcon(code) {
-  const icons = {
-    0: '☀️',   // Ясно
-    1: '🌤️',   // Преимущественно ясно
-    2: '⛅',   // Переменная облачность
-    3: '☁️',   // Пасмурно
-    45: '🌫️',  // Туман
-    48: '🌫️',  // Изморозь
-    51: '🌦️',  // Легкая морось
-    53: '🌦️',  // Умеренная морось
-    55: '🌧️',  // Сильная морось
-    56: '🌧️',  // Легкая ледяная морось
-    57: '🌧️',  // Сильная ледяная морось
-    61: '🌧️',  // Небольшой дождь
-    63: '🌧️',  // Умеренный дождь
-    65: '⛈️',  // Сильный дождь
-    66: '🌧️',  // Легкий ледяной дождь
-    67: '🌧️',  // Сильный ледяной дождь
-    71: '🌨️',  // Небольшой снег
-    73: '🌨️',  // Умеренный снег
-    75: '❄️',  // Сильный снег
-    77: '🌨️',  // Снежная крупа
-    80: '🌦️',  // Небольшой ливень
-    81: '🌧️',  // Умеренный ливень
-    82: '⛈️',  // Сильный ливень
-    85: '🌨️',  // Небольшой снегопад
-    86: '❄️',  // Сильный снегопад
-    95: '⛈️',  // Гроза
-    96: '⛈️',  // Гроза с небольшим градом
-    99: '⛈️'   // Гроза с сильным градом
+  const labels = {
+    0: 'ясно',
+    1: 'ясно+',
+    2: 'облачн',
+    3: 'пасмур',
+    45: 'туман',
+    48: 'измороз',
+    51: 'морось',
+    53: 'морось',
+    55: 'морось',
+    56: 'мороз.л',
+    57: 'мороз.с',
+    61: 'дождь',
+    63: 'дождь',
+    65: 'дождь+',
+    66: 'лёд.д',
+    67: 'лёд.д+',
+    71: 'снег',
+    73: 'снег',
+    75: 'снег+',
+    77: 'крупа',
+    80: 'ливень',
+    81: 'ливень',
+    82: 'ливень+',
+    85: 'снегоп',
+    86: 'снегоп+',
+    95: 'гроза',
+    96: 'гроза+',
+    99: 'град'
   };
-  
-  return icons[code] || '🌡️';
+
+  return labels[code] || '—';
 }
 
 /**
@@ -264,24 +266,43 @@ function getWeatherIcon(code) {
 function getFlightStatusInfo(level) {
   const statusMap = {
     good: {
-      icon: '✅',
+      lucideIcon: 'circle-check',
       text: 'Отлично'
     },
     moderate: {
-      icon: '⚠️',
+      lucideIcon: 'cloud-sun',
       text: 'Приемлемо'
     },
     poor: {
-      icon: '⚠️',
+      lucideIcon: 'cloud-rain',
       text: 'Плохо'
     },
     dangerous: {
-      icon: '🚫',
+      lucideIcon: 'ban',
       text: 'Опасно'
     }
   };
-  
+
   return statusMap[level] || statusMap.good;
+}
+
+/**
+ * Иконка Lucide по коду WMO
+ * @param {number} code
+ * @returns {string}
+ */
+function getWeatherLucideIcon(code) {
+  if (code === 0 || code === 1) return 'sun';
+  if (code === 2) return 'cloud-sun';
+  if (code === 3) return 'cloud';
+  if (code === 45 || code === 48) return 'cloud-fog';
+  if (code >= 51 && code <= 57) return 'cloud-drizzle';
+  if (code >= 61 && code <= 67) return 'cloud-rain';
+  if (code >= 71 && code <= 77) return 'snowflake';
+  if (code >= 80 && code <= 82) return 'cloud-rain';
+  if (code >= 85 && code <= 86) return 'snowflake';
+  if (code >= 95 && code <= 99) return 'cloud-lightning';
+  return 'cloud';
 }
 
 /**
@@ -326,17 +347,20 @@ async function updateWeatherForRoute(coordinates) {
     if (weatherBar) {
       weatherBar.innerHTML = `
         <div class="weather-section weather-error">
-          <span class="weather-icon">⚠️</span>
+          <span class="weather-lucide-wrap"><i data-lucide="cloud-off"></i></span>
           <span class="weather-value">Не удалось загрузить данные о погоде</span>
           <span class="weather-label">${error.message}</span>
         </div>
         <div class="weather-refresh" id="weatherRefresh" title="Попробовать снова">
-          <span class="refresh-icon">🔄</span>
+          <i data-lucide="refresh-cw"></i>
         </div>
       `;
       weatherBar.style.display = 'flex';
-      
-      // Добавляем обработчик для повторной попытки
+
+      if (typeof refreshLucideIcons === 'function') {
+        refreshLucideIcons();
+      }
+
       const refreshButton = document.getElementById('weatherRefresh');
       if (refreshButton) {
         refreshButton.addEventListener('click', () => updateWeatherForRoute(coordinates));

@@ -241,7 +241,7 @@ function generateKML(routeData) {
     : (props.flightAltitude || 50);
   
   const terrainInfo = props.terrainData 
-    ? `\n🏔️ Параметры рельефа:\n• Учет рельефа: Включен\n• Относительная высота: ${props.flightAltitude || 'N/A'} м\n• Абсолютная высота полета: ${props.terrainData.absoluteFlightAltitude?.toFixed(1) || 'N/A'} м\n• Макс. высота рельефа: ${props.terrainData.maxElevation?.toFixed(1) || 'N/A'} м\n• Мин. высота рельефа: ${props.terrainData.minElevation?.toFixed(1) || 'N/A'} м\n• Перепад высот: ${props.terrainData.terrainRange?.toFixed(1) || 'N/A'} м\n`
+    ? `\nПараметры рельефа:\n• Учет рельефа: Включен\n• Относительная высота: ${props.flightAltitude || 'N/A'} м\n• Абсолютная высота полета: ${props.terrainData.absoluteFlightAltitude?.toFixed(1) || 'N/A'} м\n• Макс. высота рельефа: ${props.terrainData.maxElevation?.toFixed(1) || 'N/A'} м\n• Мин. высота рельефа: ${props.terrainData.minElevation?.toFixed(1) || 'N/A'} м\n• Перепад высот: ${props.terrainData.terrainRange?.toFixed(1) || 'N/A'} м\n`
     : '';
   
   // Формируем описание миссии
@@ -252,7 +252,7 @@ function generateKML(routeData) {
 Боковое перекрытие: ${props.desiredOverlap || 'N/A'}%
 Продольное перекрытие: ${props.forwardOverlap || 'N/A'}%
 ${terrainInfo}
-📊 Статистика миссии:
+Статистика миссии:
 • Площадь покрытия: ${stats.coverageAreaKm2 || 'N/A'} км²
 • Длина маршрута: ${stats.totalFlightDistanceKm || 'N/A'} км
 • Расчётное время: ${stats.estimatedFlightTimeMin || 'N/A'} мин
@@ -261,7 +261,7 @@ ${terrainInfo}
 • Использование батареи: ${stats.batteryUsagePercent || 'N/A'}%
 • GSD (детализация): ${stats.gsdCmPerPixel || 'N/A'} см/пиксель
 
-🎯 Параметры покрытия:
+Параметры покрытия:
 • Размер кадра: ${props.groundWidth || 'N/A'}м × ${props.groundLength || 'N/A'}м
 • Шаг между полосами: ${props.effectiveSpacingMeters || 'N/A'} м
 • Шаг между снимками: ${props.forwardSpacingMeters || 'N/A'} м

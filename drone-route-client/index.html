@@ -5,8 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Автоматизированное планирование маршрута беспилотника</title>
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Leaflet CSS -->
@@ -19,42 +18,45 @@
 
 <body>
   <!-- Навигационная панель -->
-  <nav class="navbar navbar-light bg-light border-bottom">
+  <nav class="navbar navbar-light border-bottom">
     <div class="container-fluid px-3">
-      <span class="navbar-brand mb-0 h1">✈️ Drone Route Planner</span>
+      <span class="navbar-brand mb-0 h1 d-inline-flex align-items-center gap-2">
+        <i data-lucide="drone"></i>
+        <span>Drone Route Planner</span>
+      </span>
       <div class="d-flex align-items-center gap-2">
         <!-- Не авторизован -->
         <div id="unauthenticatedNav" style="display: none;">
-          <a href="login.html" class="btn btn-outline-primary btn-sm">🔑 Вход</a>
-          <a href="register.html" class="btn btn-primary btn-sm">✨ Регистрация</a>
+          <a href="login.html" class="btn btn-outline-primary btn-sm btn-lucide"><i data-lucide="log-in"></i><span>Вход</span></a>
+          <a href="register.html" class="btn btn-primary btn-sm btn-lucide"><i data-lucide="user-plus"></i><span>Регистрация</span></a>
         </div>
         <!-- Авторизован -->
         <div id="authenticatedNav" style="display: none;">
           <span id="userEmailNav"></span>
-          <a href="profile.html" class="btn btn-outline-primary btn-sm">📋 Кабинет</a>
-          <button onclick="AuthModule.logout()" class="btn btn-outline-secondary btn-sm">🚪 Выход</button>
+          <a href="profile.html" class="btn btn-outline-primary btn-sm btn-lucide"><i data-lucide="layout-dashboard"></i><span>Кабинет</span></a>
+          <button type="button" onclick="AuthModule.logout()" class="btn btn-outline-secondary btn-sm btn-lucide"><i data-lucide="log-out"></i><span>Выход</span></button>
         </div>
       </div>
     </div>
   </nav>
 
   <!-- Панель управления визуализацией маршрута -->
-  <div id="visualizationControlPanel" class="visualization-control-panel glass" style="display: none;">
+  <div id="visualizationControlPanel" class="visualization-control-panel" style="display: none;">
     <h6 class="control-panel-title">
-      <span>Визуализация</span>
-      <button id="toggleControlPanel" class="btn-close-panel" title="Свернуть">▼</button>
+      <span class="control-panel-title-text"><i data-lucide="layers"></i>Визуализация</span>
+      <button type="button" id="toggleControlPanel" class="btn-close-panel" title="Свернуть"><i data-lucide="chevron-down"></i></button>
     </h6>
     <div id="controlPanelContent" class="control-panel-content">
       <div class="form-check">
         <input class="form-check-input" type="checkbox" id="showFootprints">
         <label class="form-check-label" for="showFootprints">
-          Зоны покрытия камеры
+          <i data-lucide="scan"></i>Зоны покрытия камеры
         </label>
       </div>
       <div class="form-check">
         <input class="form-check-input" type="checkbox" id="showWaypoints">
         <label class="form-check-label" for="showWaypoints">
-          Точки съёмки
+          <i data-lucide="aperture"></i>Точки съёмки
         </label>
       </div>
     </div>
@@ -65,8 +67,8 @@
       <!-- Левая панель -->
       <aside class="col-md-3 p-0 sidebar">
         <div class="content">
-          <div class="card-custom flight-settings glass">
-            <h4>Настройки полёта</h4>
+          <div class="card-custom flight-settings">
+            <h4 class="d-flex align-items-center gap-2"><i data-lucide="sliders-horizontal"></i><span>Настройки полёта</span></h4>
             <div class="mb-3">
               <label for="flightAltitude" class="form-label">Высота полёта (м)</label>
               <input type="number" class="form-control" id="flightAltitude" value="50" min="5" max="400" step="1">
@@ -119,69 +121,69 @@
               </select>
             </div>
             <div class="mb-3">
-              <button id="saveMissionBtn" class="btn btn-secondary btn-custom w-100" disabled title="Сначала постройте маршрут">
-                💾 Сохранить миссию
+              <button id="saveMissionBtn" class="btn btn-outline-secondary btn-custom w-100 btn-lucide" disabled title="Сначала постройте маршрут">
+                <i data-lucide="save"></i><span>Сохранить миссию</span>
               </button>
             </div>
             <div class="mb-3">
-              <button id="clearAll" class="btn btn-danger btn-custom w-100">Удалить миссию</button>
+              <button type="button" id="clearAll" class="btn btn-outline-danger btn-custom w-100 btn-lucide" disabled title="Сначала постройте маршрут"><i data-lucide="trash-2"></i><span>Удалить миссию</span></button>
             </div>
             <div class="mb-3">
-              <button id="startSimulation" class="btn btn-primary btn-custom w-100" disabled>
-                Симуляция полёта
+              <button type="button" id="startSimulation" class="btn btn-outline-primary btn-custom w-100 btn-lucide" disabled>
+                <i data-lucide="play"></i><span>Симуляция полёта</span>
               </button>
             </div>
             <div class="mb-3">
-              <button id="showTerrainProfile" class="btn btn-info btn-custom w-100" disabled>
-                🏔️ Профиль рельефа
+              <button type="button" id="showTerrainProfile" class="btn btn-outline-info btn-custom w-100 btn-lucide" disabled>
+                <i data-lucide="mountain"></i><span>Профиль рельефа</span>
               </button>
             </div>
             <div class="mb-3">
               <label class="form-label">Экспорт маршрута</label>
               <div class="btn-group-vertical w-100" role="group">
-                <button id="exportGeoJSON" class="btn btn-outline-success btn-custom" disabled>
-                  📥 Скачать GeoJSON
+                <button type="button" id="exportGeoJSON" class="btn btn-outline-success btn-custom btn-lucide" disabled>
+                  <i data-lucide="braces"></i><span>Скачать GeoJSON</span>
                 </button>
-                <button id="exportKML" class="btn btn-outline-primary btn-custom" disabled>
-                  🌍 Скачать KML
+                <button type="button" id="exportKML" class="btn btn-outline-primary btn-custom btn-lucide" disabled>
+                  <i data-lucide="file-text"></i><span>Скачать KML</span>
                 </button>
-                <button id="exportKMZ" class="btn btn-outline-primary btn-custom" disabled>
-                  📦 Скачать KMZ
+                <button type="button" id="exportKMZ" class="btn btn-outline-primary btn-custom btn-lucide" disabled>
+                  <i data-lucide="package"></i><span>Скачать KMZ</span>
                 </button>
               </div>
             </div>
           </div>
           <!-- УРОВЕНЬ 1: Информация о миссии (всегда видна) -->
-          <div class="card-custom mission-summary glass">
-            <h5 class="section-title">📊 Информация о миссии</h5>
+          <div class="card-custom mission-summary">
+            <h5 class="section-title"><i data-lucide="clipboard-list"></i><span>Информация о миссии</span></h5>
             <ul class="list-group list-group-flush">
               <li class="list-group-item metric-item">
-                <span class="metric-icon">🗺️</span>
+                <span class="metric-icon-wrap" aria-hidden="true"><i data-lucide="map-pinned"></i></span>
                 <span class="metric-label">Площадь покрытия:</span>
                 <strong class="metric-value" id="coverageArea">-</strong>
               </li>
               <li class="list-group-item metric-item">
-                <span class="metric-icon">✈️</span>
+                <span class="metric-icon-wrap" aria-hidden="true"><i data-lucide="route"></i></span>
                 <span class="metric-label">Расстояние полёта:</span>
                 <strong class="metric-value" id="flightDistance">-</strong>
               </li>
               <li class="list-group-item metric-item">
-                <span class="metric-icon">⏱️</span>
+                <span class="metric-icon-wrap" aria-hidden="true"><i data-lucide="clock"></i></span>
                 <span class="metric-label">Время полёта:</span>
                 <strong class="metric-value" id="flightTime">-</strong>
               </li>
               <li class="list-group-item metric-item">
-                <span class="metric-icon">📸</span>
+                <span class="metric-icon-wrap" aria-hidden="true"><i data-lucide="camera"></i></span>
                 <span class="metric-label">Количество снимков:</span>
                 <strong class="metric-value" id="photoCount">-</strong>
               </li>
               <li class="list-group-item metric-item">
-                <span class="metric-icon">💾</span>
+                <span class="metric-icon-wrap" aria-hidden="true"><i data-lucide="hard-drive"></i></span>
                 <span class="metric-label">Требуемая память:</span>
                 <strong class="metric-value" id="storageRequired">-</strong>
               </li>
               <li class="list-group-item metric-item" id="batteryItem">
-                <span class="metric-icon">🔋</span>
+                <span class="metric-icon-wrap" aria-hidden="true"><i data-lucide="battery-medium"></i></span>
                 <span class="metric-label">Батарея:</span>
                 <strong class="metric-value battery-indicator" id="batteryUsage">-</strong>
               </li>
@@ -189,10 +191,10 @@
           </div>
 
           <!-- УРОВЕНЬ 2: Параметры покрытия (сворачиваемая секция) -->
-          <div class="card-custom coverage-params glass">
+          <div class="card-custom coverage-params">
             <h5 class="section-title collapsible" id="coverageToggle">
-              🎯 Параметры покрытия
-              <span class="toggle-icon">▶</span>
+              <span class="d-inline-flex align-items-center gap-2"><i data-lucide="crosshair"></i><span>Параметры покрытия</span></span>
+              <span class="toggle-icon-wrap" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
             </h5>
             <ul class="list-group list-group-flush collapse-content collapsed" id="coverageContent" style="display:none">
               <li class="list-group-item metric-item">
@@ -227,10 +229,10 @@
           </div>
 
           <!-- УРОВЕНЬ 3: Технические параметры (скрыто по умолчанию) -->
-          <div class="card-custom tech-params glass">
+          <div class="card-custom tech-params">
             <h5 class="section-title collapsible" id="techToggle">
-              ⚙️ Технические параметры
-              <span class="toggle-icon">▶</span>
+              <span class="d-inline-flex align-items-center gap-2"><i data-lucide="settings-2"></i><span>Технические параметры</span></span>
+              <span class="toggle-icon-wrap" aria-hidden="true"><i data-lucide="chevron-right"></i></span>
             </h5>
             <ul class="list-group list-group-flush collapse-content collapsed" id="techContent" style="display:none">
               <li class="list-group-item metric-item-small">
@@ -275,7 +277,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">💾 Сохранить миссию</h5>
+          <h5 class="modal-title"><i data-lucide="save"></i><span>Сохранить миссию</span></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -293,7 +295,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-          <button type="button" class="btn btn-primary" id="confirmSaveMissionBtn">Сохранить</button>
+          <button type="button" class="btn btn-primary btn-lucide" id="confirmSaveMissionBtn"><i data-lucide="save"></i><span>Сохранить</span></button>
         </div>
       </div>
     </div>
@@ -305,7 +307,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="terrainProfileModalLabel">
-            <i class="terrain-icon">🏔️</i> Профиль рельефа маршрута
+            <i data-lucide="mountain"></i><span>Профиль рельефа маршрута</span>
           </h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
@@ -317,22 +319,22 @@
           <div class="terrain-stats">
             <div class="stats-grid">
               <div class="stat-card">
-                <div class="stat-icon elevation-max">📈</div>
+                <div class="stat-icon-wrap" aria-hidden="true"><i data-lucide="trending-up"></i></div>
                 <div class="stat-label">Макс. высота рельефа</div>
                 <div class="stat-value" id="maxElevation">-</div>
               </div>
               <div class="stat-card">
-                <div class="stat-icon elevation-min">📉</div>
+                <div class="stat-icon-wrap" aria-hidden="true"><i data-lucide="trending-down"></i></div>
                 <div class="stat-label">Мин. высота рельефа</div>
                 <div class="stat-value" id="minElevation">-</div>
               </div>
               <div class="stat-card">
-                <div class="stat-icon elevation-range">📊</div>
+                <div class="stat-icon-wrap" aria-hidden="true"><i data-lucide="arrow-up-down"></i></div>
                 <div class="stat-label">Перепад высот</div>
                 <div class="stat-value" id="terrainRange">-</div>
               </div>
               <div class="stat-card">
-                <div class="stat-icon flight-altitude">✈️</div>
+                <div class="stat-icon-wrap" aria-hidden="true"><i data-lucide="plane"></i></div>
                 <div class="stat-label">Абсолютная высота полета</div>
                 <div class="stat-value" id="absoluteAltitude">-</div>
               </div>
@@ -341,13 +343,13 @@
           
           <!-- Анализ рельефа -->
           <div class="terrain-analysis">
-            <h6 class="analysis-title">
-              <i class="analysis-icon">🔍</i> Анализ рельефа местности
+            <h6 class="analysis-title d-inline-flex align-items-center gap-2">
+              <i data-lucide="binoculars"></i><span>Анализ рельефа местности</span>
             </h6>
             <div class="analysis-content">
               <div class="terrain-type-card">
                 <div class="type-badge" id="terrainTypeBadge">
-                  <span class="badge-icon" id="terrainTypeIcon">🏔️</span>
+                  <span class="badge-icon" id="terrainTypeIcon"></span>
                   <span class="badge-text" id="terrainTypeText">Определяется...</span>
                 </div>
                 <div class="type-description" id="terrainTypeDescription">
@@ -359,12 +361,12 @@
           
           <!-- Рекомендации -->
           <div class="terrain-recommendations">
-            <h6 class="recommendations-title">
-              <i class="recommendations-icon">💡</i> Рекомендации по высоте полета
+            <h6 class="recommendations-title d-inline-flex align-items-center gap-2">
+              <i data-lucide="lightbulb"></i><span>Рекомендации по высоте полета</span>
             </h6>
             <div class="recommendations-content" id="terrainRecommendations">
-              <div class="recommendation-item">
-                <div class="rec-icon">⚙️</div>
+              <div class="recommendation-item info">
+                <div class="rec-icon"><i data-lucide="loader-circle"></i></div>
                 <div class="rec-text">Загрузка рекомендаций...</div>
               </div>
             </div>
@@ -378,22 +380,22 @@
   <div id="flightSimulationPanel" class="flight-simulation-panel" style="display: none;">
     <div class="simulation-header">
       <h6 class="simulation-title">
-        <span>Симуляция полёта</span>
-        <button id="closeSimulation" class="btn-close-sim" title="Закрыть">✕</button>
+        <span><i data-lucide="plane"></i>Симуляция полёта</span>
+        <button type="button" id="closeSimulation" class="btn-close-sim btn-icon-only" title="Закрыть"><i data-lucide="x"></i></button>
       </h6>
     </div>
     
     <div class="simulation-content">
       <!-- Кнопки управления -->
       <div class="simulation-controls">
-        <button id="simPlay" class="sim-btn sim-btn-play" title="Запустить">
-          <span class="sim-icon">▶</span>
+        <button type="button" id="simPlay" class="sim-btn sim-btn-play" title="Запустить">
+          <i data-lucide="play"></i>
         </button>
-        <button id="simPause" class="sim-btn sim-btn-pause" title="Пауза" disabled>
-          <span class="sim-icon">⏸</span>
+        <button type="button" id="simPause" class="sim-btn sim-btn-pause" title="Пауза" disabled>
+          <i data-lucide="pause"></i>
         </button>
-        <button id="simStop" class="sim-btn sim-btn-stop" title="Остановить" disabled>
-          <span class="sim-icon">⏹</span>
+        <button type="button" id="simStop" class="sim-btn sim-btn-stop" title="Остановить" disabled>
+          <i data-lucide="square"></i>
         </button>
       </div>
       
@@ -436,14 +438,14 @@
       <!-- Метрики в реальном времени -->
       <div class="simulation-stats">
         <div class="stat-item">
-          <span class="stat-icon">📍</span>
+          <span class="stat-icon-wrap" aria-hidden="true"><i data-lucide="map-pin"></i></span>
           <div class="stat-content">
             <span class="stat-label">Текущая позиция</span>
             <span class="stat-value" id="simCurrentPosition">Ожидание...</span>
           </div>
         </div>
         <div class="stat-item">
-          <span class="stat-icon">⏱️</span>
+          <span class="stat-icon-wrap" aria-hidden="true"><i data-lucide="timer"></i></span>
           <div class="stat-content">
             <span class="stat-label">Время полёта</span>
             <span class="stat-value" id="simElapsedTime">00:00</span>
@@ -481,6 +483,8 @@
   <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
   <!-- JSZip для создания KMZ архивов -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.525.0/dist/umd/lucide.min.js"></script>
+  <script src="./js/icons.js"></script>
   
   <!-- Система логирования (загружается первой) -->
   <script src="./js/utils/client-logger.js"></script>

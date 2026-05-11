@@ -1,42 +1,54 @@
-/* Карточки с эффектом glassmorphism */
+/* Карточки панели */
+
 .card-custom {
-  border: none;
-  border-radius: 16px;
-  padding: 20px;
-  padding-left: 30px;
-  margin-bottom: 20px;
-  background: rgba(255, 255, 255, 0.6);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  backdrop-filter: blur(8px);
-  transition: background 0.3s, box-shadow 0.3s;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 1.1rem 1.15rem;
+  margin-bottom: 1rem;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-/* Заголовки карточек */
-.card-custom h4,
+.card-custom:hover {
+  border-color: var(--color-border);
+}
+
+.glass {
+  /* legacy: раньше glassmorphism — теперь обычная карточка */
+  backdrop-filter: none;
+}
+
+.card-custom h4 {
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+}
+
 .card-custom h5 {
-  font-weight: 700;
-  margin-bottom: 20px;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  margin-bottom: 0.75rem;
+  color: var(--color-text);
 }
 
-/* Стили для информационной карточки */
 .info-card .list-group-item {
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid var(--color-border-subtle);
   padding: 10px 0;
-  transition: border-color 0.3s;
 }
 
-/* Карточки миссии */
 .mission-summary {
-  border-left: 4px solid #007bff;
+  border-left: 3px solid var(--color-accent);
 }
 
 .coverage-params {
-  border-left: 4px solid #28a745;
+  border-left: 3px solid #0f766e;
 }
 
 .tech-params {
-  border-left: 4px solid #6c757d;
+  border-left: 3px solid #64748b;
 }
-

@@ -74,18 +74,18 @@ function createCameraFootprint(centerLatLng, groundWidth, groundLength, bearing,
   ];
   
   const footprint = L.rectangle(bounds, {
-    color: '#4a90e2',
+    color: '#0e7490',
     weight: 1,
-    opacity: 0.4,
-    fillColor: '#4a90e2',
+    opacity: 0.45,
+    fillColor: '#0e7490',
     fillOpacity: 0.08,
     className: 'camera-footprint'
   });
   
   // Добавляем tooltip с информацией
   footprint.bindTooltip(`
-    <div style="font-size: 11px; font-family: 'Inter', sans-serif;">
-      <strong>📷 Зона покрытия #${waypointNumber}</strong><br>
+    <div style="font-size: 11px; font-family: 'IBM Plex Sans', sans-serif;">
+      <strong>Зона покрытия #${waypointNumber}</strong><br>
       Размер: ${groundWidth.toFixed(1)}м × ${groundLength.toFixed(1)}м
     </div>
   `, {
@@ -117,8 +117,8 @@ function createWaypointMarker(latLng, waypointNumber) {
   // permanent: false - tooltip появляется только при hover
   // sticky: true - tooltip следует за курсором (помогает избежать дрожания)
   marker.bindTooltip(`
-    <div style="font-size: 11px; font-family: 'Inter', sans-serif;">
-      <strong>📷 Снимок #${waypointNumber}</strong><br>
+    <div style="font-size: 11px; font-family: 'IBM Plex Sans', sans-serif;">
+      <strong>Снимок #${waypointNumber}</strong><br>
       Координаты: ${latLng[0].toFixed(6)}°, ${latLng[1].toFixed(6)}°
     </div>
   `, {
@@ -197,7 +197,7 @@ function visualizeEnhancedRoute(map, routeData, options = {}) {
         // Добавляем tooltip с информацией о сегменте
         polyline.bindTooltip(`
           <div style="font-size: 12px;">
-            <strong>📸 Рабочая полоса #${Math.floor(segmentIndex / 2) + 1}</strong><br>
+            <strong>Рабочая полоса #${Math.floor(segmentIndex / 2) + 1}</strong><br>
             Прогресс: ${(progress * 100).toFixed(0)}%<br>
             Точка: ${currentPointIndex + 1}/${totalPoints}
           </div>
@@ -277,7 +277,7 @@ function visualizeEnhancedRoute(map, routeData, options = {}) {
       
       transitionLine.bindTooltip(`
         <div style="font-size: 12px;">
-          <strong>↔️ Переход</strong><br>
+          <strong>Переход</strong><br>
           Перемещение без съёмки
         </div>
       `, {
@@ -301,7 +301,7 @@ function visualizeEnhancedRoute(map, routeData, options = {}) {
       html: `
         <div class="marker-container marker-start">
           <div class="marker-pin">
-            <div class="marker-icon">🚁</div>
+            <div class="marker-icon" aria-hidden="true"></div>
           </div>
           <div class="marker-label">START</div>
         </div>
@@ -315,7 +315,7 @@ function visualizeEnhancedRoute(map, routeData, options = {}) {
       html: `
         <div class="marker-container marker-finish">
           <div class="marker-pin">
-            <div class="marker-icon">🏁</div>
+            <div class="marker-icon" aria-hidden="true"></div>
           </div>
           <div class="marker-label">FINISH</div>
         </div>
@@ -337,9 +337,9 @@ function visualizeEnhancedRoute(map, routeData, options = {}) {
     
     // Добавляем popup с детальной информацией
     startMarker.bindPopup(`
-      <div style="font-family: 'Inter', sans-serif;">
-        <h6 style="margin: 0 0 8px 0; font-weight: 600; color: #28a745;">
-          🚁 Точка СТАРТА
+      <div style="font-family: 'IBM Plex Sans', sans-serif;">
+        <h6 style="margin: 0 0 8px 0; font-weight: 600; color: #15803d;">
+          Точка старта
         </h6>
         <div style="font-size: 13px;">
           <strong>Координаты:</strong><br>
@@ -350,9 +350,9 @@ function visualizeEnhancedRoute(map, routeData, options = {}) {
     `);
     
     endMarker.bindPopup(`
-      <div style="font-family: 'Inter', sans-serif;">
-        <h6 style="margin: 0 0 8px 0; font-weight: 600; color: #dc3545;">
-          🏁 Точка ФИНИША
+      <div style="font-family: 'IBM Plex Sans', sans-serif;">
+        <h6 style="margin: 0 0 8px 0; font-weight: 600; color: #b91c1c;">
+          Точка финиша
         </h6>
         <div style="font-size: 13px;">
           <strong>Координаты:</strong><br>

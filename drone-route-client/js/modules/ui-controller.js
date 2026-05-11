@@ -52,6 +52,11 @@ function clearAllObjects() {
   // Отключаем кнопки
   document.getElementById('startSimulation').disabled = true;
   document.getElementById('showTerrainProfile').disabled = true;
+  const clearMissionBtn = document.getElementById('clearAll');
+  if (clearMissionBtn) {
+    clearMissionBtn.disabled = true;
+    clearMissionBtn.title = 'Сначала постройте маршрут';
+  }
   
   // Деактивируем кнопку "Сохранить миссию"
   if (typeof SaveMissionModal !== 'undefined') {

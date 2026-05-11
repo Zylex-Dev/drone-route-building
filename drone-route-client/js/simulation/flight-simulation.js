@@ -98,7 +98,7 @@ class FlightSimulator {
       html: `
         <div class="drone-container">
           <div class="drone-body">
-            <div class="drone-icon">🚁</div>
+            <div class="drone-icon" aria-hidden="true"></div>
           </div>
           <div class="drone-shadow"></div>
         </div>
@@ -117,9 +117,9 @@ class FlightSimulator {
     
     // Popup для дрона с информацией
     this.droneMarker.bindPopup(`
-      <div style="font-family: 'Inter', sans-serif; min-width: 180px;">
-        <h6 style="margin: 0 0 8px 0; font-weight: 600; color: #4a90e2;">
-          🚁 Дрон в полёте
+      <div style="font-family: 'IBM Plex Sans', sans-serif; min-width: 180px;">
+        <h6 style="margin: 0 0 8px 0; font-weight: 600; color: #0e7490;">
+          Дрон в полёте
         </h6>
         <div style="font-size: 12px;">
           <strong>Статус:</strong> <span id="droneStatus">В движении</span><br>
@@ -131,9 +131,9 @@ class FlightSimulator {
     
     // Инициализируем массив для пройденного пути
     this.pathTrace = L.polyline([], {
-      color: '#4a90e2',
+      color: '#0e7490',
       weight: 3,
-      opacity: 0.6,
+      opacity: 0.65,
       dashArray: '5, 5'
     });
     
@@ -471,8 +471,8 @@ class FlightSimulator {
     });
     
     footprint.bindTooltip(`
-      <div style="font-size: 11px; font-family: 'Inter', sans-serif;">
-        <strong>📷 Снимок #${waypointNumber}</strong><br>
+      <div style="font-size: 11px; font-family: 'IBM Plex Sans', sans-serif;">
+        <strong>Снимок #${waypointNumber}</strong><br>
         Размер: ${groundWidth.toFixed(1)}м × ${groundLength.toFixed(1)}м
       </div>
     `, {

@@ -1,155 +1,137 @@
-/* Кнопки управления симуляцией */
 .simulation-controls {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   justify-content: center;
   align-items: center;
-  padding: 14px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-radius: 12px;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+  padding: 12px;
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-subtle);
 }
 
 .sim-btn {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  border: none;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: background 0.15s, opacity 0.15s, transform 0.1s;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  font-size: 16px;
   position: relative;
-  overflow: hidden;
-}
-
-.sim-btn::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.4);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
-}
-
-.sim-btn:active::before {
-  width: 100%;
-  height: 100%;
 }
 
 .sim-btn:hover:not(:disabled) {
-  transform: scale(1.1);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  transform: translateY(-1px);
 }
 
 .sim-btn:active:not(:disabled) {
-  transform: scale(0.95);
+  transform: translateY(0);
 }
 
 .sim-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
 .sim-btn-play {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-  color: white;
+  background: var(--color-success);
+  color: #fff;
+}
+
+.sim-btn-play:hover:not(:disabled) {
+  background: #166534;
 }
 
 .sim-btn-pause {
-  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
-  color: white;
+  background: var(--color-warning);
+  color: #fff;
+}
+
+.sim-btn-pause:hover:not(:disabled) {
+  background: #92400e;
 }
 
 .sim-btn-stop {
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-  color: white;
+  background: var(--color-danger);
+  color: #fff;
 }
 
-/* Контроль скорости */
+.sim-btn-stop:hover:not(:disabled) {
+  background: #991b1b;
+}
+
 .speed-control {
-  background: #ffffff;
-  padding: 12px 16px;
-  border-radius: 10px;
-  border: 2px solid #e9ecef;
+  background: var(--color-surface);
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-subtle);
 }
 
 .speed-label {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 10px;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
 }
 
 #speedValue {
-  color: #4a90e2;
-  font-weight: 700;
-  font-size: 15px;
+  color: var(--color-accent);
+  font-weight: 600;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
 }
 
 .speed-buttons {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 6px;
 }
 
 .speed-btn {
-  padding: 8px 10px;
-  border: 2px solid #dee2e6;
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #6c757d;
+  padding: 6px 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
   text-align: center;
 }
 
 .speed-btn:hover {
-  border-color: #4a90e2;
-  color: #4a90e2;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.2);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
 }
 
 .speed-btn.active {
-  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
-  border-color: #4a90e2;
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(74, 144, 226, 0.4);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
 }
 
-/* Опции симуляции */
 .simulation-options {
-  background: #ffffff;
-  padding: 14px;
-  border-radius: 10px;
-  border: 2px solid #e9ecef;
+  background: var(--color-surface);
+  padding: 10px 12px 10px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-subtle);
 }
 
 .simulation-options .form-check {
-  margin-bottom: 14px;
-  padding: 10px 12px 10px 26px;
-  background: #f8f9fa;
-  border-radius: 10px;
-  transition: all 0.3s ease;
-}
-
-.simulation-options .form-check:hover {
-  background: #e9ecef;
-  transform: translateX(4px);
+  margin-bottom: 8px;
+  padding: 8px 10px 8px 12px;
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .simulation-options .form-check:last-child {
@@ -157,25 +139,31 @@
 }
 
 .simulation-options .form-check-label {
-  font-size: 14px;
-  color: #2c3e50;
-  font-weight: 600;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
   cursor: pointer;
   user-select: none;
 }
 
 .simulation-options .form-check-input {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  float: none;
+  flex-shrink: 0;
   cursor: pointer;
+  border-color: var(--color-border);
 }
 
-/* Адаптивность для мобильных */
+.simulation-options .form-check-input:checked {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
 @media (max-width: 767.98px) {
   .sim-btn {
-    width: 48px;
-    height: 48px;
-    font-size: 20px;
+    width: 42px;
+    height: 42px;
   }
 }
-

@@ -1,99 +1,96 @@
-/* === Панель симуляции полёта === */
+/* Панель симуляции */
 
 .flight-simulation-panel {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 380px;
-  max-height: calc(100vh - 100px);
+  bottom: 16px;
+  right: 16px;
+  width: 360px;
+  max-height: calc(100vh - 96px);
   overflow-y: auto;
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
   z-index: 1500;
-  animation: slideInRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: simPanelIn 0.2s ease-out;
 }
 
-@keyframes slideInRight {
+@keyframes simPanelIn {
   from {
-    transform: translateX(120%);
+    transform: translateY(8px);
     opacity: 0;
   }
   to {
-    transform: translateX(0);
+    transform: translateY(0);
     opacity: 1;
   }
 }
 
 .simulation-header {
-  padding: 16px 20px;
-  border-bottom: 2px solid rgba(74, 144, 226, 0.1);
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--color-border-subtle);
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: sticky;
   top: 0;
-  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  background: var(--color-surface-muted);
   z-index: 10;
-  border-radius: 16px 16px 0 0;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
 .simulation-title {
   margin: 0;
-  font-size: 16px;
-  font-weight: 700;
-  color: #ffffff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text);
   display: flex;
   align-items: center;
   gap: 8px;
+  letter-spacing: 0.02em;
 }
 
 .btn-close-sim {
-  background: rgba(255, 255, 255, 0.2);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  font-size: 16px;
-  color: #ffffff;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  line-height: 1;
+  color: var(--color-text-muted);
   cursor: pointer;
   padding: 0;
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: background 0.15s, color 0.15s;
 }
 
 .btn-close-sim:hover {
-  background: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.5);
-  transform: rotate(90deg) scale(1.1);
+  background: var(--color-surface);
+  color: var(--color-text);
 }
 
 .simulation-content {
-  padding: 18px;
+  padding: 14px;
   display: grid;
-  gap: 16px;
+  gap: 12px;
 }
 
-/* Адаптивность для планшетов */
 @media (max-width: 991.98px) {
   .flight-simulation-panel {
-    width: 340px;
-    bottom: 10px;
-    right: 10px;
+    width: 320px;
+    bottom: 12px;
+    right: 12px;
   }
 }
 
-/* Адаптивность для мобильных */
 @media (max-width: 767.98px) {
   .flight-simulation-panel {
-    width: calc(100% - 20px);
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
+    width: calc(100% - 24px);
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
   }
 }
-

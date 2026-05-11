@@ -165,36 +165,41 @@ function analyzeTerrainType(terrainData) {
   if (terrainRange < 10) {
     return {
       type: 'Равнинный',
-      icon: '🏞️',
-      color: '#28a745',
+      variant: 'plain',
+      lucideIcon: 'map',
+      color: '#15803d',
       description: 'Местность с минимальными перепадами высот. Идеальна для полетов дронов, не требует особого внимания к рельефу.'
     };
   } else if (terrainRange < 50) {
     return {
       type: 'Слабохолмистый',
-      icon: '⛰️',
-      color: '#17a2b8',
+      variant: 'rolling',
+      lucideIcon: 'waves',
+      color: '#0e7490',
       description: 'Местность с небольшими холмами. Учет рельефа рекомендуется для обеспечения безопасного пролета над всеми возвышениями.'
     };
   } else if (terrainRange < 150) {
     return {
       type: 'Холмистый',
-      icon: '🏔️',
-      color: '#ffc107',
+      variant: 'hilly',
+      lucideIcon: 'mountain',
+      color: '#b45309',
       description: 'Местность со значительными холмами и возвышенностями. Важен точный учет рельефа для поддержания безопасной высоты.'
     };
   } else if (terrainRange < 300) {
     return {
       type: 'Горный',
-      icon: '⛰️',
-      color: '#fd7e14',
+      variant: 'mountain',
+      lucideIcon: 'mountain',
+      color: '#c2410c',
       description: 'Горная местность с существенными перепадами высот. Критически важен учет рельефа и запас высоты для безопасности.'
     };
   } else {
     return {
       type: 'Высокогорный',
-      icon: '🗻',
-      color: '#dc3545',
+      variant: 'alpine',
+      lucideIcon: 'alert-triangle',
+      color: '#b91c1c',
       description: 'Высокогорная местность с экстремальными перепадами. Требуется максимальное внимание к рельефу и погодным условиям.'
     };
   }
@@ -214,25 +219,25 @@ function generateRecommendations(terrainData, currentAltitude) {
   if (relativeAltitude < 30) {
     recommendations.push({
       type: 'danger',
-      icon: '⚠️',
+      lucideIcon: 'alert-circle',
       text: `<strong>Критически низкая высота!</strong> Текущая относительная высота ${relativeAltitude}м недостаточна. Рекомендуется минимум <strong>50м</strong> для безопасности.`
     });
   } else if (relativeAltitude < 50) {
     recommendations.push({
       type: 'warning',
-      icon: '⚡',
+      lucideIcon: 'alert-triangle',
       text: `<strong>Низкая высота полета.</strong> При высоте ${relativeAltitude}м запас безопасности минимален. Рекомендуется увеличить до <strong>70-100м</strong>.`
     });
   } else if (relativeAltitude >= 50 && relativeAltitude <= 100) {
     recommendations.push({
       type: 'success',
-      icon: '✅',
+      lucideIcon: 'check-circle',
       text: `<strong>Оптимальная высота!</strong> Текущая высота ${relativeAltitude}м обеспечивает хороший баланс между безопасностью и качеством съемки.`
     });
   } else {
     recommendations.push({
       type: 'info',
-      icon: 'ℹ️',
+      lucideIcon: 'info',
       text: `<strong>Большая высота полета.</strong> При ${relativeAltitude}м детализация снимков будет ниже. Подходит для больших территорий.`
     });
   }
@@ -241,25 +246,25 @@ function generateRecommendations(terrainData, currentAltitude) {
   if (terrainRange < 10) {
     recommendations.push({
       type: 'success',
-      icon: '🎯',
+      lucideIcon: 'map-pin',
       text: `Для равнинной местности можно использовать минимальную высоту <strong>30-50м</strong> для лучшей детализации.`
     });
   } else if (terrainRange < 50) {
     recommendations.push({
       type: 'info',
-      icon: '📏',
+      lucideIcon: 'ruler',
       text: `Для слабохолмистой местности рекомендуется высота <strong>50-80м</strong> с запасом на неровности.`
     });
   } else if (terrainRange < 150) {
     recommendations.push({
       type: 'warning',
-      icon: '⛰️',
+      lucideIcon: 'mountain',
       text: `Холмистая местность требует высоты <strong>80-120м</strong>. Текущий перепад ${terrainRange.toFixed(1)}м требует внимания.`
     });
   } else {
     recommendations.push({
       type: 'warning',
-      icon: '🗻',
+      lucideIcon: 'mountain',
       text: `Горная местность с перепадом <strong>${terrainRange.toFixed(1)}м</strong>! Рекомендуется высота <strong>от 100м</strong> с запасом безопасности.`
     });
   }
@@ -267,7 +272,7 @@ function generateRecommendations(terrainData, currentAltitude) {
   // Рекомендации по GSD и качеству съемки
   recommendations.push({
     type: 'info',
-    icon: '📸',
+    lucideIcon: 'camera',
     text: `При абсолютной высоте <strong>${terrainData.absoluteFlightAltitude.toFixed(1)}м</strong> разрешение съемки будет достаточным для картографирования. Для детальной фотограмметрии рассмотрите уменьшение высоты.`
   });
   
@@ -275,7 +280,7 @@ function generateRecommendations(terrainData, currentAltitude) {
   if (terrainRange > 100) {
     recommendations.push({
       type: 'warning',
-      icon: '🔋',
+      lucideIcon: 'battery',
       text: `Большой перепад высот может повлиять на время полета. Убедитесь в достаточном заряде батареи и планируйте резервное время.`
     });
   }
@@ -360,7 +365,7 @@ function showTerrainProfileModal(terrainData) {
       text: 'Профиль высот маршрута полета',
       font: {
         size: 20,
-        family: 'Inter, sans-serif',
+        family: 'IBM Plex Sans, sans-serif',
         weight: 700,
         color: '#2c3e50'
       }
@@ -370,7 +375,7 @@ function showTerrainProfileModal(terrainData) {
         text: 'Расстояние вдоль маршрута (км)',
         font: {
           size: 14,
-          family: 'Inter, sans-serif',
+          family: 'IBM Plex Sans, sans-serif',
           weight: 600,
           color: '#495057'
         }
@@ -381,7 +386,7 @@ function showTerrainProfileModal(terrainData) {
       linewidth: 2,
       tickfont: {
         size: 12,
-        family: 'Inter, sans-serif',
+        family: 'IBM Plex Sans, sans-serif',
         color: '#6c757d'
       }
     },
@@ -390,7 +395,7 @@ function showTerrainProfileModal(terrainData) {
         text: 'Высота над уровнем моря (м)',
         font: {
           size: 14,
-          family: 'Inter, sans-serif',
+          family: 'IBM Plex Sans, sans-serif',
           weight: 600,
           color: '#495057'
         }
@@ -401,7 +406,7 @@ function showTerrainProfileModal(terrainData) {
       linewidth: 2,
       tickfont: {
         size: 12,
-        family: 'Inter, sans-serif',
+        family: 'IBM Plex Sans, sans-serif',
         color: '#6c757d'
       }
     },
@@ -418,7 +423,7 @@ function showTerrainProfileModal(terrainData) {
       borderwidth: 2,
       font: {
         size: 13,
-        family: 'Inter, sans-serif'
+        family: 'IBM Plex Sans, sans-serif'
       }
     },
     paper_bgcolor: 'rgba(0,0,0,0)',
@@ -477,14 +482,14 @@ function showTerrainProfileModal(terrainData) {
   const terrainTypeText = document.getElementById('terrainTypeText');
   const terrainTypeDescription = document.getElementById('terrainTypeDescription');
   
-  terrainTypeIcon.textContent = terrainType.icon;
+  terrainTypeIcon.innerHTML = `<i data-lucide="${terrainType.lucideIcon}"></i>`;
   terrainTypeText.textContent = terrainType.type;
   terrainTypeDescription.textContent = terrainType.description;
   
-  // Применяем цвет к карточке типа рельефа
   const terrainTypeCard = document.querySelector('.terrain-type-card');
   if (terrainTypeCard) {
-    terrainTypeCard.style.background = `linear-gradient(135deg, ${terrainType.color} 0%, ${adjustColor(terrainType.color, -20)} 100%)`;
+    terrainTypeCard.dataset.terrain = terrainType.variant;
+    terrainTypeCard.style.background = '';
   }
   
   logger.info('Тип рельефа определен', {
@@ -502,8 +507,9 @@ function showTerrainProfileModal(terrainData) {
   recommendations.forEach(rec => {
     const recItem = document.createElement('div');
     recItem.className = `recommendation-item ${rec.type}`;
+    const iconName = rec.lucideIcon || 'info';
     recItem.innerHTML = `
-      <div class="rec-icon">${rec.icon}</div>
+      <div class="rec-icon"><i data-lucide="${iconName}"></i></div>
       <div class="rec-text">${rec.text}</div>
     `;
     recommendationsContent.appendChild(recItem);
@@ -514,8 +520,12 @@ function showTerrainProfileModal(terrainData) {
     recommendationsCount: recommendations.length
   });
   
-  // Открываем модальное окно
-  const modal = new bootstrap.Modal(document.getElementById('terrainProfileModal'));
+  const terrainModalEl = document.getElementById('terrainProfileModal');
+  if (typeof refreshLucideIcons === 'function') {
+    refreshLucideIcons();
+  }
+
+  const modal = new bootstrap.Modal(terrainModalEl);
   modal.show();
   
   logger.info('Модальное окно профиля рельефа открыто', {

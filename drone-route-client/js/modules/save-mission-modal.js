@@ -154,7 +154,8 @@ const SaveMissionModal = (function() {
     
     // Показываем загрузку
     confirmBtn.disabled = true;
-    confirmBtn.textContent = 'Сохранение...';
+    const confirmLabel = confirmBtn.querySelector('span');
+    if (confirmLabel) confirmLabel.textContent = 'Сохранение...';
     alertDiv.style.display = 'none';
     
     try {
@@ -185,7 +186,8 @@ const SaveMissionModal = (function() {
       showModalAlert('danger', error.message || 'Произошла ошибка');
     } finally {
       confirmBtn.disabled = false;
-      confirmBtn.textContent = 'Сохранить';
+      const lbl = confirmBtn.querySelector('span');
+      if (lbl) lbl.textContent = 'Сохранить';
     }
   }
   
@@ -214,12 +216,12 @@ const SaveMissionModal = (function() {
       
       // Визуальная подсказка
       if (enable) {
-        saveMissionBtn.classList.remove('btn-secondary');
-        saveMissionBtn.classList.add('btn-success');
+        saveMissionBtn.classList.remove('btn-outline-secondary');
+        saveMissionBtn.classList.add('btn-outline-success');
         saveMissionBtn.title = 'Сохранить построенный маршрут';
       } else {
-        saveMissionBtn.classList.remove('btn-success');
-        saveMissionBtn.classList.add('btn-secondary');
+        saveMissionBtn.classList.remove('btn-outline-success');
+        saveMissionBtn.classList.add('btn-outline-secondary');
         saveMissionBtn.title = 'Сначала постройте маршрут';
       }
     }
